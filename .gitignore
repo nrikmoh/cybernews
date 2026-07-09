@@ -1,0 +1,16 @@
+# Virtual environment - never commit this
+venv/
+
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+
+# Database file (we'll handle this separately later)
+*.db
+
+# Environment variables (will contain passwords later)
+.env
+
+# OS files
+.DS_Store
