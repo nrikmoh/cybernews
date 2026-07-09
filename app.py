@@ -1,133 +1,121 @@
-# app.py - CyberNews Flask Application
+# app.py
+# ─────────────────────────────────────────────────────────
+# CyberNews — Main Application Entry Point
+#
+# This file:
+# 1. Creates the Flask application using the factory pattern
+# 2. Loads configuration
+# 3. Registers all blueprints (route groups)
+# 4. Adds template filters and context processors
+# 5. Starts the development server
+# ─────────────────────────────────────────────────────────
 
-from flask import Flask, render_template
+from flask import Flask, request
+from config import config
+from routes import all_blueprints
+import data as db
+from datetime import datetime
 
-app = Flask(__name__)
 
-# ─────────────────────────────────────────
-# Sample news data (temporary - later this
-# will come from a real database)
-# ─────────────────────────────────────────
-articles = [
-    {
-        "id": 1,
-        "title": "Critical Zero-Day Vulnerability Found in Windows Kernel",
-        "summary": "Security researchers have discovered a critical zero-day vulnerability affecting all modern versions of Windows, allowing attackers to gain SYSTEM privileges.",
-        "category": "Vulnerabilities",
-        "source": "The Hacker News",
-        "date": "Dec 25, 2025",
-        "image": "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&q=80",
-        "featured": True
-    },
-    {
-        "id": 2,
-        "title": "Major Data Breach Exposes 50 Million User Records",
-        "summary": "A leading social media platform suffered a massive data breach, exposing personal information including emails, phone numbers, and hashed passwords.",
-        "category": "Data Breaches",
-        "source": "SecurityWeek",
-        "date": "Dec 24, 2025",
-        "image": "https://images.unsplash.com/photo-1563986768609-322da13575f3?w=800&q=80",
-        "featured": False
-    },
-    {
-        "id": 3,
-        "title": "New Ransomware Strain Targets Healthcare Sector",
-        "summary": "A sophisticated ransomware group has launched a coordinated attack against hospital networks across Europe, encrypting patient records and demanding millions.",
-        "category": "Malware",
-        "source": "Krebs on Security",
-        "date": "Dec 24, 2025",
-        "image": "https://images.unsplash.com/photo-1614064641938-3bbee52942c7?w=800&q=80",
-        "featured": False
-    },
-    {
-        "id": 4,
-        "title": "FBI Warns of Surge in AI-Powered Phishing Attacks",
-        "summary": "The FBI has issued an urgent warning about a dramatic increase in AI-generated phishing emails that are nearly indistinguishable from legitimate communications.",
-        "category": "Threats",
-        "source": "FBI Cyber Division",
-        "date": "Dec 23, 2025",
-        "image": "https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=800&q=80",
-        "featured": False
-    },
-    {
-        "id": 5,
-        "title": "NSA Releases New Guidelines for Quantum-Safe Encryption",
-        "summary": "The National Security Agency published comprehensive guidelines for organizations to begin transitioning to post-quantum cryptographic algorithms before 2030.",
-        "category": "Research",
-        "source": "NSA",
-        "date": "Dec 23, 2025",
-        "image": "https://images.unsplash.com/photo-1510511459019-5dda7724fd87?w=800&q=80",
-        "featured": False
-    },
-    {
-        "id": 6,
-        "title": "Privacy Regulators Fine Tech Giant $2.3 Billion",
-        "summary": "European privacy regulators issued a record-breaking fine against a major tech company for systematic violations of GDPR data protection rules.",
-        "category": "Privacy",
-        "source": "Reuters",
-        "date": "Dec 22, 2025",
-        "image": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80",
-        "featured": False
-    },
-    {
-        "id": 7,
-        "title": "Chinese APT Group Targets Government Infrastructure",
-        "summary": "A state-sponsored Chinese hacking group has been linked to a series of intrusions targeting government networks in Southeast Asia using novel malware.",
-        "category": "Threats",
-        "source": "Mandiant",
-        "date": "Dec 22, 2025",
-        "image": "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&q=80",
-        "featured": False
-    },
-    {
-        "id": 8,
-        "title": "Open Source Security Tool Gains Massive Adoption",
-        "summary": "A newly released open source penetration testing framework has been downloaded over 2 million times in its first month, becoming the go-to tool for security professionals.",
-        "category": "Research",
-        "source": "GitHub Security",
-        "date": "Dec 21, 2025",
-        "image": "https://images.unsplash.com/photo-1607799279861-4dd421887fb3?w=800&q=80",
-        "featured": False
-    },
-    {
-        "id": 9,
-        "title": "Supply Chain Attack Compromises 500 npm Packages",
-        "summary": "Attackers successfully injected malicious code into hundreds of popular npm packages, potentially affecting millions of JavaScript developers worldwide.",
-        "category": "Malware",
-        "source": "Snyk Security",
-        "date": "Dec 21, 2025",
-        "image": "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&q=80",
-        "featured": False
-    }
-]
+def create_app(config_name='development'):
+    """
+    Application factory function.
+    Creates and configures the Flask application.
+    
+    Using a factory function (instead of a global app variable)
+    makes the app easier to test and configure differently
+    for development vs production.
+    """
 
-# ─────────────────────────────────────────
-# Routes
-# ─────────────────────────────────────────
+    app = Flask(__name__)
 
-@app.route('/')
-def home():
-    featured = next((a for a in articles if a['featured']), articles[0])
-    regular = [a for a in articles if not a['featured']]
-    return render_template('index.html',
-                           articles=articles,
-                           featured=featured,
-                           regular=regular)
+    # ── Load configuration ─────────────────────────────
+    app.config.from_object(config[config_name])
 
-@app.route('/categories')
-def categories():
-    return render_template('categories.html')
+    # ── Register blueprints ────────────────────────────
+    # Blueprints are groups of related routes.
+    # We import and register all of them at once.
+    for blueprint in all_blueprints:
+        app.register_blueprint(blueprint)
 
-@app.route('/about')
-def about():
-    return render_template('about.html')
+    # ── Context Processors ────────────────────────────
+    # These functions run before every template render
+    # and inject variables that are available in ALL templates.
+    # No need to pass them manually in every route.
 
-@app.route('/article/<int:article_id>')
-def article(article_id):
-    post = next((a for a in articles if a['id'] == article_id), None)
-    if post is None:
-        return "Article not found", 404
-    return render_template('article.html', article=post)
+    @app.context_processor
+    def inject_globals():
+        """
+        Variables available in every template automatically.
+        Access them directly: {{ app_name }}, {{ current_year }}
+        """
+        return {
+            'app_name':   app.config['APP_NAME'],
+            'app_tagline': app.config['APP_TAGLINE'],
+            'categories': app.config['CATEGORIES'],
+            'current_year': datetime.now().year,
+            'all_articles': db.get_all_articles(),
+        }
 
+    # ── Template Filters ──────────────────────────────
+    # Custom functions you can use inside Jinja2 templates
+    # like built-in filters (| upper, | lower, etc.)
+
+    @app.template_filter('reading_time')
+    def reading_time_filter(text):
+        """
+        Estimates reading time based on word count.
+        Average reading speed: ~200 words per minute.
+        Usage in template: {{ article.body | reading_time }}
+        """
+        word_count   = len(text.split())
+        minutes      = max(1, round(word_count / 200))
+        return f"{minutes} min read"
+
+    @app.template_filter('category_color')
+    def category_color_filter(category):
+        """
+        Returns a CSS class suffix for a given category.
+        Usage: class="badge badge-{{ article.category | category_color }}"
+        """
+        colors = {
+            'Malware':        'malware',
+            'Data Breaches':  'data-breaches',
+            'Vulnerabilities':'vulnerabilities',
+            'Privacy':        'privacy',
+            'Research':       'research',
+            'Threats':        'threats',
+        }
+        return colors.get(category, 'research')
+
+    @app.template_filter('truncate_words')
+    def truncate_words_filter(text, num_words=25):
+        """
+        Truncates text to a maximum number of words.
+        Usage: {{ article.summary | truncate_words(20) }}
+        """
+        words = text.split()
+        if len(words) <= num_words:
+            return text
+        return ' '.join(words[:num_words]) + '...'
+
+    return app
+
+
+# ── Create the app instance ───────────────────────────
+app = create_app('development')
+
+
+# ── Run the development server ────────────────────────
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    print("""
+    ╔══════════════════════════════════════╗
+    ║   🛡️  CyberNews Dev Server           ║
+    ║   http://0.0.0.0:5000               ║
+    ╚══════════════════════════════════════╝
+    """)
+    app.run(
+        host  = '0.0.0.0',
+        port  = 5000,
+        debug = True,
+    )

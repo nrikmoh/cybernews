@@ -14,21 +14,30 @@
             <nav class="breadcrumb">
                 <a href="/"><i class="fas fa-house"></i> Home</a>
                 <i class="fas fa-chevron-right"></i>
-                <a href="/categories">{{ article.category }}</a>
+                <a href="/category/{{ article.category }}">{{ article.category }}</a>
                 <i class="fas fa-chevron-right"></i>
                 <span>Article</span>
             </nav>
 
             <!-- Article Header -->
             <div class="article-header">
-                <span class="badge badge-{{ article.category | lower | replace(' ', '-') }}">
+                <span class="badge badge-{{ article.category | category_color }}">
                     {{ article.category }}
                 </span>
                 <h1 class="article-title">{{ article.title }}</h1>
                 <div class="article-meta">
-                    <span><i class="fas fa-newspaper"></i> {{ article.source }}</span>
-                    <span><i class="fas fa-calendar"></i> {{ article.date }}</span>
-                    <span><i class="fas fa-clock"></i> 4 min read</span>
+                    <span>
+                        <i class="fas fa-newspaper"></i>
+                        {{ article.source }}
+                    </span>
+                    <span>
+                        <i class="fas fa-calendar"></i>
+                        {{ article.date }}
+                    </span>
+                    <span>
+                        <i class="fas fa-clock"></i>
+                        {{ article.body | reading_time }}
+                    </span>
                 </div>
             </div>
 
@@ -41,39 +50,23 @@
             <div class="article-body">
                 <p class="article-lead">{{ article.summary }}</p>
 
-                <p>Security researchers and analysts have been closely monitoring the situation as it develops. The implications of this incident extend far beyond the immediate technical impact, raising serious questions about current security practices across the industry.</p>
-
-                <h2>Background</h2>
-                <p>This type of security incident has been increasingly common in recent months, as threat actors continue to evolve their tactics, techniques, and procedures (TTPs). Organizations of all sizes are urged to review their current security posture and implement recommended mitigations immediately.</p>
-
-                <h2>Technical Details</h2>
-                <p>According to initial analysis, the attack leverages multiple stages of exploitation. Security teams should monitor for indicators of compromise (IOCs) and apply available patches without delay. The vulnerability has been assigned a CVSS score indicating critical severity.</p>
-
-                <blockquote>
-                    "This represents one of the most significant security events we have observed this year. Organizations need to act immediately to assess their exposure."
-                    <cite>— Leading Security Researcher</cite>
-                </blockquote>
-
-                <h2>What You Should Do</h2>
-                <ul>
-                    <li>Apply all available security patches immediately</li>
-                    <li>Review access logs for suspicious activity</li>
-                    <li>Enable multi-factor authentication across all accounts</li>
-                    <li>Report any suspicious activity to your security team</li>
-                    <li>Monitor official vendor advisories for updates</li>
-                </ul>
-
-                <h2>Looking Ahead</h2>
-                <p>The security community is actively working on additional mitigations and detection signatures. Further updates are expected as the investigation continues. Stay tuned to CyberNews for the latest developments.</p>
+                {# Split the body text into paragraphs on double newlines #}
+                {% for paragraph in article.body.split('\n\n') %}
+                    {% if paragraph.strip() %}
+                        <p>{{ paragraph.strip() }}</p>
+                    {% endif %}
+                {% endfor %}
             </div>
 
-            <!-- Article Tags -->
+            <!-- Tags -->
+            {% if article.tags %}
             <div class="article-tags">
                 <i class="fas fa-tags"></i>
-                <a href="#" class="tag">{{ article.category }}</a>
-                <a href="#" class="tag">Cybersecurity</a>
-                <a href="#" class="tag">{{ article.source }}</a>
+                {% for tag in article.tags %}
+                    <a href="/api/search?q={{ tag }}" class="tag">{{ tag }}</a>
+                {% endfor %}
             </div>
+            {% endif %}
 
             <!-- Back Button -->
             <div class="article-back">
@@ -84,17 +77,30 @@
 
         </div>
 
-        <!-- Article Sidebar -->
+        <!-- Sidebar -->
         <aside class="sidebar">
+
+            <!-- Related Articles -->
+            {% if related %}
             <div class="widget">
                 <div class="widget-header">
-                    <i class="fas fa-fire"></i> Related Stories
+                    <i class="fas fa-link"></i> Related Stories
                 </div>
-                <p style="color: var(--text-muted); font-size: 0.9rem; padding: 1rem 0;">
-                    More articles coming soon as the database is set up.
-                </p>
+                <ol class="trending-list">
+                    {% for rel in related %}
+                    <li class="trending-item">
+                        <span class="trending-num">{{ loop.index }}</span>
+                        <div class="trending-info">
+                            <a href="/article/{{ rel.id }}">{{ rel.title }}</a>
+                            <span class="trending-category">{{ rel.category }}</span>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ol>
             </div>
+            {% endif %}
 
+            <!-- Threat Widget -->
             <div class="widget threat-widget">
                 <div class="widget-header">
                     <i class="fas fa-radiation"></i>
@@ -105,8 +111,27 @@
                     <div class="threat-bar">
                         <div class="threat-fill" style="width: 72%"></div>
                     </div>
+                    <p class="threat-desc">
+                        Elevated threat activity in financial and healthcare sectors.
+                    </p>
                 </div>
             </div>
+
+            <!-- Categories Widget -->
+            <div class="widget">
+                <div class="widget-header">
+                    <i class="fas fa-layer-group"></i> Browse Categories
+                </div>
+                <div class="category-pills">
+                    {% for cat in categories %}
+                    <a href="/category/{{ cat }}"
+                       class="cat-pill cat-{{ cat | category_color }}">
+                        {{ cat }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+
         </aside>
 
     </div>

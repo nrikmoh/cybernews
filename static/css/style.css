@@ -1895,3 +1895,97 @@ button {
         font-size: 1.3rem;
     }
 }
+
+
+
+# We'll use a trick to append to the file
+cat >> static/css/style.css << 'EOF'
+
+
+/* ═══════════════════════════════════════════════════════
+   ERROR PAGES (404, 500, 403)
+═══════════════════════════════════════════════════════ */
+.error-page {
+    min-height: 70vh;
+    display: flex;
+    align-items: center;
+    padding: 4rem 0;
+}
+
+.error-container {
+    text-align: center;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.error-code {
+    font-size: clamp(6rem, 15vw, 10rem);
+    font-weight: 900;
+    color: var(--primary);
+    font-family: var(--font-mono);
+    line-height: 1;
+    opacity: 0.15;
+    margin-bottom: -2rem;
+}
+
+.error-icon {
+    font-size: 4rem;
+    color: var(--primary);
+    margin-bottom: 1.5rem;
+}
+
+.error-title {
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+}
+
+.error-message {
+    color: var(--text-muted);
+    font-size: 1.05rem;
+    line-height: 1.8;
+    margin-bottom: 2rem;
+}
+
+.error-terminal {
+    background: var(--bg-darkest);
+    border: 1px solid var(--bg-border);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem 1.5rem;
+    text-align: left;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    margin-bottom: 2rem;
+    line-height: 1.8;
+}
+
+.terminal-prompt {
+    color: var(--secondary);
+    margin-right: 0.5rem;
+}
+
+.terminal-cmd {
+    color: var(--text-primary);
+}
+
+.terminal-response {
+    color: var(--text-muted);
+    padding-left: 1.2rem;
+}
+
+.error-actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+
+/* ═══════════════════════════════════════════════════════
+   CATEGORY DETAIL PAGE
+═══════════════════════════════════════════════════════ */
+.category-detail-page {
+    padding: 2rem 0 4rem;
+}
+EOF

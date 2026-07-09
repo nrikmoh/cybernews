@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}500 — Server Error | CyberNews{% endblock %}
+
+{% block content %}
+<section class="error-page">
+    <div class="container error-container">
+
+        <div class="error-code" style="color: var(--cat-malware);">500</div>
+
+        <div class="error-icon" style="color: var(--cat-malware);">
+            <i class="fas fa-triangle-exclamation"></i>
+        </div>
+
+        <h1 class="error-title">System Compromised</h1>
+
+        <p class="error-message">
+            An internal error occurred on our end.<br>
+            Our team has been notified and is investigating.
+        </p>
+
+        <div class="error-terminal">
+            <span class="terminal-prompt">$</span>
+            <span class="terminal-cmd">diagnose --system cybernews</span>
+            <br>
+            <span class="terminal-response" style="color: var(--cat-malware);">
+                CRITICAL: Internal server error detected
+            </span>
+            <br>
+            <span class="terminal-response">Incident report filed. ETA: unknown</span>
+        </div>
+
+        <div class="error-actions">
+            <a href="/" class="hero-btn">
+                <i class="fas fa-house"></i> Return to Base
+            </a>
+        </div>
+
+    </div>
+</section>
+{% endblock %}

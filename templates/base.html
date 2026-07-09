@@ -150,13 +150,14 @@
                 <div class="footer-col">
                     <h4>Categories</h4>
                     <ul>
-                        <li><a href="/categories"><i class="fas fa-bug"></i> Malware</a></li>
-                        <li><a href="/categories"><i class="fas fa-database"></i> Data Breaches</a></li>
-                        <li><a href="/categories"><i class="fas fa-triangle-exclamation"></i> Vulnerabilities</a></li>
-                        <li><a href="/categories"><i class="fas fa-user-secret"></i> Privacy</a></li>
-                        <li><a href="/categories"><i class="fas fa-flask"></i> Research</a></li>
-                        <li><a href="/categories"><i class="fas fa-crosshairs"></i> Threats</a></li>
-                    </ul>
+			    {% for cat in categories %}
+    			<li>
+       				 <a href="/category/{{ cat }}">
+           				 <i class="fas fa-chevron-right"></i> {{ cat }}
+       				 </a>
+		       </li>
+   				 {% endfor %}
+		   </ul>
                 </div>
 
                 <!-- Quick links column -->
@@ -190,7 +191,7 @@
 
             <!-- Footer bottom bar -->
             <div class="footer-bottom">
-                <p>&copy; 2025 CyberNews. Built from scratch with Flask.</p>
+                <p>&copy; {{ current_year }} {{ app_name }}. Built from scratch with Flask.</p>
                 <p>
                     <a href="#">Privacy Policy</a>
                     <a href="#">Terms of Use</a>
