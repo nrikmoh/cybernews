@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- This changes per page -->
+    <title>{% block title %}CyberNews{% endblock %}</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <!-- Our CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <!-- ═══════════════════════════════════
+         TOP BAR (date + live indicator)
+    ═══════════════════════════════════ -->
+    <div class="top-bar">
+        <div class="container">
+            <span class="top-bar-date">
+                <i class="fas fa-calendar-alt"></i>
+                <span id="current-date"></span>
+            </span>
+            <span class="top-bar-live">
+                <span class="live-dot"></span>
+                LIVE UPDATES
+            </span>
+            <span class="top-bar-links">
+                <a href="#">Twitter</a>
+                <a href="#">LinkedIn</a>
+                <a href="#">RSS Feed</a>
+            </span>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════
+         HEADER + NAVIGATION
+    ═══════════════════════════════════ -->
+    <header class="main-header">
+        <div class="container">
+
+            <!-- Logo -->
+            <a href="/" class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-shield-halved"></i>
+                </div>
+                <div class="logo-text">
+                    <span class="logo-main">CyberNews</span>
+                    <span class="logo-tagline">Security Intelligence Daily</span>
+                </div>
+            </a>
+
+            <!-- Search Bar -->
+            <div class="header-search">
+                <input type="text"
+                       id="search-input"
+                       placeholder="Search threats, breaches, vulnerabilities..."
+                       autocomplete="off">
+                <button type="button" id="search-btn">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="main-nav">
+                <a href="/" class="nav-link {% if request.endpoint == 'home' %}active{% endif %}">
+                    <i class="fas fa-house"></i> Home
+                </a>
+                <a href="/categories" class="nav-link {% if request.endpoint == 'categories' %}active{% endif %}">
+                    <i class="fas fa-layer-group"></i> Categories
+                </a>
+                <a href="/about" class="nav-link {% if request.endpoint == 'about' %}active{% endif %}">
+                    <i class="fas fa-circle-info"></i> About
+                </a>
+                <a href="#" class="nav-btn">
+                    <i class="fas fa-bell"></i> Alerts
+                </a>
+            </nav>
+
+            <!-- Mobile hamburger -->
+            <button class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+        </div>
+    </header>
+
+    <!-- ═══════════════════════════════════
+         BREAKING NEWS TICKER
+    ═══════════════════════════════════ -->
+    <div class="ticker-wrap">
+        <div class="ticker-label">
+            <i class="fas fa-bolt"></i> BREAKING
+        </div>
+        <div class="ticker-content">
+            <div class="ticker-items">
+                <span>🔴 Critical zero-day in Windows Kernel actively exploited in the wild</span>
+                <span>🟠 50 million records exposed in major social media data breach</span>
+                <span>🔴 New ransomware strain hits 12 European hospitals simultaneously</span>
+                <span>🟡 FBI warns of AI-powered phishing surge — 400% increase this quarter</span>
+                <span>🟢 NSA releases post-quantum encryption guidelines for 2025</span>
+                <span>🔵 Record $2.3B GDPR fine issued against major tech platform</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════
+         MAIN CONTENT (changes per page)
+    ═══════════════════════════════════ -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- ═══════════════════════════════════
+         FOOTER
+    ═══════════════════════════════════ -->
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-grid">
+
+                <!-- Brand column -->
+                <div class="footer-brand">
+                    <div class="logo">
+                        <div class="logo-icon">
+                            <i class="fas fa-shield-halved"></i>
+                        </div>
+                        <div class="logo-text">
+                            <span class="logo-main">CyberNews</span>
+                        </div>
+                    </div>
+                    <p>Your trusted source for cybersecurity intelligence. Tracking threats, breaches, and vulnerabilities 24/7.</p>
+                    <div class="footer-social">
+                        <a href="#" title="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" title="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                        <a href="#" title="GitHub"><i class="fab fa-github"></i></a>
+                        <a href="#" title="RSS"><i class="fas fa-rss"></i></a>
+                    </div>
+                </div>
+
+                <!-- Categories column -->
+                <div class="footer-col">
+                    <h4>Categories</h4>
+                    <ul>
+                        <li><a href="/categories"><i class="fas fa-bug"></i> Malware</a></li>
+                        <li><a href="/categories"><i class="fas fa-database"></i> Data Breaches</a></li>
+                        <li><a href="/categories"><i class="fas fa-triangle-exclamation"></i> Vulnerabilities</a></li>
+                        <li><a href="/categories"><i class="fas fa-user-secret"></i> Privacy</a></li>
+                        <li><a href="/categories"><i class="fas fa-flask"></i> Research</a></li>
+                        <li><a href="/categories"><i class="fas fa-crosshairs"></i> Threats</a></li>
+                    </ul>
+                </div>
+
+                <!-- Quick links column -->
+                <div class="footer-col">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="/"><i class="fas fa-house"></i> Home</a></li>
+                        <li><a href="/about"><i class="fas fa-circle-info"></i> About</a></li>
+                        <li><a href="#"><i class="fas fa-envelope"></i> Newsletter</a></li>
+                        <li><a href="#"><i class="fas fa-rss"></i> RSS Feed</a></li>
+                    </ul>
+                </div>
+
+                <!-- Newsletter column -->
+                <div class="footer-col">
+                    <h4>Stay Informed</h4>
+                    <p>Get the latest threats delivered to your inbox daily.</p>
+                    <div class="footer-newsletter">
+                        <input type="email" placeholder="your@email.com">
+                        <button type="button">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                    <p class="footer-note">
+                        <i class="fas fa-lock"></i>
+                        No spam. Unsubscribe anytime.
+                    </p>
+                </div>
+
+            </div>
+
+            <!-- Footer bottom bar -->
+            <div class="footer-bottom">
+                <p>&copy; 2025 CyberNews. Built from scratch with Flask.</p>
+                <p>
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Use</a>
+                    <a href="#">Contact</a>
+                </p>
+            </div>
+
+        </div>
+    </footer>
+
+    <!-- Our JavaScript -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+</body>
+</html>

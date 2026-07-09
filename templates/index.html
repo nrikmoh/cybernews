@@ -1,31 +1,269 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CyberNews - Cybersecurity News</title>
-</head>
-<body>
+{% extends "base.html" %}
 
-    <header>
-        <h1>🛡️ CyberNews</h1>
-        <p>Your trusted source for cybersecurity news</p>
-    </header>
+{% block title %}CyberNews - Cybersecurity Intelligence Daily{% endblock %}
 
-    <nav>
-        <a href="/">Home</a>
-        <a href="/categories">Categories</a>
-        <a href="/about">About</a>
-    </nav>
+{% block content %}
 
-    <main>
-        <h2>Welcome to CyberNews</h2>
-        <p>Flask is working! We'll add real content soon.</p>
-    </main>
+<!-- ═══════════════════════════════════
+     HERO — FEATURED STORY
+═══════════════════════════════════ -->
+<section class="hero">
+    <div class="hero-bg" style="background-image: url('{{ featured.image }}')"></div>
+    <div class="hero-overlay"></div>
+    <div class="container hero-content">
 
-    <footer>
-        <p>&copy; 2025 CyberNews. Built from scratch.</p>
-    </footer>
+        <div class="hero-badge">
+            <span class="badge badge-{{ featured.category | lower | replace(' ', '-') }}">
+                <i class="fas fa-star"></i> FEATURED STORY
+            </span>
+            <span class="hero-source">
+                <i class="fas fa-newspaper"></i> {{ featured.source }}
+            </span>
+        </div>
 
-</body>
-</html>
+        <h1 class="hero-title">{{ featured.title }}</h1>
+        <p class="hero-summary">{{ featured.summary }}</p>
+
+        <div class="hero-meta">
+            <span><i class="fas fa-calendar"></i> {{ featured.date }}</span>
+            <span><i class="fas fa-tag"></i> {{ featured.category }}</span>
+        </div>
+
+        <a href="/article/{{ featured.id }}" class="hero-btn">
+            Read Full Story <i class="fas fa-arrow-right"></i>
+        </a>
+
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════
+     STATS BAR
+═══════════════════════════════════ -->
+<section class="stats-bar">
+    <div class="container stats-grid">
+        <div class="stat-item">
+            <span class="stat-number" id="stat-articles">9</span>
+            <span class="stat-label">Articles Today</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+            <span class="stat-number">247</span>
+            <span class="stat-label">This Month</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+            <span class="stat-number">6</span>
+            <span class="stat-label">Categories</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+            <span class="stat-number live-count">12</span>
+            <span class="stat-label">
+                <span class="live-dot"></span> Live Threats
+            </span>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════
+     MAIN SECTION: NEWS GRID + SIDEBAR
+═══════════════════════════════════ -->
+<section class="news-section">
+    <div class="container news-layout">
+
+        <!-- LEFT: News Grid -->
+        <div class="news-main">
+
+            <!-- Filter Bar -->
+            <div class="filter-bar">
+                <div class="filter-left">
+                    <h2 class="section-title">
+                        <i class="fas fa-newspaper"></i> Latest News
+                    </h2>
+                </div>
+                <div class="filter-buttons" id="filter-buttons">
+                    <button class="filter-btn active" data-category="all">
+                        All
+                    </button>
+                    <button class="filter-btn" data-category="Malware">
+                        <i class="fas fa-bug"></i> Malware
+                    </button>
+                    <button class="filter-btn" data-category="Data Breaches">
+                        <i class="fas fa-database"></i> Breaches
+                    </button>
+                    <button class="filter-btn" data-category="Vulnerabilities">
+                        <i class="fas fa-triangle-exclamation"></i> Vulns
+                    </button>
+                    <button class="filter-btn" data-category="Privacy">
+                        <i class="fas fa-user-shield"></i> Privacy
+                    </button>
+                    <button class="filter-btn" data-category="Research">
+                        <i class="fas fa-flask"></i> Research
+                    </button>
+                    <button class="filter-btn" data-category="Threats">
+                        <i class="fas fa-crosshairs"></i> Threats
+                    </button>
+                </div>
+            </div>
+
+            <!-- Search Results Notice (hidden by default) -->
+            <div class="search-notice" id="search-notice" style="display:none;">
+                <i class="fas fa-search"></i>
+                Showing results for: <strong id="search-term"></strong>
+                <button id="clear-search">
+                    <i class="fas fa-times"></i> Clear
+                </button>
+            </div>
+
+            <!-- Article Cards Grid -->
+            <div class="articles-grid" id="articles-grid">
+
+                {% for article in regular %}
+                <article class="article-card" data-category="{{ article.category }}">
+
+                    <!-- Card Image -->
+                    <div class="card-image">
+                        <img src="{{ article.image }}"
+                             alt="{{ article.title }}"
+                             loading="lazy">
+                        <span class="card-category badge badge-{{ article.category | lower | replace(' ', '-') }}">
+                            {{ article.category }}
+                        </span>
+                    </div>
+
+                    <!-- Card Body -->
+                    <div class="card-body">
+                        <div class="card-meta">
+                            <span class="card-source">
+                                <i class="fas fa-newspaper"></i>
+                                {{ article.source }}
+                            </span>
+                            <span class="card-date">
+                                <i class="fas fa-clock"></i>
+                                {{ article.date }}
+                            </span>
+                        </div>
+
+                        <h3 class="card-title">
+                            <a href="/article/{{ article.id }}">{{ article.title }}</a>
+                        </h3>
+
+                        <p class="card-summary">{{ article.summary }}</p>
+
+                        <div class="card-footer">
+                            <a href="/article/{{ article.id }}" class="card-read-more">
+                                Read More <i class="fas fa-arrow-right"></i>
+                            </a>
+                            <div class="card-actions">
+                                <button class="action-btn" title="Bookmark">
+                                    <i class="far fa-bookmark"></i>
+                                </button>
+                                <button class="action-btn" title="Share">
+                                    <i class="fas fa-share-nodes"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </article>
+                {% endfor %}
+
+            </div>
+
+            <!-- No Results Message -->
+            <div class="no-results" id="no-results" style="display:none;">
+                <i class="fas fa-magnifying-glass"></i>
+                <h3>No articles found</h3>
+                <p>Try a different search term or category.</p>
+            </div>
+
+        </div>
+
+        <!-- RIGHT: Sidebar -->
+        <aside class="sidebar">
+
+            <!-- Threat Level Widget -->
+            <div class="widget threat-widget">
+                <div class="widget-header">
+                    <i class="fas fa-radiation"></i>
+                    Global Threat Level
+                </div>
+                <div class="threat-meter">
+                    <div class="threat-level high">HIGH</div>
+                    <div class="threat-bar">
+                        <div class="threat-fill" style="width: 72%"></div>
+                    </div>
+                    <p class="threat-desc">
+                        Elevated threat activity detected across financial and healthcare sectors.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Trending Widget -->
+            <div class="widget">
+                <div class="widget-header">
+                    <i class="fas fa-fire"></i>
+                    Trending Now
+                </div>
+                <ol class="trending-list">
+                    {% for article in articles[:5] %}
+                    <li class="trending-item">
+                        <span class="trending-num">{{ loop.index }}</span>
+                        <div class="trending-info">
+                            <a href="/article/{{ article.id }}">{{ article.title }}</a>
+                            <span class="trending-category">{{ article.category }}</span>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ol>
+            </div>
+
+            <!-- Categories Widget -->
+            <div class="widget">
+                <div class="widget-header">
+                    <i class="fas fa-layer-group"></i>
+                    Browse Categories
+                </div>
+                <div class="category-pills">
+                    <a href="/categories" class="cat-pill cat-malware">
+                        <i class="fas fa-bug"></i> Malware
+                    </a>
+                    <a href="/categories" class="cat-pill cat-breaches">
+                        <i class="fas fa-database"></i> Data Breaches
+                    </a>
+                    <a href="/categories" class="cat-pill cat-vulns">
+                        <i class="fas fa-triangle-exclamation"></i> Vulnerabilities
+                    </a>
+                    <a href="/categories" class="cat-pill cat-privacy">
+                        <i class="fas fa-user-shield"></i> Privacy
+                    </a>
+                    <a href="/categories" class="cat-pill cat-research">
+                        <i class="fas fa-flask"></i> Research
+                    </a>
+                    <a href="/categories" class="cat-pill cat-threats">
+                        <i class="fas fa-crosshairs"></i> Threats
+                    </a>
+                </div>
+            </div>
+
+            <!-- Newsletter Widget -->
+            <div class="widget newsletter-widget">
+                <div class="widget-header">
+                    <i class="fas fa-envelope-open-text"></i>
+                    Daily Briefing
+                </div>
+                <p>Get the top cybersecurity stories delivered every morning.</p>
+                <div class="newsletter-form">
+                    <input type="email" placeholder="your@email.com">
+                    <button type="button">
+                        Subscribe <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+
+        </aside>
+
+    </div>
+</section>
+
+{% endblock %}
