@@ -412,52 +412,70 @@ function initShare() {
    Handle subscribe button clicks
 ═══════════════════════════════════════════════════════ */
 function initNewsletterForms() {
-    // There are two newsletter forms: sidebar and footer
-    // We'll handle both with the same logic
-
     const forms = [
         {
-            input:  qs('.newsletter-form input'),
-            button: qs('.newsletter-form button'),
+            input:  document.querySelector('.newsletter-form input'),
+            button: document.querySelector('.newsletter-form button'),
         },
         {
-            input:  qs('.footer-newsletter input'),
-            button: qs('.footer-newsletter button'),
+            input:  document.querySelector('.footer-newsletter input'),
+            button: document.querySelector('.footer-newsletter button'),
         }
     ];
 
     forms.forEach(function ({ input, button }) {
         if (!button || !input) return;
 
-        button.addEventListener('click', function () {
+        button.addEventListener('click', async function () {
             const email = input.value.trim();
 
-            // Basic email validation
             if (!email) {
                 showToast('Please enter your email address', 'error');
                 input.focus();
                 return;
             }
 
-            // Simple email format check
             if (!email.includes('@') || !email.includes('.')) {
                 showToast('Please enter a valid email address', 'error');
                 input.focus();
                 return;
             }
 
-            // Success (in a real app, this would send to the server)
-            showToast(`Subscribed! Welcome to CyberNews 🎉`, 'success');
-            input.value = '';
+            // Disable button while request is in flight
+            button.disabled    = true;
+            button.textContent = 'Subscribing...';
+
+            try {
+                // POST to our Flask API
+                const response = await fetch('/api/subscribe', {
+                    method:  'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body:    JSON.stringify({ email }),
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showToast(data.message, 'success');
+                    input.value = '';
+                } else {
+                    showToast(data.message, 'error');
+                }
+
+            } catch (err) {
+                showToast('Connection error. Please try again.', 'error');
+            } finally {
+                // Re-enable the button
+                button.disabled   = false;
+                button.innerHTML  = 'Subscribe <i class="fas fa-paper-plane"></i>';
+            }
         });
 
-        // Also allow pressing Enter in the input
         input.addEventListener('keydown', function (e) {
             if (e.key === 'Enter') button.click();
         });
     });
 }
-
 
 /* ═══════════════════════════════════════════════════════
    11. SCROLL EFFECTS

@@ -1,34 +1,10 @@
 # routes/main.py
-# ─────────────────────────────────────────────────────────
-# Main routes for CyberNews:
-#   /              → homepage
-#   /article/<id>  → single article page
-#   /categories    → categories overview
-#   /about         → about page
-#   /search        → search results (API endpoint)
-# ─────────────────────────────────────────────────────────
-
 from flask import (
-    Blueprint,
-    render_template,
-    request,
-    jsonify,
-    abort,
-    current_app,
+    Blueprint, render_template, request,
+    jsonify, abort, current_app,
 )
-from data import (
-    get_all_articles,
-    get_featured_article,
-    get_regular_articles,
-    get_article_by_id,
-    get_articles_by_category,
-    get_related_articles,
-    search_articles,
-    get_category_counts,
-)
+from models import db, Article, Category
 
-# Create the blueprint
-# 'main' is the name — used when referring to routes with url_for()
 main_bp = Blueprint('main', __name__)
 
 
@@ -38,19 +14,43 @@ main_bp = Blueprint('main', __name__)
 @main_bp.route('/')
 def home():
     """
-    The main homepage showing featured story and article grid.
-    We pass all the data the template needs as keyword arguments.
+    Homepage: featured article + article grid.
+    We query the database instead of the old Python list.
     """
-    featured = get_featured_article()
-    regular  = get_regular_articles()
-    articles = get_all_articles()
+
+    # Get featured article (first one marked as featured)
+    featured = Article.query.filter_by(
+        featured  = True,
+        published = True,
+    ).first()
+
+    # If no featured article exists, use the most recent one
+    if not featured:
+        featured = Article.query.filter_by(
+            published=True
+        ).order_by(Article.created_at.desc()).first()
+
+    # Get all other published articles (not the featured one)
+    # ordered by newest first
+    if featured:
+        regular = Article.query.filter(
+            Article.published == True,
+            Article.id        != featured.id,
+        ).order_by(Article.created_at.desc()).all()
+    else:
+        regular = []
+
+    # All articles for the sidebar trending list
+    all_articles = Article.query.filter_by(
+        published=True
+    ).order_by(Article.created_at.desc()).limit(5).all()
 
     return render_template(
         'index.html',
-        featured  = featured,
-        regular   = regular,
-        articles  = articles,
-        page_title = 'Latest Cybersecurity News',
+        featured     = featured,
+        regular      = regular,
+        articles     = all_articles,
+        total_count  = Article.query.filter_by(published=True).count(),
     )
 
 
@@ -60,24 +60,28 @@ def home():
 @main_bp.route('/article/<int:article_id>')
 def article(article_id):
     """
-    Display a single article.
-    <int:article_id> tells Flask to capture the number from the URL
-    and convert it to a Python integer automatically.
+    Show a single article.
+    db.get_or_404() automatically returns 404 if not found.
     """
-    post = get_article_by_id(article_id)
 
-    # If article not found, return 404 error
-    if post is None:
+    # get_or_404 = get by primary key, or return 404 error
+    post = db.get_or_404(Article, article_id)
+
+    # Don't show unpublished articles to regular users
+    if not post.published:
         abort(404)
 
-    # Get related articles for the sidebar
-    related = get_related_articles(article_id, count=3)
+    # Related articles: same category, not the same article
+    related = Article.query.filter(
+        Article.category  == post.category,
+        Article.id        != post.id,
+        Article.published == True,
+    ).order_by(Article.created_at.desc()).limit(3).all()
 
     return render_template(
         'article.html',
-        article   = post,
-        related   = related,
-        page_title = post['title'],
+        article = post,
+        related = related,
     )
 
 
@@ -88,13 +92,28 @@ def article(article_id):
 def categories():
     """
     Show all categories with article counts.
+    We query the database for live counts.
     """
-    counts = get_category_counts()
+
+    # Build a dict: category_name → article count
+    # We query each category separately for simplicity
+    cat_list    = current_app.config['CATEGORIES']
+    cat_data    = []
+
+    for cat_name in cat_list:
+        count = Article.query.filter_by(
+            category  = cat_name,
+            published = True,
+        ).count()
+
+        cat_data.append({
+            'name':  cat_name,
+            'count': count,
+        })
 
     return render_template(
         'categories.html',
-        category_counts = counts,
-        page_title      = 'Browse Categories',
+        cat_data = cat_data,
     )
 
 
@@ -103,110 +122,22 @@ def categories():
 # ─────────────────────────────────────────
 @main_bp.route('/category/<category_name>')
 def category_detail(category_name):
-    """
-    Show all articles in a specific category.
-    <category_name> is captured from the URL as a string.
-    """
-    # Get articles for this category
-    cat_articles = get_articles_by_category(category_name)
+    """Show all articles in a specific category."""
 
-    # If no articles found for this category, return 404
-    if not cat_articles and category_name not in current_app.config['CATEGORIES']:
+    valid_categories = current_app.config['CATEGORIES']
+    if category_name not in valid_categories:
         abort(404)
+
+    cat_articles = Article.query.filter_by(
+        category  = category_name,
+        published = True,
+    ).order_by(Article.created_at.desc()).all()
 
     return render_template(
         'category_detail.html',
         articles      = cat_articles,
         category_name = category_name,
-        page_title    = f'{category_name} News',
     )
-
-
-# ─────────────────────────────────────────
-# SEARCH — JSON API ENDPOINT
-# ─────────────────────────────────────────
-@main_bp.route('/api/search')
-def api_search():
-    """
-    Search endpoint that returns JSON results.
-    JavaScript can call this to get search results without
-    reloading the page (AJAX request).
-    
-    Usage: GET /api/search?q=ransomware
-    Returns: JSON array of matching articles
-    """
-    # Get the search query from URL parameters
-    # e.g. /api/search?q=ransomware → query = 'ransomware'
-    query = request.args.get('q', '').strip()
-
-    if not query:
-        return jsonify({
-            'results': [],
-            'count':   0,
-            'query':   '',
-        })
-
-    results = search_articles(query)
-
-    # We can't send Python dicts with all fields directly
-    # (some might not be JSON-serializable later with DB objects)
-    # So we explicitly select what to send
-    serialized = [
-        {
-            'id':       a['id'],
-            'title':    a['title'],
-            'summary':  a['summary'],
-            'category': a['category'],
-            'source':   a['source'],
-            'date':     a['date'],
-            'image':    a['image'],
-            'url':      f"/article/{a['id']}",
-        }
-        for a in results
-    ]
-
-    return jsonify({
-        'results': serialized,
-        'count':   len(serialized),
-        'query':   query,
-    })
-
-
-# ─────────────────────────────────────────
-# API — ALL ARTICLES (JSON)
-# ─────────────────────────────────────────
-@main_bp.route('/api/articles')
-def api_articles():
-    """
-    Returns all articles as JSON.
-    Useful for future features (mobile app, external integrations).
-    
-    Optional filter: GET /api/articles?category=Malware
-    """
-    category = request.args.get('category', '').strip()
-
-    if category:
-        articles = get_articles_by_category(category)
-    else:
-        articles = get_all_articles()
-
-    serialized = [
-        {
-            'id':       a['id'],
-            'title':    a['title'],
-            'summary':  a['summary'],
-            'category': a['category'],
-            'source':   a['source'],
-            'date':     a['date'],
-            'url':      f"/article/{a['id']}",
-        }
-        for a in articles
-    ]
-
-    return jsonify({
-        'articles': serialized,
-        'count':    len(serialized),
-    })
 
 
 # ─────────────────────────────────────────
@@ -214,7 +145,120 @@ def api_articles():
 # ─────────────────────────────────────────
 @main_bp.route('/about')
 def about():
-    return render_template(
-        'about.html',
-        page_title = 'About CyberNews',
-    )
+    # Pass some live stats to the about page
+    stats = {
+        'total_articles': Article.query.filter_by(published=True).count(),
+        'categories':     len(current_app.config['CATEGORIES']),
+    }
+    return render_template('about.html', stats=stats)
+
+
+# ─────────────────────────────────────────
+# JSON API: SEARCH
+# ─────────────────────────────────────────
+@main_bp.route('/api/search')
+def api_search():
+    """
+    Search articles using SQLAlchemy's ilike() for
+    case-insensitive pattern matching.
+    
+    ilike('%query%') means:
+      % = anything before
+      query = the search term
+      % = anything after
+    So it matches any string CONTAINING the query.
+    """
+    query = request.args.get('q', '').strip()
+
+    if not query:
+        return jsonify({'results': [], 'count': 0, 'query': ''})
+
+    # Search in title, summary, category, and source
+    # We use the | (or) operator to combine conditions
+    search_term = f'%{query}%'   # wrap with % for SQL LIKE
+    results = Article.query.filter(
+        Article.published == True,
+    ).filter(
+        db.or_(
+            Article.title.ilike(search_term),
+            Article.summary.ilike(search_term),
+            Article.category.ilike(search_term),
+            Article.source.ilike(search_term),
+            Article.tags_string.ilike(search_term),
+        )
+    ).order_by(Article.created_at.desc()).all()
+
+    return jsonify({
+        'results': [a.to_dict() for a in results],
+        'count':   len(results),
+        'query':   query,
+    })
+
+
+# ─────────────────────────────────────────
+# JSON API: ALL ARTICLES
+# ─────────────────────────────────────────
+@main_bp.route('/api/articles')
+def api_articles():
+    """Return all published articles as JSON."""
+
+    category = request.args.get('category', '').strip()
+    query    = Article.query.filter_by(published=True)
+
+    if category:
+        query = query.filter_by(category=category)
+
+    articles = query.order_by(Article.created_at.desc()).all()
+
+    return jsonify({
+        'articles': [a.to_dict() for a in articles],
+        'count':    len(articles),
+    })
+
+
+# ─────────────────────────────────────────
+# JSON API: NEWSLETTER SUBSCRIBE
+# ─────────────────────────────────────────
+@main_bp.route('/api/subscribe', methods=['POST'])
+def api_subscribe():
+    """
+    Handle newsletter subscriptions.
+    Accepts POST request with JSON body: {"email": "user@example.com"}
+    """
+    from models import Newsletter
+
+    data  = request.get_json()
+    email = data.get('email', '').strip().lower() if data else ''
+
+    if not email or '@' not in email:
+        return jsonify({
+            'success': False,
+            'message': 'Please provide a valid email address.',
+        }), 400
+
+    # Check if already subscribed
+    existing = Newsletter.query.filter_by(email=email).first()
+    if existing:
+        if existing.active:
+            return jsonify({
+                'success': False,
+                'message': 'This email is already subscribed!',
+            }), 400
+        else:
+            # Re-activate cancelled subscription
+            existing.active = True
+            db.session.commit()
+            return jsonify({
+                'success': True,
+                'message': 'Welcome back! Subscription reactivated.',
+            })
+
+    # Create new subscription
+    subscription = Newsletter(email=email)
+    db.session.add(subscription)
+    db.session.commit()
+
+    return jsonify({
+        'success': True,
+        'message': f'Subscribed successfully! Welcome to CyberNews.',
+    })

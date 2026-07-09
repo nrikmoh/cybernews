@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-
 {% block title %}Categories - CyberNews{% endblock %}
 
 {% block content %}
@@ -15,47 +14,46 @@
     <div class="container">
         <div class="categories-grid">
 
-            <a href="/" class="category-card cat-card-malware">
-                <div class="cat-card-icon"><i class="fas fa-bug"></i></div>
-                <h3>Malware</h3>
-                <p>Ransomware, trojans, spyware, and malicious software analysis</p>
-                <span class="cat-card-count">38 articles</span>
+            {% for cat in cat_data %}
+
+            {# Map category name to its CSS class and icon #}
+            {% set cat_key = cat.name | lower | replace(' ', '-') %}
+            {% set icons = {
+                'Malware':         'fa-bug',
+                'Data Breaches':   'fa-database',
+                'Vulnerabilities': 'fa-triangle-exclamation',
+                'Privacy':         'fa-user-shield',
+                'Research':        'fa-flask',
+                'Threats':         'fa-crosshairs'
+            } %}
+
+            <a href="/category/{{ cat.name }}"
+               class="category-card cat-card-{{ cat_key }}">
+                <div class="cat-card-icon">
+                    <i class="fas {{ icons.get(cat.name, 'fa-tag') }}"></i>
+                </div>
+                <h3>{{ cat.name }}</h3>
+                <p>
+                    {% if cat.name == 'Malware' %}
+                        Ransomware, trojans, spyware, and malicious software
+                    {% elif cat.name == 'Data Breaches' %}
+                        Incidents involving unauthorized access to sensitive data
+                    {% elif cat.name == 'Vulnerabilities' %}
+                        CVEs, zero-days, patches, and security advisories
+                    {% elif cat.name == 'Privacy' %}
+                        GDPR, data protection, surveillance, and user rights
+                    {% elif cat.name == 'Research' %}
+                        Academic papers, new techniques, and security tools
+                    {% elif cat.name == 'Threats' %}
+                        APT groups, nation-state actors, and threat intelligence
+                    {% endif %}
+                </p>
+                <span class="cat-card-count">
+                    {{ cat.count }} article{{ 's' if cat.count != 1 else '' }}
+                </span>
             </a>
 
-            <a href="/" class="category-card cat-card-breaches">
-                <div class="cat-card-icon"><i class="fas fa-database"></i></div>
-                <h3>Data Breaches</h3>
-                <p>Incidents involving unauthorized access to sensitive data</p>
-                <span class="cat-card-count">52 articles</span>
-            </a>
-
-            <a href="/" class="category-card cat-card-vulns">
-                <div class="cat-card-icon"><i class="fas fa-triangle-exclamation"></i></div>
-                <h3>Vulnerabilities</h3>
-                <p>CVEs, zero-days, patches, and security advisories</p>
-                <span class="cat-card-count">71 articles</span>
-            </a>
-
-            <a href="/" class="category-card cat-card-privacy">
-                <div class="cat-card-icon"><i class="fas fa-user-shield"></i></div>
-                <h3>Privacy</h3>
-                <p>GDPR, data protection, surveillance, and user rights</p>
-                <span class="cat-card-count">29 articles</span>
-            </a>
-
-            <a href="/" class="category-card cat-card-research">
-                <div class="cat-card-icon"><i class="fas fa-flask"></i></div>
-                <h3>Research</h3>
-                <p>Academic papers, new techniques, and security tools</p>
-                <span class="cat-card-count">44 articles</span>
-            </a>
-
-            <a href="/" class="category-card cat-card-threats">
-                <div class="cat-card-icon"><i class="fas fa-crosshairs"></i></div>
-                <h3>Threats</h3>
-                <p>APT groups, nation-state actors, and threat intelligence</p>
-                <span class="cat-card-count">33 articles</span>
-            </a>
+            {% endfor %}
 
         </div>
     </div>

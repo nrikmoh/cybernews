@@ -1,29 +1,32 @@
 # config.py
-# ─────────────────────────────────────────────────────────
-# All configuration settings for CyberNews.
-# Having settings in one place makes the app easy to manage.
-# Different environments (development, production) can have
-# different settings.
-# ─────────────────────────────────────────────────────────
-
 import os
 
-class Config:
-    """Base configuration — settings shared by all environments."""
+# Base directory of the project
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
-    # Secret key is used by Flask to sign cookies and sessions.
-    # In production this MUST be a long random string kept secret.
-    # os.urandom(24) generates 24 random bytes.
+
+class Config:
+    """Base configuration."""
+
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'cybernews-dev-key-change-in-production'
 
-    # Application info
+    # ── Database ───────────────────────────────────────
+    # SQLite database stored in a file called cybernews.db
+    # in the project root directory.
+    # os.path.join builds the full path correctly on any OS.
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
+        'sqlite:///' + os.path.join(BASE_DIR, 'cybernews.db')
+
+    # Disable modification tracking — saves memory
+    # (We don't need this SQLAlchemy feature)
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+    # App info
     APP_NAME    = 'CyberNews'
     APP_TAGLINE = 'Security Intelligence Daily'
 
-    # Pagination — how many articles per page
     ARTICLES_PER_PAGE = 9
 
-    # Categories list (used in templates and routes)
     CATEGORIES = [
         'Malware',
         'Data Breaches',
@@ -33,7 +36,6 @@ class Config:
         'Threats',
     ]
 
-    # Trusted news sources
     SOURCES = [
         'The Hacker News',
         'SecurityWeek',
@@ -49,16 +51,13 @@ class Config:
 
 
 class DevelopmentConfig(Config):
-    """Development settings — extra debugging info shown."""
     DEBUG = True
 
 
 class ProductionConfig(Config):
-    """Production settings — no debug info shown to users."""
     DEBUG = False
 
 
-# Dictionary to select config by name
 config = {
     'development': DevelopmentConfig,
     'production':  ProductionConfig,
