@@ -1,0 +1,277 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}{{ form_title }}{% endblock %}
+
+{% block page_title %}
+<h1 class="admin-page-title">
+    <i class="fas fa-pen-to-square"></i> {{ form_title }}
+</h1>
+{% endblock %}
+
+{% block content %}
+
+<div class="form-layout">
+
+    <!-- Main Form -->
+    <div class="form-main">
+        <div class="admin-card">
+            <div class="admin-card-header">
+                <h2><i class="fas fa-file-pen"></i> Article Content</h2>
+            </div>
+            <div class="admin-card-body">
+
+                <form method="POST"
+                      action="{{ form_action }}"
+                      novalidate
+                      id="article-form">
+
+                    <!-- CSRF Token — hidden security field -->
+                    {{ form.hidden_tag() }}
+
+                    <!-- Title -->
+                    <div class="form-group">
+                        {{ form.title.label(class='form-label') }}
+                        {{ form.title() }}
+                        {% if form.title.errors %}
+                            <div class="form-errors">
+                                {% for error in form.title.errors %}
+                                    <span class="form-error">
+                                        <i class="fas fa-circle-exclamation"></i>
+                                        {{ error }}
+                                    </span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <span class="form-hint">
+                            Clear, descriptive headline.
+                            <span id="title-count">0</span>/300
+                        </span>
+                    </div>
+
+                    <!-- Summary -->
+                    <div class="form-group">
+                        {{ form.summary.label(class='form-label') }}
+                        {{ form.summary() }}
+                        {% if form.summary.errors %}
+                            <div class="form-errors">
+                                {% for error in form.summary.errors %}
+                                    <span class="form-error">
+                                        <i class="fas fa-circle-exclamation"></i>
+                                        {{ error }}
+                                    </span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <span class="form-hint">
+                            Shown on article cards. 2-3 sentences max.
+                            <span id="summary-count">0</span>/500
+                        </span>
+                    </div>
+
+                    <!-- Body -->
+                    <div class="form-group">
+                        {{ form.body.label(class='form-label') }}
+                        {{ form.body() }}
+                        {% if form.body.errors %}
+                            <div class="form-errors">
+                                {% for error in form.body.errors %}
+                                    <span class="form-error">
+                                        <i class="fas fa-circle-exclamation"></i>
+                                        {{ error }}
+                                    </span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <span class="form-hint">
+                            Separate paragraphs with a blank line.
+                            <span id="body-count">0</span> words
+                            — <span id="read-time">0</span> min read
+                        </span>
+                    </div>
+
+                    <!-- Two column row: Category + Source -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            {{ form.category.label(class='form-label') }}
+                            {{ form.category() }}
+                            {% if form.category.errors %}
+                                <div class="form-errors">
+                                    {% for error in form.category.errors %}
+                                        <span class="form-error">{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            {{ form.source.label(class='form-label') }}
+                            {{ form.source() }}
+
+                            <!-- Datalist provides autocomplete suggestions -->
+                            <datalist id="sources-list">
+                                <option value="The Hacker News">
+                                <option value="SecurityWeek">
+                                <option value="Krebs on Security">
+                                <option value="Mandiant">
+                                <option value="CISA">
+                                <option value="NSA">
+                                <option value="FBI Cyber Division">
+                                <option value="Snyk Security">
+                                <option value="GitHub Security">
+                                <option value="Reuters">
+                            </datalist>
+
+                            {% if form.source.errors %}
+                                <div class="form-errors">
+                                    {% for error in form.source.errors %}
+                                        <span class="form-error">{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Image URL -->
+                    <div class="form-group">
+                        {{ form.image_url.label(class='form-label') }}
+                        {{ form.image_url() }}
+                        {% if form.image_url.errors %}
+                            <div class="form-errors">
+                                {% for error in form.image_url.errors %}
+                                    <span class="form-error">{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <span class="form-hint">
+                            Leave empty to use default image.
+                            Tip: use unsplash.com for free images.
+                        </span>
+
+                        <!-- Image Preview -->
+                        <div class="image-preview" id="image-preview">
+                            {% if article and article.image_url %}
+                            <img src="{{ article.image_url }}"
+                                 alt="Preview"
+                                 id="preview-img">
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Tags -->
+                    <div class="form-group">
+                        {{ form.tags_string.label(class='form-label') }}
+                        {{ form.tags_string() }}
+                        <span class="form-hint">
+                            Comma-separated: Windows, Zero-Day, CVE
+                        </span>
+                    </div>
+
+                    <!-- Checkboxes -->
+                    <div class="form-checkboxes">
+                        <label class="checkbox-label">
+                            {{ form.published() }}
+                            <span>
+                                <i class="fas fa-eye"></i>
+                                Published (visible to public)
+                            </span>
+                        </label>
+                        <label class="checkbox-label">
+                            {{ form.featured() }}
+                            <span>
+                                <i class="fas fa-star"></i>
+                                Featured hero story
+                            </span>
+                        </label>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="form-actions">
+                        <a href="{{ url_for('admin.articles_list') }}"
+                           class="btn-secondary">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
+                        {{ form.submit() }}
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar Tips -->
+    <div class="form-sidebar">
+        <div class="admin-card">
+            <div class="admin-card-header">
+                <h2><i class="fas fa-lightbulb"></i> Tips</h2>
+            </div>
+            <div class="admin-card-body tips-body">
+                <div class="tip">
+                    <i class="fas fa-heading"></i>
+                    <div>
+                        <strong>Title</strong>
+                        <p>Be specific and include the key threat/topic.</p>
+                    </div>
+                </div>
+                <div class="tip">
+                    <i class="fas fa-align-left"></i>
+                    <div>
+                        <strong>Body</strong>
+                        <p>Blank line between paragraphs = new paragraph.</p>
+                    </div>
+                </div>
+                <div class="tip">
+                    <i class="fas fa-image"></i>
+                    <div>
+                        <strong>Image</strong>
+                        <p>Use unsplash.com — search "cybersecurity", "hacker", "data".</p>
+                    </div>
+                </div>
+                <div class="tip">
+                    <i class="fas fa-star"></i>
+                    <div>
+                        <strong>Featured</strong>
+                        <p>Only one article is featured at a time. Setting this will unfeature the current one.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if article %}
+        <div class="admin-card">
+            <div class="admin-card-header">
+                <h2><i class="fas fa-info-circle"></i> Article Info</h2>
+            </div>
+            <div class="admin-card-body">
+                <div class="info-row">
+                    <span>ID</span>
+                    <span>#{{ article.id }}</span>
+                </div>
+                <div class="info-row">
+                    <span>Created</span>
+                    <span>{{ article.formatted_date }}</span>
+                </div>
+                <div class="info-row">
+                    <span>Reading Time</span>
+                    <span>{{ article.read_time }}</span>
+                </div>
+                <div class="info-row">
+                    <span>Tags</span>
+                    <span>{{ article.tags | length }}</span>
+                </div>
+                <div style="margin-top:1rem">
+                    <a href="{{ url_for('main.article', article_id=article.id) }}"
+                       target="_blank"
+                       class="btn-secondary" style="width:100%; justify-content:center">
+                        <i class="fas fa-eye"></i> View Live
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}

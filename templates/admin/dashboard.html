@@ -1,0 +1,160 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block page_title %}
+<h1 class="admin-page-title">
+    <i class="fas fa-gauge-high"></i> Dashboard
+</h1>
+{% endblock %}
+
+{% block content %}
+
+<!-- Stats Grid -->
+<div class="admin-stats-grid">
+
+    <div class="admin-stat-card">
+        <div class="stat-icon stat-icon-blue">
+            <i class="fas fa-newspaper"></i>
+        </div>
+        <div class="stat-info">
+            <div class="stat-number">{{ stats.total_articles }}</div>
+            <div class="stat-label">Total Articles</div>
+        </div>
+    </div>
+
+    <div class="admin-stat-card">
+        <div class="stat-icon stat-icon-green">
+            <i class="fas fa-eye"></i>
+        </div>
+        <div class="stat-info">
+            <div class="stat-number">{{ stats.published_articles }}</div>
+            <div class="stat-label">Published</div>
+        </div>
+    </div>
+
+    <div class="admin-stat-card">
+        <div class="stat-icon stat-icon-amber">
+            <i class="fas fa-file-pen"></i>
+        </div>
+        <div class="stat-info">
+            <div class="stat-number">{{ stats.draft_articles }}</div>
+            <div class="stat-label">Drafts</div>
+        </div>
+    </div>
+
+    <div class="admin-stat-card">
+        <div class="stat-icon stat-icon-purple">
+            <i class="fas fa-star"></i>
+        </div>
+        <div class="stat-info">
+            <div class="stat-number">{{ stats.featured_articles }}</div>
+            <div class="stat-label">Featured</div>
+        </div>
+    </div>
+
+    <div class="admin-stat-card">
+        <div class="stat-icon stat-icon-cyan">
+            <i class="fas fa-envelope"></i>
+        </div>
+        <div class="stat-info">
+            <div class="stat-number">{{ stats.total_subscribers }}</div>
+            <div class="stat-label">Subscribers</div>
+        </div>
+    </div>
+
+    <div class="admin-stat-card">
+        <div class="stat-icon stat-icon-red">
+            <i class="fas fa-layer-group"></i>
+        </div>
+        <div class="stat-info">
+            <div class="stat-number">{{ stats.total_categories }}</div>
+            <div class="stat-label">Categories</div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Bottom Grid: Recent + Categories -->
+<div class="admin-grid-2">
+
+    <!-- Recent Articles -->
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h2><i class="fas fa-clock-rotate-left"></i> Recent Articles</h2>
+            <a href="{{ url_for('admin.article_new') }}" class="btn-primary-sm">
+                <i class="fas fa-plus"></i> Add New
+            </a>
+        </div>
+        <div class="admin-card-body">
+            {% if recent %}
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Category</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for article in recent %}
+                    <tr>
+                        <td class="article-title-cell">
+                            {{ article.title[:45] }}{% if article.title|length > 45 %}...{% endif %}
+                        </td>
+                        <td>
+                            <span class="badge badge-{{ article.category | category_color }}">
+                                {{ article.category }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if article.published %}
+                                <span class="status-badge status-published">Published</span>
+                            {% else %}
+                                <span class="status-badge status-draft">Draft</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('admin.article_edit', article_id=article.id) }}"
+                               class="action-link-edit">
+                                <i class="fas fa-pen"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="empty-state">No articles yet.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Category Breakdown -->
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h2><i class="fas fa-chart-bar"></i> Articles by Category</h2>
+        </div>
+        <div class="admin-card-body">
+            {% for cat in categories_data %}
+            <div class="category-bar-item">
+                <div class="category-bar-label">
+                    <span class="badge badge-{{ cat.name | category_color }}">
+                        {{ cat.name }}
+                    </span>
+                    <span class="category-bar-count">{{ cat.count }}</span>
+                </div>
+                <div class="category-bar-track">
+                    <div class="category-bar-fill"
+                         style="width: {{ (cat.count / [stats.total_articles, 1] | max * 100) | int }}%">
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

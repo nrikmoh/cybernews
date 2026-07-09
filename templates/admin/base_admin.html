@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Admin{% endblock %} — CyberNews</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body class="admin-body">
+
+    <!-- ── Sidebar ────────────────────────────── -->
+    <aside class="admin-sidebar">
+
+        <div class="admin-logo">
+            <div class="logo-icon">
+                <i class="fas fa-shield-halved"></i>
+            </div>
+            <div>
+                <div class="logo-main">CyberNews</div>
+                <div class="logo-tagline">Admin Panel</div>
+            </div>
+        </div>
+
+        <nav class="admin-nav">
+            <a href="{{ url_for('admin.dashboard') }}"
+               class="admin-nav-link {% if request.endpoint == 'admin.dashboard' %}active{% endif %}">
+                <i class="fas fa-gauge-high"></i>
+                Dashboard
+            </a>
+
+            <a href="{{ url_for('admin.articles_list') }}"
+               class="admin-nav-link {% if 'article' in request.endpoint %}active{% endif %}">
+                <i class="fas fa-newspaper"></i>
+                Articles
+            </a>
+
+            <a href="{{ url_for('admin.article_new') }}"
+               class="admin-nav-link {% if request.endpoint == 'admin.article_new' %}active{% endif %}">
+                <i class="fas fa-plus-circle"></i>
+                Add Article
+            </a>
+
+            <a href="{{ url_for('admin.subscribers') }}"
+               class="admin-nav-link {% if request.endpoint == 'admin.subscribers' %}active{% endif %}">
+                <i class="fas fa-envelope"></i>
+                Subscribers
+            </a>
+
+            <div class="admin-nav-divider"></div>
+
+            <a href="{{ url_for('main.home') }}"
+               class="admin-nav-link" target="_blank">
+                <i class="fas fa-arrow-up-right-from-square"></i>
+                View Site
+            </a>
+        </nav>
+
+        <div class="admin-sidebar-footer">
+            <i class="fas fa-circle-dot" style="color: var(--secondary)"></i>
+            System Online
+        </div>
+
+    </aside>
+
+    <!-- ── Main Content ───────────────────────── -->
+    <div class="admin-main">
+
+        <!-- Top Bar -->
+        <div class="admin-topbar">
+            <div class="admin-topbar-left">
+                {% block page_title %}
+                <h1 class="admin-page-title">Dashboard</h1>
+                {% endblock %}
+            </div>
+            <div class="admin-topbar-right">
+                <span class="admin-badge">
+                    <i class="fas fa-terminal"></i>
+                    Admin Mode
+                </span>
+            </div>
+        </div>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                    <div class="flash flash-{{ category }}">
+                        <i class="fas {{ 
+                            'fa-check-circle'       if category == 'success' else
+                            'fa-triangle-exclamation' if category == 'warning' else
+                            'fa-times-circle'       if category == 'error'   else
+                            'fa-info-circle' }}"></i>
+                        {{ message }}
+                        <button class="flash-close" onclick="this.parentElement.remove()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Page Content -->
+        <div class="admin-content">
+            {% block content %}{% endblock %}
+        </div>
+
+    </div>
+
+    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+</body>
+</html>

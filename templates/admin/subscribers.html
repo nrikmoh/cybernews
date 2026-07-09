@@ -1,0 +1,60 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Subscribers{% endblock %}
+
+{% block page_title %}
+<h1 class="admin-page-title">
+    <i class="fas fa-envelope"></i> Newsletter Subscribers
+</h1>
+{% endblock %}
+
+{% block content %}
+
+<div class="admin-card">
+    <div class="admin-card-header">
+        <h2>
+            <i class="fas fa-users"></i>
+            {{ subscribers | length }} Subscriber{{ 's' if subscribers|length != 1 }}
+        </h2>
+    </div>
+    <div class="admin-card-body">
+
+        {% if subscribers %}
+        <table class="admin-table admin-table-full">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Email</th>
+                    <th>Status</th>
+                    <th>Subscribed</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sub in subscribers %}
+                <tr>
+                    <td>{{ sub.id }}</td>
+                    <td>{{ sub.email }}</td>
+                    <td>
+                        {% if sub.active %}
+                            <span class="status-badge status-published">Active</span>
+                        {% else %}
+                            <span class="status-badge status-draft">Unsubscribed</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ sub.created_at.strftime('%b %d, %Y') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-envelope-open"></i>
+            <p>No subscribers yet.</p>
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+
+{% endblock %}
