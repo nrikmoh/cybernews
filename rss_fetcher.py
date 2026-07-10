@@ -30,6 +30,177 @@ logging.basicConfig(
 )
 logger = logging.getLogger('rss_fetcher')
 
+# ── Image Sources ──────────────────────────────────────
+# Curated list of cybersecurity images from Unsplash
+# organized by keyword/theme
+
+CYBER_IMAGES = {
+    'malware': [
+        'https://images.unsplash.com/photo-1614064641938-3bbee52942c7?w=800&q=80',
+        'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&q=80',
+        'https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=800&q=80',
+    ],
+    'ransomware': [
+        'https://images.unsplash.com/photo-1614064641938-3bbee52942c7?w=800&q=80',
+        'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=800&q=80',
+    ],
+    'breach': [
+        'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=800&q=80',
+        'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80',
+    ],
+    'vulnerability': [
+        'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&q=80',
+        'https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=800&q=80',
+    ],
+    'privacy': [
+        'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80',
+        'https://images.unsplash.com/photo-1510511459019-5dda7724fd87?w=800&q=80',
+    ],
+    'hacking': [
+        'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&q=80',
+        'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&q=80',
+        'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&q=80',
+    ],
+    'phishing': [
+        'https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=800&q=80',
+        'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=800&q=80',
+    ],
+    'encryption': [
+        'https://images.unsplash.com/photo-1510511459019-5dda7724fd87?w=800&q=80',
+        'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&q=80',
+    ],
+    'government': [
+        'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&q=80',
+        'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80',
+    ],
+    'network': [
+        'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&q=80',
+        'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&q=80',
+    ],
+    'cloud': [
+        'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=800&q=80',
+        'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&q=80',
+    ],
+    'ai': [
+        'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&q=80',
+        'https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=800&q=80',
+    ],
+    'microsoft': [
+        'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&q=80',
+        'https://images.unsplash.com/photo-1607799279861-4dd421887fb3?w=800&q=80',
+    ],
+    'google': [
+        'https://images.unsplash.com/photo-1573804633927-bfcbcd909acd?w=800&q=80',
+        'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80',
+    ],
+    'apple': [
+        'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=800&q=80',
+        'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&q=80',
+    ],
+    'linux': [
+        'https://images.unsplash.com/photo-1607799279861-4dd421887fb3?w=800&q=80',
+        'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&q=80',
+    ],
+    'default': [
+        'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&q=80',
+        'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&q=80',
+        'https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=800&q=80',
+        'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=800&q=80',
+        'https://images.unsplash.com/photo-1510511459019-5dda7724fd87?w=800&q=80',
+        'https://images.unsplash.com/photo-1614064641938-3bbee52942c7?w=800&q=80',
+        'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80',
+        'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&q=80',
+        'https://images.unsplash.com/photo-1607799279861-4dd421887fb3?w=800&q=80',
+        'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&q=80',
+        'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&q=80',
+        'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=800&q=80',
+    ],
+}
+
+# ── Keyword to Image Mapping ──────────────────────────
+KEYWORD_IMAGES = {
+    'malware':       'https://images.unsplash.com/photo-1614064641938-3bbee52942c7?w=800&q=80',
+    'ransomware':    'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=800&q=80',
+    'phishing':      'https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=800&q=80',
+    'breach':        'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80',
+    'data leak':     'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80',
+    'vulnerability': 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&q=80',
+    'zero-day':      'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&q=80',
+    'cve-':          'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&q=80',
+    'privacy':       'https://images.unsplash.com/photo-1510511459019-5dda7724fd87?w=800&q=80',
+    'gdpr':          'https://images.unsplash.com/photo-1510511459019-5dda7724fd87?w=800&q=80',
+    'encryption':    'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=800&q=80',
+    'cloud':         'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=800&q=80',
+    'ai':            'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&q=80',
+    'artificial':    'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&q=80',
+    'network':       'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&q=80',
+    'ddos':          'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&q=80',
+    'government':    'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&q=80',
+    'apt':           'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&q=80',
+    'espionage':     'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&q=80',
+    'microsoft':     'https://images.unsplash.com/photo-1607799279861-4dd421887fb3?w=800&q=80',
+    'windows':       'https://images.unsplash.com/photo-1607799279861-4dd421887fb3?w=800&q=80',
+    'chrome':        'https://images.unsplash.com/photo-1573804633927-bfcbcd909acd?w=800&q=80',
+    'google':        'https://images.unsplash.com/photo-1573804633927-bfcbcd909acd?w=800&q=80',
+    'linux':         'https://images.unsplash.com/photo-1629654297299-c8506221ca97?w=800&q=80',
+    'mobile':        'https://images.unsplash.com/photo-1580894894513-541e068a3e2b?w=800&q=80',
+    'android':       'https://images.unsplash.com/photo-1580894894513-541e068a3e2b?w=800&q=80',
+    'healthcare':    'https://images.unsplash.com/photo-1551808525-51a94da548ce?w=800&q=80',
+    'hospital':      'https://images.unsplash.com/photo-1551808525-51a94da548ce?w=800&q=80',
+    'code':          'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800&q=80',
+    'developer':     'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800&q=80',
+}
+
+# Fallback pool of generic cybersecurity images
+IMAGE_POOL = [
+    'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&q=80',
+    'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&q=80',
+    'https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=800&q=80',
+    'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=800&q=80',
+    'https://images.unsplash.com/photo-1510511459019-5dda7724fd87?w=800&q=80',
+    'https://images.unsplash.com/photo-1614064641938-3bbee52942c7?w=800&q=80',
+    'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80',
+    'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&q=80',
+    'https://images.unsplash.com/photo-1607799279861-4dd421887fb3?w=800&q=80',
+    'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&q=80',
+    'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&q=80',
+    'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=800&q=80',
+    'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&q=80',
+    'https://images.unsplash.com/photo-1573804633927-bfcbcd909acd?w=800&q=80',
+    'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80',
+    'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=800&q=80',
+    'https://images.unsplash.com/photo-1504639725590-34d0984388bd?w=800&q=80',
+    'https://images.unsplash.com/photo-1562813733-b31f71025d54?w=800&q=80',
+    'https://images.unsplash.com/photo-1580894894513-541e068a3e2b?w=800&q=80',
+    'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800&q=80',
+    'https://images.unsplash.com/photo-1560732488-6b0df240254a?w=800&q=80',
+    'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=800&q=80',
+    'https://images.unsplash.com/photo-1629654297299-c8506221ca97?w=800&q=80',
+    'https://images.unsplash.com/photo-1551808525-51a94da548ce?w=800&q=80',
+]
+
+
+def find_best_image(title, summary, default_image):
+    """
+    Find the most relevant image for an article.
+    
+    Strategy:
+    1. Check title for keyword matches → use specific image
+    2. Check summary for keyword matches → use specific image
+    3. Fall back to pool → pick using title hash for variety
+    """
+    text = (title + ' ' + summary).lower()
+
+    # Try keyword matching
+    for keyword, image in KEYWORD_IMAGES.items():
+        if keyword in text:
+            return image
+
+    # No keyword match → pick from pool using hash
+    # Hash ensures same title always gets same image
+    # but different titles get different images
+    h = int(hashlib.md5(title.encode()).hexdigest(), 16)
+    return IMAGE_POOL[h % len(IMAGE_POOL)]
 
 # ── RSS Feed Sources ───────────────────────────────────
 # Each feed has:
@@ -235,20 +406,40 @@ def fetch_feed(feed_config):
             )
 
             # ── Get article image ──────────────────────
-            image_url = feed_config['default_image']
+            image_url = None
 
-            # Try to find an image in the entry
+            # Try to find an image in the RSS entry itself
             if hasattr(entry, 'media_content'):
                 for media in entry.media_content:
                     if media.get('type', '').startswith('image'):
-                        image_url = media.get('url', image_url)
+                        image_url = media.get('url')
                         break
 
-            if hasattr(entry, 'links'):
+            if not image_url and hasattr(entry, 'media_thumbnail'):
+                for thumb in entry.media_thumbnail:
+                    if thumb.get('url'):
+                        image_url = thumb.get('url')
+                        break
+
+            if not image_url and hasattr(entry, 'links'):
                 for link in entry.links:
                     if link.get('type', '').startswith('image'):
-                        image_url = link.get('href', image_url)
+                        image_url = link.get('href')
                         break
+
+            if not image_url and hasattr(entry, 'enclosures'):
+                for enc in entry.enclosures:
+                    if enc.get('type', '').startswith('image'):
+                        image_url = enc.get('href')
+                        break
+
+            # ONLY use our image picker if NO image was found from feed
+            if not image_url:
+                image_url = find_best_image(
+                    title,
+                    summary,
+                    feed_config['default_image']
+                )
 
             # ── Build the article body ─────────────────
             # RSS feeds often only give us a summary.

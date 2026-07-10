@@ -23,53 +23,146 @@ def api_stats():
 # ─────────────────────────────────────────
 @main_bp.route('/')
 def home():
-    """
-    Homepage: featured article + article grid.
-    We query the database instead of the old Python list.
-    """
-	
-	# Track this page view
+    """Homepage with pagination."""
     from security import get_client_ip
+
+    # Track page view
     try:
         PageView.record_view('/', get_client_ip())
     except Exception:
-        pass  # Don't let counter errors break the page
-    
-	# Get featured article (first one marked as featured)
+        pass
+
+    # ── Pagination ─────────────────────────────────────
+    # Get the current page number from URL: /?page=2
+    # Default to page 1 if not specified
+    page     = request.args.get('page', 1, type=int)
+    per_page = 20  # articles per page
+
+    # ── Featured Article ───────────────────────────────
+    # First check for manually featured article
     featured = Article.query.filter_by(
         featured  = True,
         published = True,
     ).first()
 
-    # If no featured article exists, use the most recent one
+    # If no manual feature, rotate daily
+    # Pick a different top article each day automatically
     if not featured:
-        featured = Article.query.filter_by(
+        from datetime import datetime
+        today = datetime.utcnow().timetuple().tm_yday  # day of year (1-365)
+        top_articles = Article.query.filter_by(
             published=True
-        ).order_by(Article.created_at.desc()).first()
+        ).order_by(Article.created_at.desc()).limit(10).all()
 
-    # Get all other published articles (not the featured one)
-    # ordered by newest first
+        if top_articles:
+            featured = top_articles[today % len(top_articles)]
+
+    # Build query for regular articles (not featured)
+    query = Article.query.filter(
+        Article.published == True,
+    )
     if featured:
-        regular = Article.query.filter(
-            Article.published == True,
-            Article.id        != featured.id,
-        ).order_by(Article.created_at.desc()).all()
-    else:
-        regular = []
+        query = query.filter(Article.id != featured.id)
 
-    # All articles for the sidebar trending list
+    # ── Order articles to mix sources ──────────────────
+    # Instead of pure newest-first (which groups sources
+    # together), we use a combination approach:
+    # Sort by date (day level) then randomize within each day
+    # This mixes sources while keeping recent articles on top
+    query = query.order_by(
+        db.func.date(Article.created_at).desc(),  # group by day
+        db.func.random(),                         # shuffle within day
+    )
+    # ── Get paginated results ──────────────────────────
+    # paginate() returns a Pagination object with:
+    #   .items       → list of articles for THIS page
+    #   .page        → current page number
+    #   .pages       → total number of pages
+    #   .total       → total number of articles
+    #   .has_prev    → True if there's a previous page
+    #   .has_next    → True if there's a next page
+    #   .prev_num    → previous page number
+    #   .next_num    → next page number
+    pagination = query.paginate(
+        page     = page,
+        per_page = per_page,
+        error_out = False,  # don't throw 404 for invalid pages
+    )
+
+    # If page is out of range, redirect to page 1
+    if page > 1 and not pagination.items:
+        return redirect(url_for('main.home'))
+
+    # Trending articles for sidebar
     all_articles = Article.query.filter_by(
         published=True
     ).order_by(Article.created_at.desc()).limit(5).all()
 
+    # ── Real Stats ─────────────────────────────────────
+    from datetime import datetime, timedelta
+
+    now   = datetime.utcnow()
+    today = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+
+    stats = {
+        'today':      Article.query.filter(
+                          Article.published == True,
+                          Article.created_at >= today,
+                      ).count(),
+        'this_month': Article.query.filter(
+                          Article.published == True,
+                          Article.created_at >= month_start,
+                      ).count(),
+        'categories': len(current_app.config['CATEGORIES']),
+        'total':      Article.query.filter_by(published=True).count(),
+    }
+
+    # ── Threat Level Calculation ───────────────────────
+    # Based on real articles in the last 24 hours
+    last_24h = now - timedelta(hours=24)
+
+    threat_articles = Article.query.filter(
+        Article.published == True,
+        Article.created_at >= last_24h,
+        Article.category.in_(['Malware', 'Threats', 'Vulnerabilities']),
+    ).count()
+
+    # Calculate threat level: 0-5 = LOW, 6-15 = MEDIUM, 16+ = HIGH
+    if threat_articles >= 16:
+        threat_level = 'CRITICAL'
+        threat_pct   = min(95, 70 + threat_articles)
+        threat_desc  = f'{threat_articles} threat-related articles in the last 24 hours. Elevated activity detected.'
+    elif threat_articles >= 6:
+        threat_level = 'HIGH'
+        threat_pct   = min(70, 40 + threat_articles * 2)
+        threat_desc  = f'{threat_articles} threat-related articles detected in the last 24 hours.'
+    elif threat_articles >= 1:
+        threat_level = 'MEDIUM'
+        threat_pct   = min(45, 20 + threat_articles * 5)
+        threat_desc  = f'{threat_articles} threat-related articles in the last 24 hours. Stay vigilant.'
+    else:
+        threat_level = 'LOW'
+        threat_pct   = 15
+        threat_desc  = 'No significant threat activity detected in the last 24 hours.'
+
+    threat_data = {
+        'level':   threat_level,
+        'pct':     threat_pct,
+        'desc':    threat_desc,
+        'count':   threat_articles,
+    }
+
     return render_template(
         'index.html',
-        featured     = featured,
-        regular      = regular,
-        articles     = all_articles,
-        total_count  = Article.query.filter_by(published=True).count(),
+        featured    = featured,
+        regular     = pagination.items,
+        articles    = all_articles,
+        pagination  = pagination,
+        total_count = pagination.total,
+        stats       = stats,
+        threat_data = threat_data,
     )
-
 
 # ─────────────────────────────────────────
 # SINGLE ARTICLE PAGE
@@ -139,23 +232,32 @@ def categories():
 # ─────────────────────────────────────────
 @main_bp.route('/category/<category_name>')
 def category_detail(category_name):
-    """Show all articles in a specific category."""
+    """Show all articles in a category with pagination."""
 
     valid_categories = current_app.config['CATEGORIES']
     if category_name not in valid_categories:
         abort(404)
 
-    cat_articles = Article.query.filter_by(
+    page     = request.args.get('page', 1, type=int)
+    per_page = 9
+
+    pagination = Article.query.filter_by(
         category  = category_name,
         published = True,
-    ).order_by(Article.created_at.desc()).all()
+    ).order_by(
+        Article.created_at.desc()
+    ).paginate(
+        page      = page,
+        per_page  = per_page,
+        error_out = False,
+    )
 
     return render_template(
         'category_detail.html',
-        articles      = cat_articles,
+        articles      = pagination.items,
+        pagination    = pagination,
         category_name = category_name,
     )
-
 
 # ─────────────────────────────────────────
 # ABOUT PAGE

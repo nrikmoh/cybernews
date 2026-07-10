@@ -1,3 +1,4 @@
+
 {% extends "base.html" %}
 
 {% block title %}CyberNews - Cybersecurity Intelligence Daily{% endblock %}
@@ -42,25 +43,23 @@
 <section class="stats-bar">
     <div class="container stats-grid">
         <div class="stat-item">
-            <span class="stat-number" id="stat-articles">9</span>
+            <span class="stat-number" id="stat-articles">{{ stats.today }}</span>
             <span class="stat-label">Articles Today</span>
         </div>
         <div class="stat-divider"></div>
         <div class="stat-item">
-            <span class="stat-number">247</span>
+            <span class="stat-number">{{ stats.this_month }}</span>
             <span class="stat-label">This Month</span>
         </div>
         <div class="stat-divider"></div>
         <div class="stat-item">
-            <span class="stat-number">6</span>
+            <span class="stat-number">{{ stats.categories }}</span>
             <span class="stat-label">Categories</span>
         </div>
         <div class="stat-divider"></div>
         <div class="stat-item">
-            <span class="stat-number live-count">12</span>
-            <span class="stat-label">
-                <span class="live-dot"></span> Live Threats
-            </span>
+            <span class="stat-number">{{ stats.total }}</span>
+            <span class="stat-label">Total Articles</span>
         </div>
     </div>
 </section>
@@ -177,9 +176,53 @@
                 <p>Try a different search term or category.</p>
             </div>
 
-        </div>
 
-        <!-- RIGHT: Sidebar -->
+            <!-- ═══════════════════════════════════
+            <!-- PAGINATION -->
+            {% if pagination and pagination.pages > 1 %}
+            <div style="margin-top:2rem; padding-top:1.5rem; border-top:1px solid var(--bg-border); text-align:center;">
+
+                <div style="font-size:0.82rem; color:var(--text-muted); margin-bottom:1rem;">
+                    Showing {{ ((pagination.page - 1) * 9) + 1 }}–{{ [pagination.page * 9, pagination.total] | min }}
+                    of {{ pagination.total }} articles
+                </div>
+
+                <div style="display:inline-flex; flex-direction:row; align-items:center; gap:0.35rem; flex-wrap:wrap; justify-content:center;">
+
+                    {% if pagination.has_prev %}
+                    <a href="{{ url_for('main.home', page=pagination.prev_num) }}"
+                       style="display:inline-flex; align-items:center; gap:0.3rem; padding:0.5rem 0.9rem; background:var(--bg-card); border:1px solid var(--bg-border); border-radius:var(--radius); color:var(--text-muted); font-size:0.85rem; font-weight:600; text-decoration:none;">
+                        <i class="fas fa-chevron-left"></i> Prev
+                    </a>
+                    {% endif %}
+
+                    {% for p in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                        {% if p %}
+                            {% if p == pagination.page %}
+                            <span style="display:inline-flex; align-items:center; justify-content:center; min-width:40px; height:40px; padding:0 0.5rem; background:var(--primary); border:1px solid var(--primary); border-radius:var(--radius); color:var(--bg-dark); font-size:0.85rem; font-weight:700;">{{ p }}</span>
+                            {% else %}
+                            <a href="{{ url_for('main.home', page=p) }}"
+                               style="display:inline-flex; align-items:center; justify-content:center; min-width:40px; height:40px; padding:0 0.5rem; background:var(--bg-card); border:1px solid var(--bg-border); border-radius:var(--radius); color:var(--text-muted); font-size:0.85rem; font-weight:600; text-decoration:none;">{{ p }}</a>
+                            {% endif %}
+                        {% else %}
+                            <span style="color:var(--text-muted); padding:0 0.3rem;">...</span>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if pagination.has_next %}
+                    <a href="{{ url_for('main.home', page=pagination.next_num) }}"
+                       style="display:inline-flex; align-items:center; gap:0.3rem; padding:0.5rem 0.9rem; background:var(--bg-card); border:1px solid var(--bg-border); border-radius:var(--radius); color:var(--text-muted); font-size:0.85rem; font-weight:600; text-decoration:none;">
+                        Next <i class="fas fa-chevron-right"></i>
+                    </a>
+                    {% endif %}
+
+                </div>
+
+            </div>
+            {% endif %}
+	</div>
+        
+	<!-- RIGHT: Sidebar -->
         <aside class="sidebar">
 
             <!-- Live Terminal Widget -->
@@ -204,12 +247,14 @@
                     Global Threat Level
                 </div>
                 <div class="threat-meter">
-                    <div class="threat-level high">HIGH</div>
+                    <div class="threat-level {% if threat_data.level == 'CRITICAL' %}high{% elif threat_data.level == 'HIGH' %}high{% elif threat_data.level == 'MEDIUM' %}medium{% else %}low{% endif %}">
+                        {{ threat_data.level }}
+                    </div>
                     <div class="threat-bar">
-                        <div class="threat-fill" style="width: 72%"></div>
+                        <div class="threat-fill" style="width: {{ threat_data.pct }}%"></div>
                     </div>
                     <p class="threat-desc">
-                        Elevated threat activity detected across financial and healthcare sectors.
+                        {{ threat_data.desc }}
                     </p>
                 </div>
             </div>
@@ -225,8 +270,12 @@
                     <li class="trending-item">
                         <span class="trending-num">{{ loop.index }}</span>
                         <div class="trending-info">
-                            <a href="/article/{{ article.id }}">{{ article.title }}</a>
-                            <span class="trending-category">{{ article.category }}</span>
+                            <a href="/article/{{ article.id }}">
+                                {{ article.title }}
+                            </a>
+                            <span class="trending-category">
+                                {{ article.source }} · {{ article.category }}
+                            </span>
                         </div>
                     </li>
                     {% endfor %}
@@ -240,24 +289,12 @@
                     Browse Categories
                 </div>
                 <div class="category-pills">
-                    <a href="/categories" class="cat-pill cat-malware">
-                        <i class="fas fa-bug"></i> Malware
+                    {% for cat in categories %}
+                    <a href="/category/{{ cat }}"
+                       class="cat-pill cat-{{ cat | category_color }}">
+                        {{ cat }}
                     </a>
-                    <a href="/categories" class="cat-pill cat-breaches">
-                        <i class="fas fa-database"></i> Data Breaches
-                    </a>
-                    <a href="/categories" class="cat-pill cat-vulns">
-                        <i class="fas fa-triangle-exclamation"></i> Vulnerabilities
-                    </a>
-                    <a href="/categories" class="cat-pill cat-privacy">
-                        <i class="fas fa-user-shield"></i> Privacy
-                    </a>
-                    <a href="/categories" class="cat-pill cat-research">
-                        <i class="fas fa-flask"></i> Research
-                    </a>
-                    <a href="/categories" class="cat-pill cat-threats">
-                        <i class="fas fa-crosshairs"></i> Threats
-                    </a>
+                    {% endfor %}
                 </div>
             </div>
 

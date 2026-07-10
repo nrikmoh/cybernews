@@ -120,12 +120,21 @@
         </div>
         <div class="ticker-content">
             <div class="ticker-items">
-                <span>🔴 Critical zero-day in Windows Kernel actively exploited in the wild</span>
-                <span>🟠 50 million records exposed in major social media data breach</span>
-                <span>🔴 New ransomware strain hits 12 European hospitals simultaneously</span>
-                <span>🟡 FBI warns of AI-powered phishing surge — 400% increase this quarter</span>
-                <span>🟢 NSA releases post-quantum encryption guidelines for 2025</span>
-                <span>🔵 Record $2.3B GDPR fine issued against major tech platform</span>
+                {% for article in all_articles[:8] %}
+                <span>
+                    {% if article.category == 'Malware' %}🔴
+                    {% elif article.category == 'Data Breaches' %}🟠
+                    {% elif article.category == 'Vulnerabilities' %}🔴
+                    {% elif article.category == 'Privacy' %}🔵
+                    {% elif article.category == 'Research' %}🟢
+                    {% elif article.category == 'Threats' %}🟡
+                    {% else %}⚪{% endif %}
+                    <a href="/article/{{ article.id }}"
+                       style="color: var(--text-muted); text-decoration:none;">
+                        {{ article.title }}
+                    </a>
+                </span>
+                {% endfor %}
             </div>
         </div>
     </div>

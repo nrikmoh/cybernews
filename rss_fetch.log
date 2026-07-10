@@ -1,0 +1,40 @@
+/home/hassan007/cybernews/venv/lib/python3.12/site-packages/flask_limiter/_extension.py:364: UserWarning: Using the in-memory storage for tracking rate limits as no storage was explicitly specified. This is not recommended for production use. See: https://flask-limiter.readthedocs.io#configuring-a-storage-backend for documentation about configuring the storage backend.
+  warnings.warn(
+INFO:rss_fetcher:==================================================
+INFO:rss_fetcher:Starting RSS fetch cycle
+INFO:rss_fetcher:==================================================
+INFO:rss_fetcher:Fetching: The Hacker News (https://feeds.feedburner.com/TheHackersNews)
+INFO:rss_fetcher:  → No new articles from The Hacker News
+INFO:rss_fetcher:Fetching: Krebs on Security (https://krebsonsecurity.com/feed/)
+INFO:rss_fetcher:  → No new articles from Krebs on Security
+INFO:rss_fetcher:Fetching: Bleeping Computer (https://www.bleepingcomputer.com/feed/)
+INFO:rss_fetcher:  → No new articles from Bleeping Computer
+INFO:rss_fetcher:Fetching: Dark Reading (https://www.darkreading.com/rss.xml)
+INFO:rss_fetcher:  → No new articles from Dark Reading
+INFO:rss_fetcher:Fetching: SecurityWeek (https://feeds.feedburner.com/securityweek)
+INFO:rss_fetcher:  → No new articles from SecurityWeek
+INFO:rss_fetcher:==================================================
+INFO:rss_fetcher:Fetch complete. Total new articles: 0
+INFO:rss_fetcher:==================================================
+
+✅ Done! Added 0 new articles to the database.
+/home/hassan007/cybernews/venv/lib/python3.12/site-packages/flask_limiter/_extension.py:364: UserWarning: Using the in-memory storage for tracking rate limits as no storage was explicitly specified. This is not recommended for production use. See: https://flask-limiter.readthedocs.io#configuring-a-storage-backend for documentation about configuring the storage backend.
+  warnings.warn(
+INFO:rss_fetcher:==================================================
+INFO:rss_fetcher:Starting RSS fetch cycle
+INFO:rss_fetcher:==================================================
+INFO:rss_fetcher:Fetching: The Hacker News (https://feeds.feedburner.com/TheHackersNews)
+INFO:rss_fetcher:  ✓ Added 1 new articles from The Hacker News
+INFO:rss_fetcher:Fetching: Krebs on Security (https://krebsonsecurity.com/feed/)
+INFO:rss_fetcher:  → No new articles from Krebs on Security
+INFO:rss_fetcher:Fetching: Bleeping Computer (https://www.bleepingcomputer.com/feed/)
+INFO:rss_fetcher:  → No new articles from Bleeping Computer
+INFO:rss_fetcher:Fetching: Dark Reading (https://www.darkreading.com/rss.xml)
+INFO:rss_fetcher:  ✓ Added 1 new articles from Dark Reading
+INFO:rss_fetcher:Fetching: SecurityWeek (https://feeds.feedburner.com/securityweek)
+INFO:rss_fetcher:  → No new articles from SecurityWeek
+INFO:rss_fetcher:==================================================
+INFO:rss_fetcher:Fetch complete. Total new articles: 2
+INFO:rss_fetcher:==================================================
+
+✅ Done! Added 2 new articles to the database.

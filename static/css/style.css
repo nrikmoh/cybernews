@@ -2837,3 +2837,133 @@ body.light-mode body::before {
         font-size: 1.8rem;
     }
 }
+
+
+/* ═══════════════════════════════════════════════════════
+   PAGINATION — FIXED HORIZONTAL LAYOUT
+═══════════════════════════════════════════════════════ */
+.pagination-wrap {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--bg-border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+}
+
+.pagination-info {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+}
+
+.pagination-buttons {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+}
+
+.page-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    min-width: 40px;
+    height: 40px;
+    padding: 0 0.75rem;
+    background: var(--bg-card);
+    border: 1px solid var(--bg-border);
+    border-radius: var(--radius);
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: var(--transition);
+    text-decoration: none;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.page-btn:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: rgba(0,212,255,0.05);
+    transform: translateY(-2px);
+}
+
+.page-btn-active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: var(--bg-dark);
+    cursor: default;
+    font-weight: 700;
+}
+
+.page-btn-active:hover {
+    transform: none;
+    color: var(--bg-dark);
+}
+
+.page-btn-disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.page-dots {
+    color: var(--text-muted);
+    padding: 0 0.3rem;
+    font-size: 1rem;
+    user-select: none;
+}
+
+@media (max-width: 768px) {
+    .page-btn {
+        min-width: 36px;
+        height: 36px;
+        padding: 0 0.5rem;
+        font-size: 0.8rem;
+    }
+}
+
+
+/* ═══════════════════════════════════════════════════════
+   PAGINATION FIX — Force horizontal layout
+═══════════════════════════════════════════════════════ */
+.pagination-buttons {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.35rem !important;
+}
+
+.page-btn {
+    display: inline-flex !important;
+    white-space: nowrap !important;
+}
+
+.pagination-wrap {
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+}
+
+
+/* ═══════════════════════════════════════════════════════
+   DYNAMIC THREAT LEVELS
+═══════════════════════════════════════════════════════ */
+.threat-level.medium {
+    color: #f59e0b;
+    text-shadow: 0 0 20px rgba(245,158,11,0.5);
+}
+
+.threat-level.low {
+    color: var(--secondary);
+    text-shadow: 0 0 20px rgba(0,255,136,0.5);
+}

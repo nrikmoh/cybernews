@@ -92,7 +92,9 @@
                         <span class="trending-num">{{ loop.index }}</span>
                         <div class="trending-info">
                             <a href="/article/{{ rel.id }}">{{ rel.title }}</a>
-                            <span class="trending-category">{{ rel.category }}</span>
+                            <span class="trending-category">
+                                {{ rel.source }} · {{ rel.category }}
+                            </span>
                         </div>
                     </li>
                     {% endfor %}
