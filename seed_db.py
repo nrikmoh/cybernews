@@ -16,7 +16,7 @@
 
 import sys
 from app     import app, db
-from models  import Article, Category, Newsletter
+from models  import Article, Category, Newsletter, User
 from datetime import datetime, timedelta
 
 

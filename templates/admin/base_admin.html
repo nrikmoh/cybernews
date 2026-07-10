@@ -60,11 +60,30 @@
             </a>
         </nav>
 
-        <div class="admin-sidebar-footer">
-            <i class="fas fa-circle-dot" style="color: var(--secondary)"></i>
-            System Online
+	       <div class="admin-sidebar-footer">
+        	    <div style="display:flex; flex-direction:column; gap:0.5rem; width:100%;">
+               		 <a href="{{ url_for('auth.profile') }}"
+                   style="display:flex; align-items:center; gap:0.6rem;
+                          color:var(--text-muted); font-size:0.82rem;
+                          text-decoration:none; padding:0.4rem 0;">
+                    <i class="fas fa-user-circle"
+                       style="color:var(--primary)"></i>
+                    {{ current_user.username }}
+                    <span style="font-size:0.7rem; opacity:0.6;">
+                        ({{ current_user.role }})
+                    </span>
+                </a>
+                <a href="{{ url_for('auth.logout') }}"
+                   style="display:flex; align-items:center; gap:0.6rem;
+                          color:var(--text-muted); font-size:0.82rem;
+                          text-decoration:none; padding:0.4rem 0;
+                          transition:color 0.2s;">
+                    <i class="fas fa-right-from-bracket"
+                       style="color:var(--cat-malware)"></i>
+                    Logout
+                </a>
+            </div>
         </div>
-
     </aside>
 
     <!-- ── Main Content ───────────────────────── -->
@@ -77,12 +96,21 @@
                 <h1 class="admin-page-title">Dashboard</h1>
                 {% endblock %}
             </div>
-            <div class="admin-topbar-right">
-                <span class="admin-badge">
-                    <i class="fas fa-terminal"></i>
-                    Admin Mode
-                </span>
-            </div>
+
+	        <div class="admin-topbar-right">
+            <a href="{{ url_for('auth.profile') }}"
+               style="display:flex; align-items:center; gap:0.5rem;
+                      color:var(--text-muted); font-size:0.85rem;
+                      text-decoration:none; margin-right:1rem;">
+                <i class="fas fa-user-circle"
+                   style="color:var(--primary)"></i>
+                {{ current_user.username }}
+            </a>
+            <span class="admin-badge">
+                <i class="fas fa-terminal"></i>
+                Admin Mode
+            </span>
+        </div>
         </div>
 
         <!-- Flash Messages -->

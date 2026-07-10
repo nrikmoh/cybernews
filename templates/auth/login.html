@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login — CyberNews</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        /* ── Login page specific styles ── */
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: var(--bg-darkest);
+            /* Subtle grid pattern background */
+            background-image:
+                linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+
+        .login-wrapper {
+            width: 100%;
+            max-width: 420px;
+            padding: 1rem;
+        }
+
+        /* Logo at top */
+        .login-logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-logo-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: white;
+            margin: 0 auto 1rem;
+            box-shadow: 0 8px 30px rgba(0,212,255,0.3);
+        }
+
+        .login-logo h1 {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        .login-logo p {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        /* Login card */
+        .login-card {
+            background: var(--bg-card);
+            border: 1px solid var(--bg-border);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+        }
+
+        .login-card h2 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .login-card h2 i {
+            color: var(--primary);
+        }
+
+        .login-subtitle {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            margin-bottom: 1.75rem;
+        }
+
+        /* Flash messages inside login */
+        .login-flash {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 1.25rem;
+        }
+
+        .login-flash-error {
+            background: rgba(239,68,68,0.12);
+            border: 1px solid rgba(239,68,68,0.3);
+            color: #ef4444;
+        }
+
+        .login-flash-warning {
+            background: rgba(245,158,11,0.12);
+            border: 1px solid rgba(245,158,11,0.3);
+            color: #f59e0b;
+        }
+
+        .login-flash-success {
+            background: rgba(16,185,129,0.12);
+            border: 1px solid rgba(16,185,129,0.3);
+            color: #10b981;
+        }
+
+        .login-flash-info {
+            background: rgba(0,212,255,0.08);
+            border: 1px solid rgba(0,212,255,0.2);
+            color: var(--primary);
+        }
+
+        /* Form groups */
+        .login-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .login-label {
+            display: block;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .login-input-wrap {
+            position: relative;
+        }
+
+        .login-input-icon {
+            position: absolute;
+            left: 0.9rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            pointer-events: none;
+        }
+
+        .login-input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            background: var(--bg-elevated);
+            border: 1px solid var(--bg-border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            font-family: var(--font-main);
+            transition: all 0.25s ease;
+        }
+
+        .login-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0,212,255,0.1);
+        }
+
+        /* Password toggle */
+        .password-toggle {
+            position: absolute;
+            right: 0.9rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0.2rem;
+            font-size: 0.85rem;
+            transition: color 0.2s;
+        }
+
+        .password-toggle:hover {
+            color: var(--primary);
+        }
+
+        /* Remember me */
+        .login-remember {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+
+        .login-remember input {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+
+        /* Submit button */
+        .login-btn {
+            width: 100%;
+            padding: 0.85rem;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 700;
+            font-family: var(--font-main);
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,212,255,0.35);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Footer links */
+        .login-footer {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.82rem;
+            color: var(--text-muted);
+        }
+
+        .login-footer a {
+            color: var(--primary);
+        }
+
+        /* Security notice */
+        .security-notice {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+            padding: 0.75rem 1rem;
+            background: rgba(0,212,255,0.05);
+            border: 1px solid rgba(0,212,255,0.1);
+            border-radius: 8px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .security-notice i {
+            color: var(--secondary);
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-wrapper">
+
+        <!-- Logo -->
+        <div class="login-logo">
+            <div class="login-logo-icon">
+                <i class="fas fa-shield-halved"></i>
+            </div>
+            <h1>CyberNews</h1>
+            <p>Security Intelligence Daily</p>
+        </div>
+
+        <!-- Login Card -->
+        <div class="login-card">
+
+            <h2><i class="fas fa-lock"></i> Admin Access</h2>
+            <p class="login-subtitle">
+                Sign in to manage your CyberNews content
+            </p>
+
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                    <div class="login-flash login-flash-{{ category }}">
+                        <i class="fas {{ 
+                            'fa-check-circle'         if category == 'success' else
+                            'fa-triangle-exclamation' if category == 'warning' else
+                            'fa-times-circle'         if category == 'error'   else
+                            'fa-info-circle' }}"></i>
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <!-- Login Form -->
+            <form method="POST" action="{{ url_for('auth.login') }}" novalidate>
+
+                <!--
+                    CSRF Token
+                    We're not using WTForms here (just plain HTML form)
+                    so we generate the CSRF token manually.
+                    Flask-WTF provides this via the csrf token.
+                -->
+                <input type="hidden"
+                       name="csrf_token"
+                       value="{{ csrf_token() }}">
+
+                <!-- Username -->
+                <div class="login-group">
+                    <label class="login-label" for="username">
+                        Username
+                    </label>
+                    <div class="login-input-wrap">
+                        <i class="fas fa-user login-input-icon"></i>
+                        <input type="text"
+                               id="username"
+                               name="username"
+                               class="login-input"
+                               value="{{ username or '' }}"
+                               placeholder="Enter your username"
+                               autocomplete="username"
+                               autofocus
+                               required>
+                    </div>
+                </div>
+
+                <!-- Password -->
+                <div class="login-group">
+                    <label class="login-label" for="password">
+                        Password
+                    </label>
+                    <div class="login-input-wrap">
+                        <i class="fas fa-key login-input-icon"></i>
+                        <input type="password"
+                               id="password"
+                               name="password"
+                               class="login-input"
+                               placeholder="Enter your password"
+                               autocomplete="current-password"
+                               required>
+                        <button type="button"
+                                class="password-toggle"
+                                id="toggle-password"
+                                title="Show/hide password">
+                            <i class="fas fa-eye" id="toggle-icon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Remember Me -->
+                <label class="login-remember">
+                    <input type="checkbox" name="remember">
+                    Keep me logged in for 7 days
+                </label>
+
+                <!-- Submit -->
+                <button type="submit" class="login-btn">
+                    <i class="fas fa-right-to-bracket"></i>
+                    Sign In to Admin Panel
+                </button>
+
+            </form>
+
+            <!-- Security Notice -->
+            <div class="security-notice">
+                <i class="fas fa-shield-check"></i>
+                <span>
+                    This is a restricted area. All login attempts are logged.
+                    Unauthorized access is prohibited.
+                </span>
+            </div>
+
+        </div>
+
+        <!-- Back to site link -->
+        <div class="login-footer">
+            <a href="{{ url_for('main.home') }}">
+                <i class="fas fa-arrow-left"></i>
+                Back to CyberNews
+            </a>
+        </div>
+
+    </div>
+
+    <script>
+        // Password show/hide toggle
+        const toggle   = document.getElementById('toggle-password');
+        const pwInput  = document.getElementById('password');
+        const pwIcon   = document.getElementById('toggle-icon');
+
+        if (toggle && pwInput) {
+            toggle.addEventListener('click', function () {
+                const isPassword = pwInput.type === 'password';
+                pwInput.type     = isPassword ? 'text' : 'password';
+                pwIcon.className = isPassword
+                    ? 'fas fa-eye-slash'
+                    : 'fas fa-eye';
+            });
+        }
+
+        // Auto-focus username if empty, password if username filled
+        window.addEventListener('load', function () {
+            const un = document.getElementById('username');
+            const pw = document.getElementById('password');
+            if (un && !un.value) {
+                un.focus();
+            } else if (pw) {
+                pw.focus();
+            }
+        });
+    </script>
+
+</body>
+</html>

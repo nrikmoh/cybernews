@@ -241,3 +241,93 @@ class Newsletter(db.Model):
 
     def __repr__(self):
         return f'<Newsletter {self.email}>'
+
+# ═══════════════════════════════════════════════════════
+# USER MODEL
+# Stores admin user accounts.
+# Flask-Login requires specific methods on this class.
+# ═══════════════════════════════════════════════════════
+class User(db.Model):
+    """
+    Admin user accounts for CyberNews.
+    
+    Flask-Login needs four things from this class:
+    - is_authenticated  → is user logged in?
+    - is_active         → is account enabled?
+    - is_anonymous      → is this a guest?
+    - get_id()          → return user's unique ID
+    
+    We get all of these for free by importing UserMixin.
+    """
+
+    __tablename__ = 'users'
+
+    id         = db.Column(db.Integer,     primary_key=True)
+    username   = db.Column(db.String(50),  nullable=False, unique=True)
+    email      = db.Column(db.String(120), nullable=False, unique=True)
+
+    # We NEVER store the real password — only the hash
+    password_hash = db.Column(db.String(255), nullable=False)
+
+    # Role: 'admin' or 'editor'
+    role       = db.Column(db.String(20),  default='admin')
+
+    # Is the account active? Admins can deactivate accounts.
+    is_active  = db.Column(db.Boolean,     default=True)
+
+    created_at = db.Column(db.DateTime,    default=datetime.utcnow)
+    last_login = db.Column(db.DateTime,    nullable=True)
+
+    # ── Flask-Login required properties ──────────────
+    @property
+    def is_authenticated(self):
+        """Return True if user is logged in."""
+        return True
+
+    @property
+    def is_anonymous(self):
+        """Return False — this is a real user."""
+        return False
+
+    def get_id(self):
+        """
+        Return the user's ID as a string.
+        Flask-Login uses this to store the user in the session.
+        Must return a STRING, not an integer.
+        """
+        return str(self.id)
+
+    # ── Password methods ──────────────────────────────
+    def set_password(self, password):
+        """
+        Hash and store a password.
+        We NEVER store the plain text password.
+        
+        bcrypt.generate_password_hash() returns bytes,
+        we decode to string for storage in the database.
+        """
+        from app import bcrypt
+        self.password_hash = bcrypt.generate_password_hash(
+            password
+        ).decode('utf-8')
+
+    def check_password(self, password):
+        """
+        Verify a password attempt against the stored hash.
+        
+        bcrypt.check_password_hash() does the comparison safely.
+        Returns True if the password matches, False otherwise.
+        """
+        from app import bcrypt
+        return bcrypt.check_password_hash(
+            self.password_hash,
+            password,
+        )
+
+    def update_last_login(self):
+        """Record when the user last logged in."""
+        self.last_login = datetime.utcnow()
+        db.session.commit()
+
+    def __repr__(self):
+        return f'<User {self.username} ({self.role})>'

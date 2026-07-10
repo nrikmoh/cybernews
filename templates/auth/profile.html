@@ -1,0 +1,66 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}My Profile{% endblock %}
+
+{% block page_title %}
+<h1 class="admin-page-title">
+    <i class="fas fa-user-circle"></i> My Profile
+</h1>
+{% endblock %}
+
+{% block content %}
+
+<div style="max-width: 600px;">
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h2><i class="fas fa-id-card"></i> Account Details</h2>
+        </div>
+        <div class="admin-card-body">
+
+            <div class="info-row">
+                <span>Username</span>
+                <span>{{ current_user.username }}</span>
+            </div>
+            <div class="info-row">
+                <span>Email</span>
+                <span>{{ current_user.email }}</span>
+            </div>
+            <div class="info-row">
+                <span>Role</span>
+                <span>
+                    <span class="status-badge status-published">
+                        {{ current_user.role | title }}
+                    </span>
+                </span>
+            </div>
+            <div class="info-row">
+                <span>Account Created</span>
+                <span>{{ current_user.created_at.strftime('%b %d, %Y') }}</span>
+            </div>
+            <div class="info-row">
+                <span>Last Login</span>
+                <span>
+                    {% if current_user.last_login %}
+                        {{ current_user.last_login.strftime('%b %d, %Y at %H:%M') }}
+                    {% else %}
+                        First login today!
+                    {% endif %}
+                </span>
+            </div>
+
+            <div style="margin-top: 1.5rem; display: flex; gap: 0.75rem;">
+                <a href="{{ url_for('admin.dashboard') }}"
+                   class="btn-primary">
+                    <i class="fas fa-gauge-high"></i> Dashboard
+                </a>
+                <a href="{{ url_for('auth.logout') }}"
+                   class="btn-secondary">
+                    <i class="fas fa-right-from-bracket"></i> Logout
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}

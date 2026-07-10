@@ -10,6 +10,8 @@ class Config:
 
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'cybernews-dev-key-change-in-production'
 
+    WTF_CSRF_ENABLED = True
+
     # ── Database ───────────────────────────────────────
     # SQLite database stored in a file called cybernews.db
     # in the project root directory.

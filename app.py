@@ -1,9 +1,19 @@
 # app.py
 from flask import Flask
-from config import config
-from models import db
-from routes import all_blueprints
-from datetime import datetime
+from flask_login  import LoginManager
+from flask_bcrypt import Bcrypt
+from flask_wtf.csrf import CSRFProtect
+from config       import config
+from models       import db
+from routes       import all_blueprints
+from datetime     import datetime
+
+# ── Extension instances ────────────────────────────────
+# Created here (outside create_app) so they can be
+# imported by other modules like models.py
+bcrypt       = Bcrypt()
+login_manager = LoginManager()
+csrf          = CSRFProtect()
 
 
 def create_app(config_name='development'):
@@ -14,11 +24,32 @@ def create_app(config_name='development'):
     # ── Load config ────────────────────────────────────
     app.config.from_object(config[config_name])
 
-    # ── Initialize database ────────────────────────────
-    # This connects SQLAlchemy to our Flask app.
-    # db was created in models.py without an app,
-    # now we give it one.
+    # ── Initialize extensions ──────────────────────────
     db.init_app(app)
+    bcrypt.init_app(app)
+    login_manager.init_app(app)
+    csrf.init_app(app)
+
+    # ── Flask-Login settings ───────────────────────────
+    # Where to redirect when @login_required fails
+    login_manager.login_view       = 'auth.login'
+
+    # The flash message shown when redirected
+    login_manager.login_message    = 'Please log in to access the admin panel.'
+
+    # Message category (used for CSS styling)
+    login_manager.login_message_category = 'warning'
+
+    # ── User loader ────────────────────────────────────
+    # Flask-Login calls this function on every request
+    # to reload the user from the session.
+    # It receives the user_id stored in the session cookie
+    # and must return the User object (or None).
+    @login_manager.user_loader
+    def load_user(user_id):
+        from models import User
+        # Integer cast because get_id() returns a string
+        return db.session.get(User, int(user_id))
 
     # ── Register blueprints ────────────────────────────
     for blueprint in all_blueprints:
@@ -28,14 +59,16 @@ def create_app(config_name='development'):
     @app.context_processor
     def inject_globals():
         from models import Article
+        from flask_login import current_user
         return {
-            'app_name':     app.config['APP_NAME'],
-            'app_tagline':  app.config['APP_TAGLINE'],
-            'categories':   app.config['CATEGORIES'],
-            'current_year': datetime.now().year,
-            'all_articles': Article.query.filter_by(published=True)
-                                         .order_by(Article.created_at.desc())
-                                         .limit(10).all(),
+            'app_name':      app.config['APP_NAME'],
+            'app_tagline':   app.config['APP_TAGLINE'],
+            'categories':    app.config['CATEGORIES'],
+            'current_year':  datetime.now().year,
+            'current_user':  current_user,
+            'all_articles':  Article.query.filter_by(published=True)
+                                          .order_by(Article.created_at.desc())
+                                          .limit(10).all(),
         }
 
     # ── Template filters ───────────────────────────────
@@ -67,7 +100,7 @@ def create_app(config_name='development'):
     return app
 
 
-# ── Create app instance ────────────────────────────────
+# ── Create the app instance ────────────────────────────
 app = create_app('development')
 
 
