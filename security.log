@@ -28,3 +28,12 @@
 2026-07-10 19:39:02 | WARNING | BLOCKED | IP: 84.235.238.20 | Reason: Attack tool: sqlmap | Path: / | UA: sqlmap/1.0
 2026-07-10 19:39:09 | WARNING | BLOCKED | IP: 84.235.238.20 | Reason: Scanner path: /.git | Path: /.git | UA: curl/8.19.0
 2026-07-10 19:39:09 | WARNING | BLOCKED | IP: 84.235.238.20 | Reason: Scanner path: /.git | Path: /.git | UA: curl/8.19.0
+2026-07-10 20:06:35 | WARNING | LOGIN FAILED | Username: Hassan | IP: 84.235.238.20 | User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Sa
+2026-07-10 20:06:35 | WARNING | LOGIN FAILED | Username: Hassan | IP: 84.235.238.20 | User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Sa
+2026-07-10 20:06:35 | WARNING | LOGIN FAILED | Username: Hassan | IP: 84.235.238.20 | User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Sa
+2026-07-10 20:06:46 | WARNING | LOGIN FAILED | Username: Hassan | IP: 84.235.238.20 | User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Sa
+2026-07-10 20:06:46 | WARNING | LOGIN FAILED | Username: Hassan | IP: 84.235.238.20 | User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Sa
+2026-07-10 20:06:46 | WARNING | LOGIN FAILED | Username: Hassan | IP: 84.235.238.20 | User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Sa
+2026-07-10 20:10:24 | WARNING | LOGIN FAILED | Username: hassan | IP: 84.235.238.20 | User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Sa
+2026-07-10 20:10:24 | WARNING | LOGIN FAILED | Username: hassan | IP: 84.235.238.20 | User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Sa
+2026-07-10 20:10:24 | WARNING | LOGIN FAILED | Username: hassan | IP: 84.235.238.20 | User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Sa

@@ -243,3 +243,47 @@ def security_log():
         failed  = failed,
         success = success,
     )
+
+# ─────────────────────────────────────────
+# MANUAL RSS FETCH TRIGGER
+# ─────────────────────────────────────────
+@admin_bp.route('/fetch-news', methods=['POST'])
+@login_required
+def fetch_news():
+    """
+    Manually trigger an RSS fetch from the admin panel.
+    Useful for getting fresh content without waiting for cron.
+    """
+    try:
+        import subprocess
+        import sys
+
+        # Run the fetcher as a subprocess
+        result = subprocess.run(
+            [sys.executable, 'rss_fetcher.py'],
+            capture_output = True,
+            text           = True,
+            timeout        = 60,
+            cwd            = '/home/hassan007/cybernews',
+        )
+
+        if result.returncode == 0:
+            # Count how many articles are now in DB
+            count = Article.query.filter_by(published=True).count()
+            flash(
+                f'✅ News fetched successfully! '
+                f'Database now has {count} articles.',
+                'success'
+            )
+        else:
+            flash(
+                f'⚠️ Fetch completed with warnings. Check rss_fetch.log',
+                'warning'
+            )
+
+    except subprocess.TimeoutExpired:
+        flash('⏱️ Fetch timed out. It may still be running.', 'warning')
+    except Exception as e:
+        flash(f'❌ Error: {str(e)}', 'error')
+
+    return redirect(url_for('admin.dashboard'))

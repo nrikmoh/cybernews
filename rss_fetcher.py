@@ -1,0 +1,369 @@
+# rss_fetcher.py
+# ─────────────────────────────────────────────────────────
+# Automatic RSS feed fetcher for CyberNews.
+#
+# This script:
+# 1. Fetches real cybersecurity news from RSS feeds
+# 2. Saves new articles to the database
+# 3. Can run once manually OR on a schedule
+#
+# Usage:
+#   python rss_fetcher.py          → fetch once now
+#   python rss_fetcher.py --watch  → fetch every hour forever
+# ─────────────────────────────────────────────────────────
+
+import sys
+import time
+import hashlib
+import logging
+import feedparser
+import requests
+from datetime  import datetime
+from app       import app
+from models    import db, Article
+
+# ── Logging ────────────────────────────────────────────
+logging.basicConfig(
+    level   = logging.INFO,
+    format  = '%(asctime)s | %(levelname)s | %(message)s',
+    datefmt = '%Y-%m-%d %H:%M:%S',
+)
+logger = logging.getLogger('rss_fetcher')
+
+
+# ── RSS Feed Sources ───────────────────────────────────
+# Each feed has:
+#   url      → the RSS feed URL
+#   source   → display name shown on the article card
+#   category → which category to assign articles to
+#   default_image → fallback image if article has no image
+
+FEEDS = [
+    {
+        'url':    'https://feeds.feedburner.com/TheHackersNews',
+        'source': 'The Hacker News',
+        'category': 'Vulnerabilities',
+        'default_image': 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&q=80',
+    },
+    {
+        'url':    'https://krebsonsecurity.com/feed/',
+        'source': 'Krebs on Security',
+        'category': 'Threats',
+        'default_image': 'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=800&q=80',
+    },
+    {
+        'url':    'https://www.bleepingcomputer.com/feed/',
+        'source': 'Bleeping Computer',
+        'category': 'Malware',
+        'default_image': 'https://images.unsplash.com/photo-1614064641938-3bbee52942c7?w=800&q=80',
+    },
+    {
+        'url':    'https://www.darkreading.com/rss.xml',
+        'source': 'Dark Reading',
+        'category': 'Research',
+        'default_image': 'https://images.unsplash.com/photo-1510511459019-5dda7724fd87?w=800&q=80',
+    },
+    {
+        'url':    'https://feeds.feedburner.com/securityweek',
+        'source': 'SecurityWeek',
+        'category': 'Threats',
+        'default_image': 'https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=800&q=80',
+    },
+]
+
+
+# ── Category Keywords ──────────────────────────────────
+# These help us auto-detect the right category
+# based on keywords in the article title
+
+CATEGORY_KEYWORDS = {
+    'Malware': [
+        'malware', 'ransomware', 'trojan', 'virus', 'worm',
+        'spyware', 'botnet', 'rootkit', 'backdoor', 'keylogger',
+        'cryptominer', 'rat ', 'dropper',
+    ],
+    'Data Breaches': [
+        'breach', 'leak', 'exposed', 'stolen', 'data breach',
+        'records exposed', 'database leaked', 'hacked', 'compromised',
+        'million records', 'billion records',
+    ],
+    'Vulnerabilities': [
+        'vulnerability', 'cve-', 'zero-day', 'zero day', 'patch',
+        'exploit', 'rce', 'remote code', 'sql injection', 'xss',
+        'buffer overflow', 'critical flaw', 'security flaw', 'unpatched',
+    ],
+    'Privacy': [
+        'privacy', 'gdpr', 'surveillance', 'tracking', 'data protection',
+        'personal data', 'spy', 'spying', 'wiretap', 'facial recognition',
+    ],
+    'Research': [
+        'research', 'discovered', 'analysis', 'report', 'study',
+        'academic', 'paper', 'tool', 'framework', 'technique',
+        'method', 'found', 'reveals',
+    ],
+    'Threats': [
+        'apt', 'nation state', 'chinese hackers', 'russian hackers',
+        'north korea', 'iran', 'threat actor', 'campaign', 'attack',
+        'phishing', 'ddos', 'infrastructure', 'espionage',
+    ],
+}
+
+
+def detect_category(title, summary, default_category):
+    """
+    Automatically detect the best category for an article
+    by looking for keywords in the title and summary.
+    
+    Returns the detected category or the default one.
+    """
+    # Combine title and summary for keyword search
+    text = (title + ' ' + summary).lower()
+
+    # Score each category
+    scores = {}
+    for category, keywords in CATEGORY_KEYWORDS.items():
+        score = sum(1 for kw in keywords if kw in text)
+        if score > 0:
+            scores[category] = score
+
+    # Return the highest scoring category
+    if scores:
+        return max(scores, key=scores.get)
+
+    return default_category
+
+
+def make_article_id(title, source):
+    """
+    Create a unique fingerprint for an article
+    based on its title and source.
+    
+    We use this to avoid adding duplicate articles.
+    MD5 is fine here — we're not using it for security,
+    just for deduplication.
+    """
+    unique_string = f"{title.lower().strip()}{source.lower()}"
+    return hashlib.md5(unique_string.encode()).hexdigest()
+
+
+def article_exists(title, source):
+    """
+    Check if an article with this title already exists
+    in the database.
+    """
+    # Simple check: does any article have this exact title?
+    existing = Article.query.filter(
+        Article.title   == title,
+        Article.source  == source,
+    ).first()
+    return existing is not None
+
+
+def clean_text(text):
+    """
+    Clean up text from RSS feeds.
+    RSS feeds sometimes contain HTML tags or extra whitespace.
+    """
+    if not text:
+        return ''
+
+    import re
+
+    # Remove HTML tags
+    text = re.sub(r'<[^>]+>', '', text)
+
+    # Remove extra whitespace
+    text = ' '.join(text.split())
+
+    # Fix common HTML entities
+    text = text.replace('&amp;', '&')
+    text = text.replace('&lt;',  '<')
+    text = text.replace('&gt;',  '>')
+    text = text.replace('&quot;', '"')
+    text = text.replace('&#39;', "'")
+    text = text.replace('&nbsp;', ' ')
+
+    return text.strip()
+
+
+def fetch_feed(feed_config):
+    """
+    Fetch and parse one RSS feed.
+    Returns a list of new articles that were added to the database.
+    """
+    url    = feed_config['url']
+    source = feed_config['source']
+    logger.info(f'Fetching: {source} ({url})')
+
+    try:
+        # feedparser handles the HTTP request and XML parsing
+        feed = feedparser.parse(url)
+
+        if feed.bozo and not feed.entries:
+            logger.warning(f'Failed to parse feed: {source}')
+            return 0
+
+        new_count = 0
+
+        for entry in feed.entries:
+
+            # ── Extract article data ───────────────────
+            title   = clean_text(getattr(entry, 'title', ''))
+            summary = clean_text(getattr(entry, 'summary', ''))
+
+            # Skip if no title or too short
+            if not title or len(title) < 10:
+                continue
+
+            # Skip if too short summary
+            if len(summary) < 20:
+                summary = f"Read the full article at {source} for complete details about this cybersecurity news story."
+
+            # Truncate very long summaries
+            if len(summary) > 500:
+                summary = summary[:497] + '...'
+
+            # ── Check for duplicates ───────────────────
+            if article_exists(title, source):
+                continue  # skip — already in database
+
+            # ── Detect best category ───────────────────
+            category = detect_category(
+                title,
+                summary,
+                feed_config['category'],
+            )
+
+            # ── Get article image ──────────────────────
+            image_url = feed_config['default_image']
+
+            # Try to find an image in the entry
+            if hasattr(entry, 'media_content'):
+                for media in entry.media_content:
+                    if media.get('type', '').startswith('image'):
+                        image_url = media.get('url', image_url)
+                        break
+
+            if hasattr(entry, 'links'):
+                for link in entry.links:
+                    if link.get('type', '').startswith('image'):
+                        image_url = link.get('href', image_url)
+                        break
+
+            # ── Build the article body ─────────────────
+            # RSS feeds often only give us a summary.
+            # We build a proper body from what we have.
+            body = summary
+
+            # If the entry has full content, use that
+            if hasattr(entry, 'content'):
+                for content in entry.content:
+                    if content.get('type') == 'text/html':
+                        body = clean_text(content.get('value', summary))
+                        break
+
+            # Add source link at the end
+            article_link = getattr(entry, 'link', '')
+            if article_link:
+                body += f"\n\nRead the original article at {source}: {article_link}"
+
+            # ── Extract tags ───────────────────────────
+            tags = []
+            if hasattr(entry, 'tags'):
+                tags = [
+                    clean_text(t.get('term', ''))
+                    for t in entry.tags[:5]
+                    if t.get('term')
+                ]
+
+            # Always add category as a tag
+            if category not in tags:
+                tags.insert(0, category)
+
+            # ── Save to database ───────────────────────
+            article = Article(
+                title       = title[:300],
+                summary     = summary[:500],
+                body        = body,
+                category    = category,
+                source      = source,
+                image_url   = image_url,
+                featured    = False,
+                published   = True,
+                tags_string = ', '.join(tags[:5]),
+            )
+
+            db.session.add(article)
+            new_count += 1
+
+        # Commit all new articles from this feed at once
+        if new_count > 0:
+            db.session.commit()
+            logger.info(f'  ✓ Added {new_count} new articles from {source}')
+        else:
+            logger.info(f'  → No new articles from {source}')
+
+        return new_count
+
+    except Exception as e:
+        logger.error(f'Error fetching {source}: {e}')
+        db.session.rollback()
+        return 0
+
+
+def fetch_all_feeds():
+    """
+    Fetch all configured RSS feeds.
+    This is the main function that does everything.
+    """
+    logger.info('=' * 50)
+    logger.info('Starting RSS fetch cycle')
+    logger.info('=' * 50)
+
+    total_new = 0
+
+    with app.app_context():
+        for feed_config in FEEDS:
+            count     = fetch_feed(feed_config)
+            total_new += count
+            # Small delay between feeds to be polite to servers
+            time.sleep(2)
+
+    logger.info('=' * 50)
+    logger.info(f'Fetch complete. Total new articles: {total_new}')
+    logger.info('=' * 50)
+
+    return total_new
+
+
+def run_scheduler(interval_minutes=60):
+    """
+    Run the fetcher on a schedule.
+    Fetches immediately, then repeats every interval_minutes.
+    """
+    logger.info(f'Starting RSS scheduler (every {interval_minutes} minutes)')
+
+    while True:
+        fetch_all_feeds()
+
+        logger.info(f'Next fetch in {interval_minutes} minutes...')
+        logger.info(f'Press Ctrl+C to stop')
+
+        # Wait for the next cycle
+        time.sleep(interval_minutes * 60)
+
+
+# ── Entry point ────────────────────────────────────────
+if __name__ == '__main__':
+
+    if '--watch' in sys.argv:
+        # Run forever on a schedule
+        try:
+            run_scheduler(interval_minutes=60)
+        except KeyboardInterrupt:
+            logger.info('Scheduler stopped by user')
+
+    else:
+        # Run just once
+        count = fetch_all_feeds()
+        print(f'\n✅ Done! Added {count} new articles to the database.')

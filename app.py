@@ -69,6 +69,14 @@ def create_app(config_name='development'):
     if login_view:
         limiter.limit('10 per minute')(login_view)
 
+    # ── Template globals ───────────────────────────────
+    @app.template_global()
+    def csrf_token_form():
+        """Generate CSRF token input for plain HTML forms."""
+        from flask_wtf.csrf import generate_csrf
+        token = generate_csrf()
+        return f'<input type="hidden" name="csrf_token" value="{token}">'
+
     # ═══════════════════════════════════════════════════
     # SECURITY MIDDLEWARE — runs before EVERY request
     # ═══════════════════════════════════════════════════
