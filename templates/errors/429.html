@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}429 — Too Many Requests | CyberNews{% endblock %}
+
+{% block content %}
+<section class="error-page">
+    <div class="container error-container">
+
+        <div class="error-code" style="color: var(--cat-breaches);">429</div>
+
+        <div class="error-icon" style="color: var(--cat-breaches);">
+            <i class="fas fa-hand-stop"></i>
+        </div>
+
+        <h1 class="error-title">Slow Down!</h1>
+
+        <p class="error-message">
+            Too many requests detected from your IP address.<br>
+            Please wait a moment before trying again.
+        </p>
+
+        <div class="error-terminal">
+            <span class="terminal-prompt">$</span>
+            <span class="terminal-cmd">check --rate-limit status</span>
+            <br>
+            <span class="terminal-response"
+                  style="color: var(--cat-breaches);">
+                ERROR: Rate limit exceeded
+            </span>
+            <br>
+            <span class="terminal-response">
+                Retry after: 1 minute
+            </span>
+            <br>
+            <span class="terminal-response">
+                Reason: Too many failed login attempts
+            </span>
+        </div>
+
+        <!-- Countdown timer -->
+        <div style="margin-bottom: 2rem;">
+            <div style="font-size: 0.9rem;
+                        color: var(--text-muted);
+                        margin-bottom: 0.5rem;">
+                You can try again in:
+            </div>
+            <div id="countdown"
+                 style="font-size: 2.5rem;
+                        font-weight: 900;
+                        font-family: var(--font-mono);
+                        color: var(--cat-breaches);">
+                60
+            </div>
+            <div style="font-size: 0.8rem; color: var(--text-muted);">
+                seconds
+            </div>
+        </div>
+
+        <div class="error-actions">
+            <a href="{{ url_for('main.home') }}" class="hero-btn">
+                <i class="fas fa-house"></i> Return to Base
+            </a>
+            <a href="{{ url_for('auth.login') }}"
+               class="back-btn"
+               style="margin-left:1rem;"
+               id="retry-link">
+                <i class="fas fa-rotate-right"></i> Try Again
+            </a>
+        </div>
+
+    </div>
+</section>
+
+<script>
+    // Countdown timer
+    let seconds = 60;
+    const display = document.getElementById('countdown');
+    const retryLink = document.getElementById('retry-link');
+
+    const timer = setInterval(function() {
+        seconds--;
+        if (display) display.textContent = seconds;
+
+        if (seconds <= 0) {
+            clearInterval(timer);
+            if (display) {
+                display.textContent = '0';
+                display.style.color = 'var(--secondary)';
+            }
+            // Auto-redirect to login when timer expires
+            if (retryLink) {
+                retryLink.style.background = 'rgba(0,212,255,0.15)';
+                retryLink.style.color      = 'var(--primary)';
+                retryLink.textContent      = '✓ Ready — Click to retry';
+            }
+        }
+    }, 1000);
+</script>
+
+{% endblock %}

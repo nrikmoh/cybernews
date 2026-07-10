@@ -6,3 +6,4 @@
 2026-07-10 08:59:15 | WARNING | SUSPICIOUS | Brute force detected for username: Hassan | IP: 84.235.238.20 | URL: http://89.22.224.4:5000/login | Method: POST
 2026-07-10 08:59:36 | WARNING | SUSPICIOUS | Brute force detected for username: hassan | IP: 84.235.238.20 | URL: http://89.22.224.4:5000/login | Method: POST
 2026-07-10 09:00:42 | WARNING | SUSPICIOUS | Brute force detected for username: Hassan | IP: 84.235.238.20 | URL: http://89.22.224.4:5000/login | Method: POST
+2026-07-10 09:21:09 | WARNING | LOGIN FAILED | Username: hassan | IP: 84.235.238.20 | User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Sa

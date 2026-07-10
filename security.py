@@ -314,6 +314,8 @@ def add_security_headers(response):
     # ── Remove Server header ───────────────────────────
     # Don't reveal what server software we're running.
     # Attackers use this to find known vulnerabilities.
+    # Remove Server header — don't reveal our technology
     response.headers.pop('Server', None)
+    response.headers['Server'] = 'CyberNews'
 
     return response
