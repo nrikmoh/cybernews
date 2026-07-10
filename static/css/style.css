@@ -1989,3 +1989,329 @@ cat >> static/css/style.css << 'EOF'
     padding: 2rem 0 4rem;
 }
 EOF
+
+
+/* ═══════════════════════════════════════════════════════
+   ANIMATED CYBER GRID BACKGROUND
+═══════════════════════════════════════════════════════ */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background-image:
+        linear-gradient(rgba(0,212,255,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,212,255,0.02) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+}
+
+/* Glowing dot on hover for article cards */
+.article-card::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    right: -1px;
+    width: 8px;
+    height: 8px;
+    background: var(--primary);
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 5;
+}
+
+.article-card:hover::before {
+    opacity: 1;
+    box-shadow: 0 0 12px rgba(0,212,255,0.5);
+}
+
+.article-card {
+    position: relative;
+}
+
+/* Gradient line under header on scroll */
+.main-header::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        var(--primary),
+        var(--accent),
+        var(--primary),
+        transparent
+    );
+    opacity: 0.4;
+}
+
+/* Pulsing border on the threat widget */
+.threat-widget {
+    animation: threat-border-pulse 3s ease-in-out infinite;
+}
+
+@keyframes threat-border-pulse {
+    0%, 100% { border-color: rgba(239,68,68,0.2); }
+    50%      { border-color: rgba(239,68,68,0.5); }
+}
+
+/* Smooth glow on category pills */
+.cat-pill:hover {
+    box-shadow: 0 0 15px currentColor;
+}
+
+/* Typing cursor effect on hero title */
+.hero-title::after {
+    content: '|';
+    color: var(--primary);
+    animation: blink 1s step-end infinite;
+    font-weight: 300;
+}
+
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+}
+
+
+/* ═══════════════════════════════════════════════════════
+   DARK/LIGHT MODE TOGGLE
+═══════════════════════════════════════════════════════ */
+.theme-toggle {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--bg-card);
+    border: 1px solid var(--bg-border);
+    color: var(--primary);
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+.theme-toggle:hover {
+    background: var(--primary);
+    color: var(--bg-dark);
+    transform: rotate(180deg);
+}
+
+/* Light mode overrides */
+body.light-mode {
+    --bg-darkest:   #f0f4f8;
+    --bg-dark:      #f8fafc;
+    --bg-card:      #ffffff;
+    --bg-elevated:  #f1f5f9;
+    --bg-border:    #e2e8f0;
+    --text-primary: #0f172a;
+    --text-muted:   #64748b;
+    --text-faint:   #94a3b8;
+    --shadow:       0 4px 20px rgba(0,0,0,0.08);
+    --shadow-card:  0 2px 12px rgba(0,0,0,0.06);
+    --shadow-cyan:  0 0 20px rgba(0,212,255,0.1);
+}
+
+body.light-mode .hero-overlay {
+    background: linear-gradient(
+        to top,
+        rgba(248,250,252,0.98) 0%,
+        rgba(248,250,252,0.7) 50%,
+        rgba(248,250,252,0.2) 100%
+    );
+}
+
+body.light-mode .hero-title {
+    color: #0f172a;
+    text-shadow: none;
+}
+
+body.light-mode .ticker-wrap {
+    background: #f1f5f9;
+}
+
+body.light-mode body::before {
+    background-image:
+        linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
+}
+
+
+/* ═══════════════════════════════════════════════════════
+   HACKER TERMINAL WIDGET
+═══════════════════════════════════════════════════════ */
+.terminal-widget {
+    border-color: rgba(0, 255, 136, 0.2);
+}
+
+.terminal-widget .widget-header {
+    background: rgba(0, 255, 136, 0.08);
+    color: var(--secondary);
+    display: flex;
+    align-items: center;
+}
+
+.terminal-widget .widget-header i {
+    color: var(--secondary);
+}
+
+.terminal-body {
+    background: #020408;
+    padding: 0.75rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    line-height: 1.8;
+    max-height: 200px;
+    overflow-y: auto;
+    color: var(--secondary);
+}
+
+/* Custom scrollbar for terminal */
+.terminal-body::-webkit-scrollbar {
+    width: 4px;
+}
+
+.terminal-body::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.terminal-body::-webkit-scrollbar-thumb {
+    background: rgba(0, 255, 136, 0.2);
+    border-radius: 4px;
+}
+
+.terminal-line {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.2rem;
+    opacity: 0;
+    animation: termFadeIn 0.3s forwards;
+}
+
+@keyframes termFadeIn {
+    to { opacity: 1; }
+}
+
+.t-prompt {
+    color: var(--primary);
+    white-space: nowrap;
+    user-select: none;
+}
+
+.t-cmd {
+    color: var(--secondary);
+}
+
+.t-output {
+    color: var(--text-muted);
+    padding-left: 0;
+}
+
+.t-warn {
+    color: #f59e0b;
+}
+
+.t-error {
+    color: #ef4444;
+}
+
+.t-success {
+    color: #10b981;
+}
+
+.t-info {
+    color: var(--primary);
+}
+
+
+/* ═══════════════════════════════════════════════════════
+   SCROLL REVEAL ANIMATIONS
+═══════════════════════════════════════════════════════ */
+.reveal-on-scroll {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.reveal-on-scroll.revealed {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Stagger delays for grid items */
+.reveal-on-scroll:nth-child(1) { transition-delay: 0.0s; }
+.reveal-on-scroll:nth-child(2) { transition-delay: 0.1s; }
+.reveal-on-scroll:nth-child(3) { transition-delay: 0.2s; }
+.reveal-on-scroll:nth-child(4) { transition-delay: 0.3s; }
+.reveal-on-scroll:nth-child(5) { transition-delay: 0.4s; }
+.reveal-on-scroll:nth-child(6) { transition-delay: 0.5s; }
+
+
+/* ═══════════════════════════════════════════════════════
+   CYBERPUNK GLITCH EFFECT ON LOGO
+═══════════════════════════════════════════════════════ */
+.logo-main {
+    position: relative;
+}
+
+.logo-main:hover {
+    animation: glitch 0.5s ease;
+}
+
+@keyframes glitch {
+    0%   { text-shadow: 2px 0 #ef4444, -2px 0 #3b82f6; }
+    20%  { text-shadow: -2px 0 #ef4444, 2px 0 #3b82f6; }
+    40%  { text-shadow: 2px 2px #ef4444, -2px -2px #3b82f6; }
+    60%  { text-shadow: -1px 1px #ef4444, 1px -1px #3b82f6; }
+    80%  { text-shadow: 1px -2px #ef4444, -1px 2px #3b82f6; }
+    100% { text-shadow: none; }
+}
+
+/* Hover glow on hero button */
+.hero-btn:hover {
+    animation: btnGlow 1.5s ease-in-out infinite;
+}
+
+@keyframes btnGlow {
+    0%, 100% { box-shadow: 0 4px 20px rgba(0,212,255,0.3); }
+    50%      { box-shadow: 0 4px 40px rgba(0,212,255,0.6), 0 0 60px rgba(0,212,255,0.2); }
+}
+
+/* Scanning line effect on hero image */
+.hero::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(0, 212, 255, 0.3),
+        rgba(0, 212, 255, 0.6),
+        rgba(0, 212, 255, 0.3),
+        transparent
+    );
+    animation: scanLine 4s linear infinite;
+    z-index: 3;
+    pointer-events: none;
+}
+
+@keyframes scanLine {
+    0%   { top: 0; }
+    100% { top: 100%; }
+}
+
+/* Card hover lift with colored shadow */
+.article-card:hover {
+    box-shadow:
+        0 20px 40px rgba(0, 0, 0, 0.3),
+        0 0 30px rgba(0, 212, 255, 0.1);
+}

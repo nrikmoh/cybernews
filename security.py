@@ -289,33 +289,26 @@ def add_security_headers(response):
     # Prevents your site from being embedded in an iframe.
     # Stops "clickjacking" attacks where attackers overlay
     # invisible iframes over your site to steal clicks.
-    response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+    response.headers['X-Frame-Options']        = 'SAMEORIGIN'
 
     # ── X-XSS-Protection ───────────────────────────────
     # Tells older browsers to block XSS attacks.
     # Modern browsers don't need this (they have CSP)
     # but it doesn't hurt to include it.
-    response.headers['X-XSS-Protection'] = '1; mode=block'
+    response.headers['X-XSS-Protection']       = '1; mode=block'
 
     # ── Referrer-Policy ────────────────────────────────
     # Controls what URL information is sent when clicking links.
     # 'strict-origin-when-cross-origin' = send full path for
     # same-origin links, only the domain for cross-origin links.
-    response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+    response.headers['Referrer-Policy']        = 'strict-origin-when-cross-origin'
 
     # ── Permissions-Policy ─────────────────────────────
     # Disables browser features we don't use.
     # Reduces attack surface.
-    response.headers['Permissions-Policy'] = (
+    response.headers['Permissions-Policy']     = (
         'camera=(), microphone=(), geolocation=(), '
         'payment=(), usb=(), magnetometer=()'
-    )
-
-    # ── Remove Server header ───────────────────────────
-    # Don't reveal what server software we're running.
-    # Attackers use this to find known vulnerabilities.
-    # Remove Server header — don't reveal our technology
-    response.headers.pop('Server', None)
-    response.headers['Server'] = 'CyberNews'
+        )
 
     return response

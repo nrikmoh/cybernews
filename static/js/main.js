@@ -888,6 +888,16 @@ document.addEventListener('DOMContentLoaded', function () {
     // Power features
     initKeyboardShortcuts();
 
+    // Personal touches
+    initThemeToggle();
+    initEasterEgg();
+
+    // Cool effects
+    initTypingEffect();
+    initParticles();
+    initTerminal();
+    initScrollReveal();
+
     // Show a welcome hint toast after 2 seconds
     setTimeout(function () {
         showToast('💡 Press "/" to quickly search articles', 'info');
@@ -897,3 +907,416 @@ document.addEventListener('DOMContentLoaded', function () {
         'background:#00d4ff; color:#020408; font-weight:bold; padding:4px 8px; border-radius:4px;'
     );
 });
+
+/* ═══════════════════════════════════════════════════════
+   DARK / LIGHT MODE TOGGLE
+═══════════════════════════════════════════════════════ */
+function initThemeToggle() {
+    var toggle = document.getElementById('theme-toggle');
+    var icon   = document.getElementById('theme-icon');
+    if (!toggle || !icon) return;
+
+    // Check for saved preference
+    var saved = localStorage.getItem('cybernews-theme');
+    if (saved === 'light') {
+        document.body.classList.add('light-mode');
+        icon.className = 'fas fa-moon';
+    }
+
+    toggle.addEventListener('click', function () {
+        var isLight = document.body.classList.toggle('light-mode');
+
+        if (isLight) {
+            icon.className = 'fas fa-moon';
+            localStorage.setItem('cybernews-theme', 'light');
+            showToast('Light mode activated ☀️', 'info');
+        } else {
+            icon.className = 'fas fa-sun';
+            localStorage.setItem('cybernews-theme', 'dark');
+            showToast('Dark mode activated 🌙', 'info');
+        }
+    });
+}
+
+
+/* ═══════════════════════════════════════════════════════
+   EASTER EGG — KONAMI CODE
+   ↑ ↑ ↓ ↓ ← → ← → B A
+═══════════════════════════════════════════════════════ */
+function initEasterEgg() {
+    var sequence = [
+        'ArrowUp', 'ArrowUp',
+        'ArrowDown', 'ArrowDown',
+        'ArrowLeft', 'ArrowRight',
+        'ArrowLeft', 'ArrowRight',
+        'b', 'a'
+    ];
+    var position = 0;
+
+    document.addEventListener('keydown', function (e) {
+        // Don't trigger when typing in inputs
+        var tag = document.activeElement.tagName.toLowerCase();
+        if (tag === 'input' || tag === 'textarea') return;
+
+        if (e.key === sequence[position]) {
+            position++;
+            if (position === sequence.length) {
+                position = 0;
+                activateEasterEgg();
+            }
+        } else {
+            position = 0;
+        }
+    });
+}
+
+function activateEasterEgg() {
+    showToast('🎮 Konami Code activated! Welcome, hacker!', 'success');
+
+    // Rainbow border on all cards
+    var cards = document.querySelectorAll('.article-card');
+    cards.forEach(function (card, i) {
+        setTimeout(function () {
+            card.style.border = '2px solid';
+            card.style.borderImage = 'linear-gradient(135deg, #ef4444, #f59e0b, #10b981, #3b82f6, #8b5cf6) 1';
+        }, i * 150);
+    });
+
+    // Green overlay flash — Matrix style
+    var overlay = document.createElement('div');
+    overlay.style.cssText = [
+        'position: fixed',
+        'inset: 0',
+        'z-index: 9998',
+        'pointer-events: none',
+        'background: rgba(0, 255, 0, 0.05)',
+        'transition: opacity 3s ease',
+    ].join(';');
+    document.body.appendChild(overlay);
+
+    // Create falling characters
+    for (var i = 0; i < 50; i++) {
+        createMatrixChar(i);
+    }
+
+    // Fade out and clean up after 4 seconds
+    setTimeout(function () {
+        overlay.style.opacity = '0';
+        setTimeout(function () {
+            overlay.remove();
+        }, 3000);
+    }, 1000);
+
+    // Reset card borders after 5 seconds
+    setTimeout(function () {
+        cards.forEach(function (card) {
+            card.style.border = '';
+            card.style.borderImage = '';
+        });
+    }, 5000);
+}
+
+function createMatrixChar(index) {
+    var chars = '01アイウエオカキクケコサシスセソ';
+    var el = document.createElement('div');
+    var x = Math.random() * 100;
+
+    el.textContent = chars[Math.floor(Math.random() * chars.length)];
+    el.style.cssText = [
+        'position: fixed',
+        'top: -20px',
+        'left: ' + x + '%',
+        'color: rgba(0, 255, 0, 0.6)',
+        'font-family: monospace',
+        'font-size: ' + (12 + Math.random() * 14) + 'px',
+        'z-index: 9999',
+        'pointer-events: none',
+        'text-shadow: 0 0 10px rgba(0, 255, 0, 0.8)',
+        'animation: matrixFall ' + (2 + Math.random() * 3) + 's linear forwards',
+        'animation-delay: ' + (index * 0.1) + 's',
+    ].join(';');
+
+    document.body.appendChild(el);
+
+    // Remove after animation
+    setTimeout(function () {
+        el.remove();
+    }, 6000);
+}
+
+
+/* ═══════════════════════════════════════════════════════
+   TYPING EFFECT ON HERO SUMMARY
+═══════════════════════════════════════════════════════ */
+function initTypingEffect() {
+    var summary = document.querySelector('.hero-summary');
+    if (!summary) return;
+
+    var fullText = summary.textContent.trim();
+    summary.textContent = '';
+    summary.style.borderRight = '2px solid var(--primary)';
+
+    var i = 0;
+    var speed = 20; // milliseconds per character
+
+    function type() {
+        if (i < fullText.length) {
+            summary.textContent += fullText.charAt(i);
+            i++;
+            setTimeout(type, speed);
+        } else {
+            // Remove cursor after typing is done
+            setTimeout(function() {
+                summary.style.borderRight = 'none';
+            }, 1500);
+        }
+    }
+
+    // Start typing after a short delay
+    setTimeout(type, 800);
+}
+
+
+/* ═══════════════════════════════════════════════════════
+   FLOATING PARTICLE BACKGROUND
+   Creates a network of connected dots — like a cyber map
+═══════════════════════════════════════════════════════ */
+function initParticles() {
+    // Only on homepage (don't slow down other pages)
+    if (!document.querySelector('.hero')) return;
+
+    var canvas = document.createElement('canvas');
+    canvas.id = 'particle-canvas';
+    canvas.style.cssText = [
+        'position: fixed',
+        'top: 0',
+        'left: 0',
+        'width: 100%',
+        'height: 100%',
+        'z-index: -1',
+        'pointer-events: none',
+        'opacity: 0.4',
+    ].join(';');
+    document.body.appendChild(canvas);
+
+    var ctx = canvas.getContext('2d');
+    var particles = [];
+    var particleCount = 40;
+    var connectDistance = 150;
+    var mouseX = 0;
+    var mouseY = 0;
+
+    function resize() {
+        canvas.width  = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    // Track mouse for interactive effect
+    document.addEventListener('mousemove', function(e) {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+    });
+
+    // Create particles
+    for (var i = 0; i < particleCount; i++) {
+        particles.push({
+            x:  Math.random() * canvas.width,
+            y:  Math.random() * canvas.height,
+            vx: (Math.random() - 0.5) * 0.5,
+            vy: (Math.random() - 0.5) * 0.5,
+            size: Math.random() * 2 + 1,
+            color: Math.random() > 0.5 ? '0, 212, 255' : '124, 58, 237',
+        });
+    }
+
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Update and draw particles
+        for (var i = 0; i < particles.length; i++) {
+            var p = particles[i];
+
+            // Move
+            p.x += p.vx;
+            p.y += p.vy;
+
+            // Bounce off edges
+            if (p.x < 0 || p.x > canvas.width)  p.vx *= -1;
+            if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+
+            // Draw particle
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(' + p.color + ', 0.6)';
+            ctx.fill();
+
+            // Connect particles near each other
+            for (var j = i + 1; j < particles.length; j++) {
+                var p2 = particles[j];
+                var dx = p.x - p2.x;
+                var dy = p.y - p2.y;
+                var dist = Math.sqrt(dx * dx + dy * dy);
+
+                if (dist < connectDistance) {
+                    var opacity = (1 - dist / connectDistance) * 0.3;
+                    ctx.beginPath();
+                    ctx.moveTo(p.x, p.y);
+                    ctx.lineTo(p2.x, p2.y);
+                    ctx.strokeStyle = 'rgba(0, 212, 255, ' + opacity + ')';
+                    ctx.lineWidth = 0.5;
+                    ctx.stroke();
+                }
+            }
+
+            // Connect particles near mouse
+            var mx = p.x - mouseX;
+            var my = p.y - mouseY;
+            var mouseDist = Math.sqrt(mx * mx + my * my);
+
+            if (mouseDist < 200) {
+                var mOpacity = (1 - mouseDist / 200) * 0.5;
+                ctx.beginPath();
+                ctx.moveTo(p.x, p.y);
+                ctx.lineTo(mouseX, mouseY);
+                ctx.strokeStyle = 'rgba(0, 255, 136, ' + mOpacity + ')';
+                ctx.lineWidth = 0.8;
+                ctx.stroke();
+            }
+        }
+
+        requestAnimationFrame(animate);
+    }
+
+    animate();
+}
+
+
+/* ═══════════════════════════════════════════════════════
+   LIVE TERMINAL WIDGET
+   Shows simulated security monitoring commands
+═══════════════════════════════════════════════════════ */
+function initTerminal() {
+    var terminal = document.getElementById('live-terminal');
+    if (!terminal) return;
+
+    // List of fake security commands and outputs
+    var commands = [
+        { type: 'cmd',     text: 'nmap -sS 192.168.1.0/24 --top-ports 100' },
+        { type: 'output',  text: 'Scanning 254 hosts...' },
+        { type: 'warn',    text: 'Port 22 open on 3 hosts (SSH)' },
+        { type: 'success', text: 'Scan complete. 12 hosts up.' },
+        { type: 'cmd',     text: 'tail -f /var/log/auth.log | grep FAILED' },
+        { type: 'error',   text: 'Failed password for root from 45.33.32.156' },
+        { type: 'error',   text: 'Failed password for admin from 185.220.101.1' },
+        { type: 'warn',    text: 'Brute force detected: 23 attempts in 60s' },
+        { type: 'cmd',     text: 'shodan search "port:3389 country:US"' },
+        { type: 'output',  text: 'Results: 4,821 hosts with RDP exposed' },
+        { type: 'warn',    text: 'WARNING: 12% running unpatched versions' },
+        { type: 'cmd',     text: 'suricata -c /etc/suricata/suricata.yaml -i eth0' },
+        { type: 'info',    text: '[IDS] Rule loaded: ET MALWARE CobaltStrike' },
+        { type: 'info',    text: '[IDS] Rule loaded: ET EXPLOIT Log4j RCE' },
+        { type: 'success', text: 'IDS engine running. 47,832 rules active.' },
+        { type: 'cmd',     text: 'curl -s https://api.abuseipdb.com/check' },
+        { type: 'error',   text: 'IP 91.240.118.172 — Confidence: 100% MALICIOUS' },
+        { type: 'warn',    text: 'Country: RU | ISP: Selectel | Reports: 1,847' },
+        { type: 'cmd',     text: 'openssl s_client -connect example.com:443' },
+        { type: 'success', text: 'TLS 1.3 | ECDHE-RSA-AES256-GCM-SHA384' },
+        { type: 'output',  text: 'Certificate valid until: Mar 15, 2027' },
+        { type: 'cmd',     text: 'grep -r "password" /var/www/ --include="*.py"' },
+        { type: 'error',   text: 'ALERT: Hardcoded password found in config.py' },
+        { type: 'warn',    text: 'Recommendation: Use environment variables' },
+        { type: 'cmd',     text: 'fail2ban-client status sshd' },
+        { type: 'output',  text: 'Currently banned: 14 IPs' },
+        { type: 'success', text: 'Total banned: 2,847 since last reset' },
+        { type: 'cmd',     text: 'zeek -i eth0 detect-attacks.zeek' },
+        { type: 'info',    text: '[Notice] SSH::Password_Guessing detected' },
+        { type: 'error',   text: '[Alert] SQL injection attempt from 103.75.32.1' },
+        { type: 'cmd',     text: 'virustotal --hash a1b2c3d4e5f6 --scan' },
+        { type: 'error',   text: 'Detection: 47/72 engines flagged as TROJAN' },
+        { type: 'warn',    text: 'Family: Emotet | First seen: 2024-11-23' },
+        { type: 'cmd',     text: 'nikto -h https://target.com -ssl' },
+        { type: 'output',  text: 'Scanning web server for vulnerabilities...' },
+        { type: 'warn',    text: 'X-Frame-Options header missing' },
+        { type: 'warn',    text: 'Server exposes version: Apache/2.4.41' },
+        { type: 'success', text: 'Scan complete: 4 vulnerabilities found' },
+    ];
+
+    var index = 0;
+    var maxLines = 20;
+
+    function addLine() {
+        var cmd = commands[index % commands.length];
+        var line = document.createElement('div');
+        line.className = 'terminal-line';
+
+        if (cmd.type === 'cmd') {
+            line.innerHTML = '<span class="t-prompt">sec@cybernews ~$</span> <span class="t-cmd">' + cmd.text + '</span>';
+        } else {
+            line.innerHTML = '<span class="t-' + cmd.type + '">' + cmd.text + '</span>';
+        }
+
+        terminal.appendChild(line);
+
+        // Remove old lines to prevent overflow
+        var lines = terminal.querySelectorAll('.terminal-line');
+        if (lines.length > maxLines) {
+            lines[0].remove();
+        }
+
+        // Auto-scroll to bottom
+        terminal.scrollTop = terminal.scrollHeight;
+
+        index++;
+
+        // Random delay between lines (faster for output, slower for commands)
+        var delay = cmd.type === 'cmd' ? 3000 + Math.random() * 2000 : 800 + Math.random() * 1200;
+        setTimeout(addLine, delay);
+    }
+
+    // Start after a short delay
+    setTimeout(addLine, 2000);
+}
+
+
+/* ═══════════════════════════════════════════════════════
+   SCROLL REVEAL — Fade in elements as they scroll into view
+═══════════════════════════════════════════════════════ */
+function initScrollReveal() {
+    // Add the reveal class to elements we want to animate
+    var selectors = [
+        '.stat-item',
+        '.article-card',
+        '.widget',
+        '.category-card',
+        '.feature-card',
+        '.about-text h2',
+        '.tech-badge',
+    ];
+
+    selectors.forEach(function(selector) {
+        var elements = document.querySelectorAll(selector);
+        elements.forEach(function(el) {
+            el.classList.add('reveal-on-scroll');
+        });
+    });
+
+    // Create the observer
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('revealed');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, {
+        threshold: 0.1,
+        rootMargin: '0px 0px -30px 0px',
+    });
+
+    // Observe all elements with the reveal class
+    document.querySelectorAll('.reveal-on-scroll').forEach(function(el) {
+        observer.observe(el);
+    });
+}

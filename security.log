@@ -7,3 +7,15 @@
 2026-07-10 08:59:36 | WARNING | SUSPICIOUS | Brute force detected for username: hassan | IP: 84.235.238.20 | URL: http://89.22.224.4:5000/login | Method: POST
 2026-07-10 09:00:42 | WARNING | SUSPICIOUS | Brute force detected for username: Hassan | IP: 84.235.238.20 | URL: http://89.22.224.4:5000/login | Method: POST
 2026-07-10 09:21:09 | WARNING | LOGIN FAILED | Username: hassan | IP: 84.235.238.20 | User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Sa
+2026-07-10 09:28:56 | WARNING | LOGIN FAILED | Username: hassan | IP: 84.235.238.20 | User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Sa
+2026-07-10 09:28:59 | WARNING | LOGIN FAILED | Username: hassan | IP: 84.235.238.20 | User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Sa
+2026-07-10 09:29:03 | WARNING | LOGIN FAILED | Username: hassan | IP: 84.235.238.20 | User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Sa
+2026-07-10 09:29:05 | WARNING | LOGIN FAILED | Username: hassan | IP: 84.235.238.20 | User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Sa
+2026-07-10 09:29:09 | WARNING | SUSPICIOUS | Brute force detected for username: hassan | IP: 84.235.238.20 | URL: http://89.22.224.4:5000/login | Method: POST
+2026-07-10 09:29:30 | WARNING | SUSPICIOUS | Brute force detected for username: hassan | IP: 84.235.238.20 | URL: http://89.22.224.4:5000/login | Method: POST
+2026-07-10 09:29:33 | WARNING | SUSPICIOUS | Brute force detected for username: lkajdfshd | IP: 84.235.238.20 | URL: http://89.22.224.4:5000/login | Method: POST
+2026-07-10 09:29:39 | WARNING | SUSPICIOUS | Brute force detected for username: lskdjfhhggjlk | IP: 84.235.238.20 | URL: http://89.22.224.4:5000/login | Method: POST
+2026-07-10 09:29:42 | WARNING | SUSPICIOUS | Brute force detected for username: rhegls | IP: 84.235.238.20 | URL: http://89.22.224.4:5000/login | Method: POST
+2026-07-10 09:29:46 | WARNING | SUSPICIOUS | Brute force detected for username: gl;sehir;g | IP: 84.235.238.20 | URL: http://89.22.224.4:5000/login | Method: POST
+2026-07-10 09:29:51 | WARNING | SUSPICIOUS | Brute force detected for username: g;seirhg | IP: 84.235.238.20 | URL: http://89.22.224.4:5000/login | Method: POST
+2026-07-10 09:30:06 | WARNING | SUSPICIOUS | Brute force detected for username: gjkl;hgh | IP: 84.235.238.20 | URL: http://89.22.224.4:5000/login | Method: POST

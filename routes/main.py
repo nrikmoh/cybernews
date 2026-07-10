@@ -7,6 +7,16 @@ from models import db, Article, Category
 
 main_bp = Blueprint('main', __name__)
 
+@main_bp.route('/api/stats')
+def api_stats():
+    """Return site statistics as JSON."""
+    total    = Article.query.filter_by(published=True).count()
+    cats     = Article.query.with_entities(Article.category).distinct().count()
+
+    return jsonify({
+        'total_articles':  total,
+        'total_categories': cats,
+    })
 
 # ─────────────────────────────────────────
 # HOME PAGE

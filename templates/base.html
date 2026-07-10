@@ -6,7 +6,9 @@
 
     <!-- This changes per page -->
     <title>{% block title %}CyberNews{% endblock %}</title>
-
+    <!-- Favicon -->
+    <link rel="icon"
+          href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -67,6 +69,12 @@
                     <i class="fas fa-search"></i>
                 </button>
             </div>
+
+            <!-- Dark/Light Mode Toggle -->
+            <button class="theme-toggle" id="theme-toggle"
+                    title="Toggle light/dark mode">
+                <i class="fas fa-sun" id="theme-icon"></i>
+            </button>
 
             <!-- Navigation -->
             <nav class="main-nav">
@@ -199,13 +207,16 @@
             </div>
 
             <!-- Footer bottom bar -->
-            <div class="footer-bottom">
-                <p>&copy; {{ current_year }} {{ app_name }}. Built from scratch with Flask.</p>
-                <p>
-                    <a href="#">Privacy Policy</a>
-                    <a href="#">Terms of Use</a>
-                    <a href="#">Contact</a>
-                </p>
+	<div class="footer-bottom">
+	    <p>&copy; {{ current_year }} {{ app_name }}. 
+        	Built from scratch with 
+        	<i class="fas fa-heart" style="color:#ef4444;"></i> 
+        	and <i class="fab fa-python" style="color:#3b82f6;"></i> by 
+       	 <a href="https://github.com/nrikmoh" target="_blank"
+           style="color:var(--primary); font-weight:600;">
+            Hassan
+        </a>
+    </p>
             </div>
 
         </div>
