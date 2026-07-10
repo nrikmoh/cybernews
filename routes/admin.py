@@ -12,6 +12,7 @@ from flask_login import login_required, current_user
 from models      import db, Article, Category, Newsletter
 from forms       import ArticleForm, DeleteForm
 from datetime    import datetime
+from security import log_admin_action, sanitize_string, admin_required
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
@@ -94,21 +95,24 @@ def article_new():
             db.session.commit()
 
         article = Article(
-            title       = form.title.data.strip(),
-            summary     = form.summary.data.strip(),
+            title       = sanitize_string(form.title.data, 300),
+            summary     = sanitize_string(form.summary.data, 500),
             body        = form.body.data.strip(),
             category    = form.category.data,
-            source      = form.source.data.strip(),
+            source      = sanitize_string(form.source.data, 100),
             image_url   = form.image_url.data or
                          'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800',
             featured    = form.featured.data,
             published   = form.published.data,
-            tags_string = form.tags_string.data.strip(),
+            tags_string = sanitize_string(form.tags_string.data, 300),
         )
         db.session.add(article)
         db.session.commit()
 
-        flash(f'✅ Article added successfully!', 'success')
+        # Log this admin action
+        log_admin_action('CREATE_ARTICLE', f'ID:{article.id} Title:{article.title[:50]}')
+
+        flash('✅ Article added successfully!', 'success')
         return redirect(url_for('admin.articles_list'))
 
     return render_template(
@@ -117,7 +121,6 @@ def article_new():
         form_title  = 'Add New Article',
         form_action = url_for('admin.article_new'),
     )
-
 
 # ─────────────────────────────────────────
 # EDIT ARTICLE
@@ -176,12 +179,15 @@ def article_delete(article_id):
         return redirect(url_for('admin.articles_list'))
 
     title = article.title[:50]
+
+    # Log before deleting
+    log_admin_action('DELETE_ARTICLE', f'ID:{article_id} Title:{title}')
+
     db.session.delete(article)
     db.session.commit()
 
     flash(f'🗑️ Article "{title}..." deleted.', 'warning')
     return redirect(url_for('admin.articles_list'))
-
 
 # ─────────────────────────────────────────
 # TOGGLE PUBLISH
@@ -206,3 +212,29 @@ def article_toggle(article_id):
 def subscribers():
     subs = Newsletter.query.order_by(Newsletter.created_at.desc()).all()
     return render_template('admin/subscribers.html', subscribers=subs)
+
+# ─────────────────────────────────────────
+# LOGIN AUDIT LOG
+# ─────────────────────────────────────────
+@admin_bp.route('/security')
+@login_required
+def security_log():
+    """View recent login attempts — security monitoring."""
+    from models import LoginLog
+
+    logs = LoginLog.query.order_by(
+        LoginLog.timestamp.desc()
+    ).limit(50).all()
+
+    # Count stats
+    total    = len(logs)
+    failed   = sum(1 for l in logs if not l.success)
+    success  = total - failed
+
+    return render_template(
+        'admin/security_log.html',
+        logs    = logs,
+        total   = total,
+        failed  = failed,
+        success = success,
+    )

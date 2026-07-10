@@ -331,3 +331,63 @@ class User(db.Model):
 
     def __repr__(self):
         return f'<User {self.username} ({self.role})>'
+
+
+# ═══════════════════════════════════════════════════════
+# LOGIN AUDIT LOG
+# Records every login attempt for security monitoring
+# ═══════════════════════════════════════════════════════
+class LoginLog(db.Model):
+    """
+    Records every login attempt.
+    
+    This lets us:
+    - Detect brute force attacks
+    - See when and where admins logged in
+    - Alert on suspicious activity
+    """
+
+    __tablename__ = 'login_logs'
+
+    id         = db.Column(db.Integer,     primary_key=True)
+    username   = db.Column(db.String(50),  nullable=False)
+    ip_address = db.Column(db.String(45),  nullable=False)  # 45 supports IPv6
+    user_agent = db.Column(db.String(200), nullable=True)
+    success    = db.Column(db.Boolean,     nullable=False)
+    timestamp  = db.Column(db.DateTime,    default=datetime.utcnow)
+
+    # Optional: link to the user if login succeeded
+    user_id    = db.Column(
+        db.Integer,
+        db.ForeignKey('users.id', ondelete='SET NULL'),
+        nullable=True,
+    )
+
+    def __repr__(self):
+        status = 'SUCCESS' if self.success else 'FAILED'
+        return f'<LoginLog {status} {self.username} {self.timestamp}>'
+
+    @classmethod
+    def record(cls, username, ip, user_agent, success, user_id=None):
+        """
+        Class method to easily record a login attempt.
+        
+        Usage:
+            LoginLog.record(
+                username   = 'hassan',
+                ip         = '1.2.3.4',
+                user_agent = request.headers.get('User-Agent'),
+                success    = True,
+                user_id    = user.id,
+            )
+        """
+        log = cls(
+            username   = username,
+            ip_address = ip,
+            user_agent = (user_agent or '')[:200],
+            success    = success,
+            user_id    = user_id,
+        )
+        db.session.add(log)
+        db.session.commit()
+        return log

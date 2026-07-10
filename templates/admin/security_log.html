@@ -1,0 +1,108 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Security Log{% endblock %}
+
+{% block page_title %}
+<h1 class="admin-page-title">
+    <i class="fas fa-shield-halved"></i> Security Log
+</h1>
+{% endblock %}
+
+{% block content %}
+
+<!-- Stats -->
+<div class="admin-stats-grid" style="margin-bottom:1.5rem;">
+    <div class="admin-stat-card">
+        <div class="stat-icon stat-icon-blue">
+            <i class="fas fa-list"></i>
+        </div>
+        <div class="stat-info">
+            <div class="stat-number">{{ total }}</div>
+            <div class="stat-label">Total Attempts</div>
+        </div>
+    </div>
+    <div class="admin-stat-card">
+        <div class="stat-icon stat-icon-green">
+            <i class="fas fa-check"></i>
+        </div>
+        <div class="stat-info">
+            <div class="stat-number">{{ success }}</div>
+            <div class="stat-label">Successful</div>
+        </div>
+    </div>
+    <div class="admin-stat-card">
+        <div class="stat-icon stat-icon-red">
+            <i class="fas fa-times"></i>
+        </div>
+        <div class="stat-info">
+            <div class="stat-number">{{ failed }}</div>
+            <div class="stat-label">Failed</div>
+        </div>
+    </div>
+</div>
+
+<!-- Log Table -->
+<div class="admin-card">
+    <div class="admin-card-header">
+        <h2>
+            <i class="fas fa-clock-rotate-left"></i>
+            Last 50 Login Attempts
+        </h2>
+    </div>
+    <div class="admin-card-body" style="padding:0;">
+        {% if logs %}
+        <table class="admin-table admin-table-full">
+            <thead>
+                <tr>
+                    <th>Status</th>
+                    <th>Username</th>
+                    <th>IP Address</th>
+                    <th>Timestamp</th>
+                    <th>User Agent</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr>
+                    <td>
+                        {% if log.success %}
+                            <span class="status-badge status-published">
+                                ✓ Success
+                            </span>
+                        {% else %}
+                            <span class="status-badge"
+                                  style="color:#ef4444;
+                                         background:rgba(239,68,68,0.1);
+                                         border-color:rgba(239,68,68,0.3)">
+                                ✗ Failed
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td style="font-family:var(--font-mono); font-size:0.85rem;">
+                        {{ log.username }}
+                    </td>
+                    <td style="font-family:var(--font-mono); font-size:0.82rem;">
+                        {{ log.ip_address }}
+                    </td>
+                    <td style="font-size:0.8rem; color:var(--text-muted);">
+                        {{ log.timestamp.strftime('%b %d %H:%M:%S') }}
+                    </td>
+                    <td style="font-size:0.75rem; color:var(--text-muted);
+                               max-width:200px; overflow:hidden;
+                               text-overflow:ellipsis; white-space:nowrap;">
+                        {{ log.user_agent or '—' }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-shield-check"></i>
+            <p>No login attempts recorded yet.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

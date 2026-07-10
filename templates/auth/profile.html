@@ -10,16 +10,19 @@
 
 {% block content %}
 
-<div style="max-width: 600px;">
+<div style="max-width:800px;">
+
+    <!-- Account Details -->
     <div class="admin-card">
         <div class="admin-card-header">
             <h2><i class="fas fa-id-card"></i> Account Details</h2>
         </div>
         <div class="admin-card-body">
-
             <div class="info-row">
                 <span>Username</span>
-                <span>{{ current_user.username }}</span>
+                <span style="font-family:var(--font-mono)">
+                    {{ current_user.username }}
+                </span>
             </div>
             <div class="info-row">
                 <span>Email</span>
@@ -41,26 +44,100 @@
                 <span>Last Login</span>
                 <span>
                     {% if current_user.last_login %}
-                        {{ current_user.last_login.strftime('%b %d, %Y at %H:%M') }}
+                        {{ current_user.last_login.strftime('%b %d, %Y at %H:%M UTC') }}
                     {% else %}
-                        First login today!
+                        First login!
                     {% endif %}
                 </span>
             </div>
-
-            <div style="margin-top: 1.5rem; display: flex; gap: 0.75rem;">
-                <a href="{{ url_for('admin.dashboard') }}"
-                   class="btn-primary">
+            <div style="margin-top:1.5rem; display:flex; gap:0.75rem;">
+                <a href="{{ url_for('admin.dashboard') }}" class="btn-primary">
                     <i class="fas fa-gauge-high"></i> Dashboard
                 </a>
-                <a href="{{ url_for('auth.logout') }}"
-                   class="btn-secondary">
+                <a href="{{ url_for('auth.logout') }}" class="btn-secondary">
                     <i class="fas fa-right-from-bracket"></i> Logout
                 </a>
             </div>
+        </div>
+    </div>
+
+    <!-- Login History -->
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h2>
+                <i class="fas fa-clock-rotate-left"></i>
+                Recent Login Activity
+            </h2>
+        </div>
+        <div class="admin-card-body">
+
+            {% if login_history %}
+            <table class="admin-table admin-table-full">
+                <thead>
+                    <tr>
+                        <th>Status</th>
+                        <th>Date & Time</th>
+                        <th>IP Address</th>
+                        <th>Browser / Device</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in login_history %}
+                    <tr>
+                        <td>
+                            {% if log.success %}
+                                <span class="status-badge status-published">
+                                    <i class="fas fa-check"></i> Success
+                                </span>
+                            {% else %}
+                                <span class="status-badge status-draft"
+                                      style="color:#ef4444; border-color:rgba(239,68,68,0.3)">
+                                    <i class="fas fa-times"></i> Failed
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td style="font-size:0.82rem; color:var(--text-muted);">
+                            {{ log.timestamp.strftime('%b %d, %Y %H:%M UTC') }}
+                        </td>
+                        <td style="font-family:var(--font-mono); font-size:0.82rem;">
+                            {{ log.ip_address }}
+                        </td>
+                        <td style="font-size:0.78rem; color:var(--text-muted);
+                                   max-width:250px; overflow:hidden;
+                                   text-overflow:ellipsis; white-space:nowrap;">
+                            {{ log.user_agent or 'Unknown' }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <!-- Security notice if any failed attempts -->
+            {% set failed_count = login_history | selectattr('success', 'equalto', false) | list | length %}
+            {% if failed_count > 0 %}
+            <div style="margin-top:1rem; padding:0.85rem 1rem;
+                        background:rgba(239,68,68,0.08);
+                        border:1px solid rgba(239,68,68,0.2);
+                        border-radius:var(--radius);
+                        font-size:0.85rem; color:#ef4444;
+                        display:flex; align-items:center; gap:0.6rem;">
+                <i class="fas fa-triangle-exclamation"></i>
+                {{ failed_count }} failed login attempt{{
+                    's' if failed_count != 1 }} detected in recent history.
+                If these were not you, your account may be under attack.
+            </div>
+            {% endif %}
+
+            {% else %}
+            <div class="empty-state">
+                <i class="fas fa-clock"></i>
+                <p>No login history yet.</p>
+            </div>
+            {% endif %}
 
         </div>
     </div>
+
 </div>
 
 {% endblock %}
