@@ -21,8 +21,10 @@ admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 # ADMIN DASHBOARD
 # ─────────────────────────────────────────
 @admin_bp.route('/')
-@login_required          # ← This is all it takes to protect a route!
+@login_required
 def dashboard():
+    from models import PageView
+
     stats = {
         'total_articles':     Article.query.count(),
         'published_articles': Article.query.filter_by(published=True).count(),
@@ -30,6 +32,9 @@ def dashboard():
         'featured_articles':  Article.query.filter_by(featured=True).count(),
         'total_subscribers':  Newsletter.query.filter_by(active=True).count(),
         'total_categories':   6,
+        'total_views':        PageView.total_views(),
+        'unique_visitors':    PageView.unique_visitors(),
+        'today_views':        PageView.today_views(),
     }
 
     categories_data = []

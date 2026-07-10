@@ -13,7 +13,6 @@ from config             import config
 from models             import db
 from routes             import all_blueprints
 from datetime           import datetime
-import logging
 
 # ── Extension instances ────────────────────────────────
 bcrypt        = Bcrypt()
@@ -23,17 +22,6 @@ limiter       = Limiter(
     key_func       = get_remote_address,
     default_limits = ['300 per minute'],
 )
-
-# ── Security Logger ───────────────────────────────────
-security_logger = logging.getLogger('cybernews.security')
-security_logger.setLevel(logging.WARNING)
-
-file_handler = logging.FileHandler('security.log')
-file_handler.setFormatter(logging.Formatter(
-    '%(asctime)s | %(levelname)s | %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S'
-))
-security_logger.addHandler(file_handler)
 
 
 def create_app(config_name='development'):
@@ -69,18 +57,21 @@ def create_app(config_name='development'):
     if login_view:
         limiter.limit('10 per minute')(login_view)
 
-    # ═══════════════════════════════════════════════════
-    # SECURITY MIDDLEWARE — runs before EVERY request
-    # ═══════════════════════════════════════════════════
+    # ── SECURITY MIDDLEWARE ────────────────────────────
+    # Runs before EVERY request
     @app.before_request
     def security_middleware():
+        """
+        Check every incoming request for threats.
+        Blocks bad IPs and attack patterns BEFORE
+        Flask even processes the request.
+        """
 
-        ip   = _get_ip()
-        path = request.path.lower()
-        url  = request.url.lower()
-        ua   = request.headers.get('User-Agent', '').lower()
+        ip  = _get_ip()
+        url = request.url.lower()
+        ua  = request.headers.get('User-Agent', '').lower()
 
-        # ── 1. Block attack tool user agents ───────────
+        # ── 1. Block known attack tool user agents ─────
         bad_agents = [
             'sqlmap', 'nikto', 'nmap', 'masscan',
             'dirbuster', 'gobuster', 'hydra',
@@ -89,64 +80,75 @@ def create_app(config_name='development'):
         ]
         for agent in bad_agents:
             if agent in ua:
-                _log_block(ip, 'Attack tool: ' + agent)
+                _log_block(ip, f'Attack tool: {agent}')
                 abort(403)
 
-        # ── 2. Block common scanner/attack paths ───────
+        # ── 2. Block common attack paths ───────────────
         attack_paths = [
             '/wp-admin', '/wp-login', '/wp-content',
             '/wp-includes', '/xmlrpc.php', '/admin.php',
             '/phpmyadmin', '/.env', '/config.php',
             '/shell.php', '/cmd.php', '/eval.php',
-            '/.git', '/.ssh',
+            '/.git', '/.ssh', '/etc/passwd',
+            '/proc/self', '/config/database',
             '/backup', '/db.sql', '/dump.sql',
         ]
+        path = request.path.lower()
         for attack_path in attack_paths:
-            if path == attack_path or path.startswith(attack_path + '/'):
-                _log_block(ip, 'Scanner path: ' + attack_path)
+            if path.startswith(attack_path):
+                _log_block(ip, f'Scanner path: {attack_path}')
                 abort(403)
 
-        # ── 3. Block SQL injection in URL ──────────────
+        # ── 3. Block SQL injection patterns in URL ─────
         sql_patterns = [
             "' or ", "' and ", "1=1", "union select",
             "drop table", "insert into", "'; drop",
-            "exec(", "xp_cmdshell",
+            "exec(", "execute(", "xp_cmdshell",
+            "char(", "nchar(", "varchar(",
         ]
         for pattern in sql_patterns:
             if pattern in url:
-                _log_block(ip, 'SQL injection: ' + pattern)
+                _log_block(ip, f'SQL injection: {pattern}')
                 abort(403)
 
         # ── 4. Block path traversal ────────────────────
-        if '..' in path:
+        if '..' in request.path or '%2e%2e' in url:
             _log_block(ip, 'Path traversal attempt')
             abort(403)
 
-        # ── 5. Block very long URLs ────────────────────
+        # ── 5. Block abnormally long URLs ──────────────
         if len(url) > 2000:
-            _log_block(ip, 'URL too long: ' + str(len(url)))
+            _log_block(ip, f'URL too long: {len(url)} chars')
             abort(403)
 
+        # ── 6. Block missing User-Agent (most scanners) ─
+        # (Comment this out if it causes issues)
+        # if not request.headers.get('User-Agent'):
+        #     _log_block(ip, 'Missing User-Agent')
+        #     abort(403)
+
     def _get_ip():
-        """Get real client IP."""
+        """Get real client IP from request."""
         forwarded = request.headers.get('X-Forwarded-For')
         if forwarded:
             return forwarded.split(',')[0].strip()
         return request.remote_addr or 'unknown'
 
     def _log_block(ip, reason):
-        """Log a blocked request to security.log."""
-        security_logger.warning(
-            'BLOCKED | IP: %s | Reason: %s | Path: %s | UA: %s',
-            ip, reason, request.path,
-            request.headers.get('User-Agent', '')[:80]
+        """Log a blocked request."""
+        import logging
+        logger = logging.getLogger('cybernews.security')
+        logger.warning(
+            f'BLOCKED | IP: {ip} | '
+            f'Reason: {reason} | '
+            f'Path: {request.path} | '
+            f'UA: {request.headers.get("User-Agent","")[:80]}'
         )
 
-    # ═══════════════════════════════════════════════════
-    # SECURITY HEADERS — added to every response
-    # ═══════════════════════════════════════════════════
+    # ── SECURITY HEADERS ───────────────────────────────
     @app.after_request
     def apply_security_headers(response):
+        """Add security headers to every response."""
         response.headers['X-Content-Type-Options'] = 'nosniff'
         response.headers['X-Frame-Options']        = 'SAMEORIGIN'
         response.headers['X-XSS-Protection']       = '1; mode=block'
@@ -155,6 +157,11 @@ def create_app(config_name='development'):
             'camera=(), microphone=(), geolocation=(), '
             'payment=(), usb=(), magnetometer=()'
         )
+        return response
+
+    # ── CONTENT SECURITY POLICY ────────────────────────
+    @app.after_request
+    def add_csp(response):
         response.headers['Content-Security-Policy'] = (
             "default-src 'self'; "
             "script-src 'self' 'unsafe-inline' cdnjs.cloudflare.com; "
@@ -167,9 +174,7 @@ def create_app(config_name='development'):
         )
         return response
 
-    # ═══════════════════════════════════════════════════
-    # CONTEXT PROCESSORS
-    # ═══════════════════════════════════════════════════
+    # ── CONTEXT PROCESSORS ─────────────────────────────
     @app.context_processor
     def inject_globals():
         from models import Article
@@ -196,9 +201,7 @@ def create_app(config_name='development'):
                                             .limit(10).all(),
         }
 
-    # ═══════════════════════════════════════════════════
-    # TEMPLATE FILTERS
-    # ═══════════════════════════════════════════════════
+    # ── TEMPLATE FILTERS ───────────────────────────────
     @app.template_filter('category_color')
     def category_color_filter(category):
         colors = {

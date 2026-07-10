@@ -897,6 +897,7 @@ document.addEventListener('DOMContentLoaded', function () {
     initParticles();
     initTerminal();
     initScrollReveal();
+    initAboutPage();
 
     // Show a welcome hint toast after 2 seconds
     setTimeout(function () {
@@ -1318,5 +1319,89 @@ function initScrollReveal() {
     // Observe all elements with the reveal class
     document.querySelectorAll('.reveal-on-scroll').forEach(function(el) {
         observer.observe(el);
+    });
+}
+
+
+/* ═══════════════════════════════════════════════════════
+   ABOUT PAGE — ANIMATED COUNTERS AND SKILL BARS
+═══════════════════════════════════════════════════════ */
+function initAboutPage() {
+    // Only run on the about page
+    if (!document.querySelector('.about-stats-row')) return;
+
+    // ── Animate stat counters ──────────────────────────
+    var statNumbers = document.querySelectorAll('.about-stat-number');
+
+    var counterObserver = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (!entry.isIntersecting) return;
+
+            var el     = entry.target;
+            var target = parseInt(el.getAttribute('data-target'), 10);
+            var start  = 0;
+            var duration = 2000;
+            var startTime = null;
+
+            function countUp(timestamp) {
+                if (!startTime) startTime = timestamp;
+                var progress = Math.min((timestamp - startTime) / duration, 1);
+                // Ease out cubic
+                var eased = 1 - Math.pow(1 - progress, 3);
+                el.textContent = Math.round(start + (target - start) * eased);
+                if (progress < 1) {
+                    requestAnimationFrame(countUp);
+                }
+            }
+
+            requestAnimationFrame(countUp);
+            counterObserver.unobserve(el);
+        });
+    }, { threshold: 0.5 });
+
+    statNumbers.forEach(function(el) {
+        counterObserver.observe(el);
+    });
+
+    // ── Animate skill bars ─────────────────────────────
+    var skillFills = document.querySelectorAll('.skill-fill');
+
+    var skillObserver = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (!entry.isIntersecting) return;
+
+            var bar   = entry.target;
+            var width = bar.getAttribute('data-width');
+
+            setTimeout(function() {
+                bar.style.width = width + '%';
+            }, 200);
+
+            skillObserver.unobserve(bar);
+        });
+    }, { threshold: 0.3 });
+
+    skillFills.forEach(function(bar) {
+        skillObserver.observe(bar);
+    });
+
+    // ── Timeline item animations ───────────────────────
+    var timelineItems = document.querySelectorAll('.timeline-item');
+
+    var timelineObserver = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (!entry.isIntersecting) return;
+
+            entry.target.style.opacity  = '1';
+            entry.target.style.transform = 'translateX(0)';
+            timelineObserver.unobserve(entry.target);
+        });
+    }, { threshold: 0.2 });
+
+    timelineItems.forEach(function(item, index) {
+        item.style.opacity   = '0';
+        item.style.transform = 'translateX(-20px)';
+        item.style.transition = 'opacity 0.5s ease ' + (index * 0.15) + 's, transform 0.5s ease ' + (index * 0.15) + 's';
+        timelineObserver.observe(item);
     });
 }

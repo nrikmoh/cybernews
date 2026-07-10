@@ -3,7 +3,7 @@ from flask import (
     Blueprint, render_template, request,
     jsonify, abort, current_app,
 )
-from models import db, Article, Category
+from models import db, Article, Category, PageView
 
 main_bp = Blueprint('main', __name__)
 
@@ -27,8 +27,15 @@ def home():
     Homepage: featured article + article grid.
     We query the database instead of the old Python list.
     """
-
-    # Get featured article (first one marked as featured)
+	
+	# Track this page view
+    from security import get_client_ip
+    try:
+        PageView.record_view('/', get_client_ip())
+    except Exception:
+        pass  # Don't let counter errors break the page
+    
+	# Get featured article (first one marked as featured)
     featured = Article.query.filter_by(
         featured  = True,
         published = True,
@@ -238,6 +245,14 @@ def api_subscribe():
     from models import Newsletter
 
     data  = request.get_json()
+    # Honeypot check — if 'website' field has data, it's a bot
+    if data and data.get('website'):
+        # Silently reject — don't tell the bot we caught it
+        return jsonify({
+            'success': True,
+            'message': 'Subscribed successfully!',
+        })
+
     email = data.get('email', '').strip().lower() if data else ''
 
     if not email or '@' not in email:

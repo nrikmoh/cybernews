@@ -19,3 +19,12 @@
 2026-07-10 09:29:46 | WARNING | SUSPICIOUS | Brute force detected for username: gl;sehir;g | IP: 84.235.238.20 | URL: http://89.22.224.4:5000/login | Method: POST
 2026-07-10 09:29:51 | WARNING | SUSPICIOUS | Brute force detected for username: g;seirhg | IP: 84.235.238.20 | URL: http://89.22.224.4:5000/login | Method: POST
 2026-07-10 09:30:06 | WARNING | SUSPICIOUS | Brute force detected for username: gjkl;hgh | IP: 84.235.238.20 | URL: http://89.22.224.4:5000/login | Method: POST
+2026-07-10 19:35:16 | WARNING | BLOCKED | IP: 84.235.238.20 | Reason: Attack tool: sqlmap | Path: / | UA: sqlmap/1.0
+2026-07-10 19:38:51 | WARNING | BLOCKED | IP: 84.235.238.20 | Reason: Scanner path: /wp-admin | Path: /wp-admin | UA: curl/8.19.0
+2026-07-10 19:38:51 | WARNING | BLOCKED | IP: 84.235.238.20 | Reason: Scanner path: /wp-admin | Path: /wp-admin | UA: curl/8.19.0
+2026-07-10 19:38:56 | WARNING | BLOCKED | IP: 84.235.238.20 | Reason: Scanner path: /phpmyadmin | Path: /phpmyadmin | UA: curl/8.19.0
+2026-07-10 19:38:56 | WARNING | BLOCKED | IP: 84.235.238.20 | Reason: Scanner path: /phpmyadmin | Path: /phpmyadmin | UA: curl/8.19.0
+2026-07-10 19:39:02 | WARNING | BLOCKED | IP: 84.235.238.20 | Reason: Attack tool: sqlmap | Path: / | UA: sqlmap/1.0
+2026-07-10 19:39:02 | WARNING | BLOCKED | IP: 84.235.238.20 | Reason: Attack tool: sqlmap | Path: / | UA: sqlmap/1.0
+2026-07-10 19:39:09 | WARNING | BLOCKED | IP: 84.235.238.20 | Reason: Scanner path: /.git | Path: /.git | UA: curl/8.19.0
+2026-07-10 19:39:09 | WARNING | BLOCKED | IP: 84.235.238.20 | Reason: Scanner path: /.git | Path: /.git | UA: curl/8.19.0

@@ -193,6 +193,12 @@
                     <h4>Stay Informed</h4>
                     <p>Get the latest threats delivered to your inbox daily.</p>
                     <div class="footer-newsletter">
+                    <!-- Honeypot — invisible to real users, bots fill it -->
+                    <input type="text"
+                           name="website"
+                           style="position:absolute; left:-9999px; opacity:0;"
+                           tabindex="-1"
+                           autocomplete="off">
                         <input type="email" placeholder="your@email.com">
                         <button type="button">
                             <i class="fas fa-paper-plane"></i>
@@ -207,19 +213,33 @@
             </div>
 
             <!-- Footer bottom bar -->
-	<div class="footer-bottom">
-	    <p>&copy; {{ current_year }} {{ app_name }}. 
-        	Built from scratch with 
-        	<i class="fas fa-heart" style="color:#ef4444;"></i> 
-        	and <i class="fab fa-python" style="color:#3b82f6;"></i> by 
-       	 <a href="https://github.com/nrikmoh" target="_blank"
-           style="color:var(--primary); font-weight:600;">
-            Hassan
-        </a>
-    </p>
-            </div>
+            <div class="footer-bottom">
+                <p>&copy; {{ current_year }} {{ app_name }}.
+                    Built from scratch with
+                    <i class="fas fa-heart" style="color:#ef4444;"></i>
+                    and <i class="fab fa-python" style="color:#3b82f6;"></i> by
+                    <a href="https://github.com/nrikmoh" target="_blank"
+                       style="color:var(--primary); font-weight:600;">
+                        Hassan
+                    </a>
+                </p>
+                <div class="footer-stats">
+                    <span class="footer-stat">
+                        <i class="fas fa-eye" style="color:var(--primary);"></i>
+                        {{ total_views }} views
+                    </span>
+                    <span class="footer-stat">
+                        <i class="fas fa-users" style="color:var(--secondary);"></i>
+                        {{ unique_visitors }} visitors
+                    </span>
+                </div>
+                <p>
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Use</a>
+                    <a href="#">Contact</a>
+                </p>
+            </div>	
 
-        </div>
     </footer>
 
     <!-- Our JavaScript -->

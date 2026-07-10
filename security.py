@@ -312,3 +312,105 @@ def add_security_headers(response):
         )
 
     return response
+# ═══════════════════════════════════════════════════════
+# 5. IP BLACKLIST — Auto-ban IPs with too many failures
+# ═══════════════════════════════════════════════════════
+
+# In-memory blacklist (resets on server restart)
+# In production, use Redis or a database table
+_blacklisted_ips = set()
+_ip_failure_count = {}
+
+BLACKLIST_THRESHOLD = 20  # failures before auto-ban
+BLACKLIST_WINDOW    = 3600  # seconds (1 hour)
+
+
+def check_ip_blacklist(ip):
+    """
+    Check if an IP is blacklisted.
+    Returns True if the IP should be blocked.
+    """
+    return ip in _blacklisted_ips
+
+
+def record_ip_failure(ip):
+    """
+    Record a failed attempt from an IP.
+    Auto-blacklists after BLACKLIST_THRESHOLD failures.
+    """
+    import time
+
+    now = time.time()
+
+    if ip not in _ip_failure_count:
+        _ip_failure_count[ip] = []
+
+    # Add current failure
+    _ip_failure_count[ip].append(now)
+
+    # Remove old failures outside the window
+    _ip_failure_count[ip] = [
+        t for t in _ip_failure_count[ip]
+        if now - t < BLACKLIST_WINDOW
+    ]
+
+    # Check if threshold exceeded
+    if len(_ip_failure_count[ip]) >= BLACKLIST_THRESHOLD:
+        _blacklisted_ips.add(ip)
+        security_logger.critical(
+            f'IP BLACKLISTED | IP: {ip} | '
+            f'Failures: {len(_ip_failure_count[ip])} in {BLACKLIST_WINDOW}s'
+        )
+        return True
+
+    return False
+
+
+def is_suspicious_request(request_obj):
+    """
+    Check if a request looks suspicious.
+    Returns (is_suspicious: bool, reason: str)
+    """
+    # Check for common attack patterns in URL
+    url = request_obj.url.lower()
+
+    # SQL injection patterns
+    sql_patterns = [
+        "' or ",  "' and ",  "1=1",  "union select",
+        "drop table",  "insert into",  "--",  "/*",
+    ]
+    for pattern in sql_patterns:
+        if pattern in url:
+            return True, f'SQL injection attempt: {pattern}'
+
+    # Path traversal
+    if '..' in url or '%2e%2e' in url:
+        return True, 'Path traversal attempt'
+
+    # Common scanner/attack paths
+    attack_paths = [
+        '/wp-admin', '/wp-login', '/phpmyadmin',
+        '/admin.php', '/.env', '/config.php',
+        '/xmlrpc.php', '/wp-content', '/.git',
+        '/shell', '/cmd', '/eval',
+    ]
+    path = request_obj.path.lower()
+    for attack_path in attack_paths:
+        if path.startswith(attack_path):
+            return True, f'Scanner detected: {attack_path}'
+
+    # Check for abnormally long URLs (buffer overflow attempts)
+    if len(url) > 2000:
+        return True, 'Abnormally long URL'
+
+    # Check for suspicious user agents
+    ua = request_obj.headers.get('User-Agent', '').lower()
+    bad_agents = [
+        'sqlmap', 'nikto', 'nmap', 'masscan',
+        'dirbuster', 'gobuster', 'hydra',
+    ]
+    for agent in bad_agents:
+        if agent in ua:
+            return True, f'Attack tool detected: {agent}'
+
+    return False, ''

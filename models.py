@@ -391,3 +391,41 @@ class LoginLog(db.Model):
         db.session.add(log)
         db.session.commit()
         return log
+
+# ═══════════════════════════════════════════════════════
+# PAGE VIEW COUNTER
+# Tracks total page views
+# ═══════════════════════════════════════════════════════
+class PageView(db.Model):
+    __tablename__ = 'page_views'
+
+    id         = db.Column(db.Integer, primary_key=True)
+    page       = db.Column(db.String(200), nullable=False)
+    ip_address = db.Column(db.String(45),  nullable=True)
+    timestamp  = db.Column(db.DateTime,    default=datetime.utcnow)
+
+    @classmethod
+    def record_view(cls, page, ip):
+        """Record a page view."""
+        view = cls(page=page, ip_address=ip)
+        db.session.add(view)
+        db.session.commit()
+
+    @classmethod
+    def total_views(cls):
+        """Get total page views."""
+        return cls.query.count()
+
+    @classmethod
+    def today_views(cls):
+        """Get views from today."""
+        from datetime import datetime, timedelta
+        today = datetime.utcnow().replace(hour=0, minute=0, second=0)
+        return cls.query.filter(cls.timestamp >= today).count()
+
+    @classmethod
+    def unique_visitors(cls):
+        """Count unique IP addresses."""
+        return db.session.query(
+            db.func.count(db.distinct(cls.ip_address))
+        ).scalar()

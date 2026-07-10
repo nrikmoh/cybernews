@@ -1,5 +1,9 @@
 # config.py
 import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Base directory of the project
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -22,6 +26,22 @@ class Config:
     # Disable modification tracking — saves memory
     # (We don't need this SQLAlchemy feature)
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+    # ── Session Security ───────────────────────────────
+    # Cookie only sent over HTTPS (enable when you have SSL)
+    # SESSION_COOKIE_SECURE = True
+
+    # JavaScript cannot access the session cookie
+    SESSION_COOKIE_HTTPONLY = True
+
+    # Cookie only sent in first-party context
+    SESSION_COOKIE_SAMESITE = 'Lax'
+
+    # Session expires after 1 hour of inactivity
+    PERMANENT_SESSION_LIFETIME = 3600
+
+    # Don't reveal the framework in error pages
+    PROPAGATE_EXCEPTIONS = False
 
     # App info
     APP_NAME    = 'CyberNews'

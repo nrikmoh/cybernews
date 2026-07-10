@@ -1,101 +1,405 @@
 {% extends "base.html" %}
-{% block title %}About - CyberNews{% endblock %}
+{% block title %}About — CyberNews{% endblock %}
 
 {% block content %}
 
+<!-- ── Page Header ───────────────────────────────────── -->
 <section class="page-header">
     <div class="container">
         <h1><i class="fas fa-shield-halved"></i> About CyberNews</h1>
-        <p>Built by a grandpa who loves cybersecurity 🛡️</p>
+        <p>The story behind the project — told honestly</p>
     </div>
 </section>
 
+<!-- ── Main About Section ────────────────────────────── -->
 <section class="about-page">
     <div class="container">
-        <div class="about-grid">
 
-            <div class="about-text">
-                <h2>My Story</h2>
-                <p>Hi! I'm Hassan. I'm a grandpa who decided to dive into the world of cybersecurity and web development. This website is the result of a two-week intensive learning journey.</p>
-                <p>CyberNews was built entirely from scratch — no templates, no website builders. Every line of HTML, CSS, JavaScript, and Python was written by hand as part of my learning process.</p>
+        <!-- ── Top: Profile + Intro ──────────────────── -->
+        <div class="profile-section">
 
-                <h2>What I Learned Building This</h2>
-                <ul class="about-skills-list">
-                    <li><strong>HTML & CSS</strong> — Page structure and dark cyber theme</li>
-                    <li><strong>JavaScript</strong> — Search, filters, animations, real-time interactions</li>
-                    <li><strong>Python & Flask</strong> — Backend routes, template engine, API endpoints</li>
-                    <li><strong>SQLite & SQLAlchemy</strong> — Database design, queries, data persistence</li>
-                    <li><strong>Security</strong> — Password hashing, CSRF, rate limiting, audit logs</li>
-                    <li><strong>Deployment</strong> — Nginx, Gunicorn, Linux server administration</li>
-                </ul>
-
-                <h2>Tech Stack</h2>
-                <div class="tech-stack">
-                    <span class="tech-badge"><i class="fab fa-html5"></i> HTML5</span>
-                    <span class="tech-badge"><i class="fab fa-css3-alt"></i> CSS3</span>
-                    <span class="tech-badge"><i class="fab fa-js"></i> JavaScript</span>
-                    <span class="tech-badge"><i class="fab fa-python"></i> Python</span>
-                    <span class="tech-badge"><i class="fas fa-pepper-hot"></i> Flask</span>
-                    <span class="tech-badge"><i class="fas fa-database"></i> SQLite</span>
-                    <span class="tech-badge"><i class="fab fa-linux"></i> Linux</span>
-                    <span class="tech-badge"><i class="fas fa-server"></i> Nginx</span>
-                    <span class="tech-badge"><i class="fab fa-github"></i> GitHub</span>
+            <!-- Avatar -->
+            <div class="profile-avatar-wrap">
+                <div class="profile-avatar">
+                    <span>M</span>
                 </div>
-
-                <h2>Trusted Sources</h2>
-                <div class="sources-list">
-                    <span class="source-tag"><i class="fas fa-newspaper"></i> The Hacker News</span>
-                    <span class="source-tag"><i class="fas fa-newspaper"></i> SecurityWeek</span>
-                    <span class="source-tag"><i class="fas fa-newspaper"></i> Krebs on Security</span>
-                    <span class="source-tag"><i class="fas fa-newspaper"></i> Mandiant</span>
-                    <span class="source-tag"><i class="fas fa-newspaper"></i> CISA</span>
-                    <span class="source-tag"><i class="fas fa-newspaper"></i> NSA</span>
+                <div class="profile-status">
+                    <span class="live-dot"></span>
+                    Learning & Building
                 </div>
-
-                <h2>Connect With Me</h2>
-                <div class="personal-links">
-                    <a href="https://github.com/nrikmoh" target="_blank" class="personal-link">
-                        <i class="fab fa-github"></i>
-                        <span>GitHub — nrikmoh</span>
-                    </a>
-                </div>
-
             </div>
 
-            <div class="about-features">
-                <div class="feature-card">
-                    <i class="fas fa-bolt"></i>
-                    <h3>Real-Time Updates</h3>
-                    <p>Breaking security news as it happens</p>
+            <!-- Intro Text -->
+            <div class="profile-intro">
+                <div class="profile-name-row">
+                    <h2 class="profile-name">Mohsen</h2>
+                    <span class="profile-location">
+                        <i class="fas fa-location-dot"></i>
+                        Germany
+                    </span>
                 </div>
-                <div class="feature-card">
-                    <i class="fas fa-layer-group"></i>
-                    <h3>6 Categories</h3>
-                    <p>Organized by threat type for easy browsing</p>
-                </div>
-                <div class="feature-card">
-                    <i class="fas fa-lock"></i>
-                    <h3>Security First</h3>
-                    <p>Built with real security best practices</p>
-                </div>
-                <div class="feature-card">
-                    <i class="fas fa-search"></i>
-                    <h3>Smart Search</h3>
-                    <p>Instant filtering with keyboard shortcuts</p>
-                </div>
-                <div class="feature-card">
-                    <i class="fas fa-mobile-screen"></i>
-                    <h3>Mobile Ready</h3>
-                    <p>Responsive design for all screen sizes</p>
-                </div>
-                <div class="feature-card">
-                    <i class="fas fa-code"></i>
-                    <h3>100% From Scratch</h3>
-                    <p>No templates — every line handwritten</p>
+
+                <p class="profile-tagline">
+                    Ex Team leader in the past. Frisbee player by weekend.
+                    Cybersecurity student by choice.
+                </p>
+
+                <p class="profile-bio">
+                    I'm in my 30s, based in Germany, and I spent years
+                    leading a team of over 20 people in my professional life.
+                    Three months ago I decided to step into something completely
+                    new — cybersecurity and web development — to keep up with
+                    the demands of a fast-changing world.
+                </p>
+
+                <p class="profile-bio">
+                    CyberNews is the result of two weeks of intensive learning.
+                    Just learning, breaking things, fixing them, and learning again.
+                </p>
+
+                <!-- Personal links -->
+                <div class="profile-links">
+                    <a href="https://github.com/nrikmoh"
+                       target="_blank"
+                       class="profile-link">
+                        <i class="fab fa-github"></i>
+                        github.com/nrikmoh
+                    </a>
+                    <span class="profile-link-static">
+                        <i class="fas fa-frisbee" style="color:var(--secondary)"></i>
+                        Ultimate Frisbee Player
+                    </span>
+                    <span class="profile-link-static">
+                        <i class="fas fa-bicycle" style="color:var(--primary)"></i>
+                        Cycling Enthusiast
+                    </span>
                 </div>
             </div>
 
         </div>
+
+        <!-- ── Honest Disclosure ─────────────────────── -->
+        <div class="honesty-box">
+            <div class="honesty-icon">
+                <i class="fas fa-hand-holding-heart"></i>
+            </div>
+            <div class="honesty-text">
+                <h3>An Honest Note</h3>
+                <p>
+                    This website was built as part of a structured learning
+                    exercise — guided step by step. I did not invent everything
+                    from scratch on my own. I worked with AI tools, teachers,
+                    and learning materials throughout the process.
+                    What I <strong>did</strong> is type every line,
+                    understand what it does, debug every error, make every
+                    design decision, and put in the hours.
+                    The learning was real. The effort was real.
+                    The project is genuinely mine.
+                </p>
+            </div>
+        </div>
+
+        <!-- ── Stats Row ─────────────────────────────── -->
+        <div class="about-stats-row">
+            <div class="about-stat">
+                <div class="about-stat-number" data-target="80">0</div>
+                <div class="about-stat-label">
+                    <i class="fas fa-clock"></i>
+                    Hours of Learning
+                </div>
+            </div>
+            <div class="about-stat">
+                <div class="about-stat-number" data-target="3">0</div>
+                <div class="about-stat-label">
+                    <i class="fas fa-calendar"></i>
+                    Months into Cybersecurity
+                </div>
+            </div>
+            <div class="about-stat">
+                <div class="about-stat-number" data-target="6">0</div>
+                <div class="about-stat-label">
+                    <i class="fas fa-layer-group"></i>
+                    Technologies Learned
+                </div>
+            </div>
+            <div class="about-stat">
+                <div class="about-stat-number" data-target="156">0</div>
+                <div class="about-stat-label">
+                    <i class="fas fa-bug"></i>
+                    Bugs Fixed
+                </div>
+            </div>
+            <div class="about-stat">
+                <div class="about-stat-number" data-target="47">0</div>
+                <div class="about-stat-label">
+                    <i class="fas fa-mug-hot"></i>
+                    Coffees Consumed
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Two Column: Journey + Skills ─────────── -->
+        <div class="about-two-col">
+
+            <!-- Learning Journey Timeline -->
+            <div class="about-col">
+                <h2 class="about-col-title">
+                    <i class="fas fa-road"></i>
+                    My Journey
+                </h2>
+
+                <div class="timeline">
+
+                    <div class="timeline-item">
+                        <div class="timeline-dot dot-cyan"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-date">3 months ago</div>
+                            <h4>First Line of Code</h4>
+                            <p>Decided to take cybersecurity seriously.
+                               Started with the very basics — terminals,
+                               Python, and networking concepts.</p>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-dot dot-purple"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-date">Week 1 of this project</div>
+                            <h4>HTML, CSS & JavaScript</h4>
+                            <p>Built the front end from scratch.
+                               Learned about structure, styling,
+                               and making pages interactive.</p>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-dot dot-green"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-date">Week 2 of this project</div>
+                            <h4>Flask, Databases & Security</h4>
+                            <p>Connected Python to a real database.
+                               Added user authentication, admin panel,
+                               and security hardening.</p>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-dot dot-amber"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-date">Now</div>
+                            <h4>CyberNews is Live</h4>
+                            <p>Running on a real VPS in production.
+                               Hardened, monitored, and genuinely secure.
+                               Next stop: my personal website.</p>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-dot dot-cyan dot-future"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-date">Coming soon</div>
+                            <h4>Personal Website</h4>
+                            <p>Building my own personal web presence
+                               using everything I learned here.</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Skills Progress Bars -->
+            <div class="about-col">
+                <h2 class="about-col-title">
+                    <i class="fas fa-chart-bar"></i>
+                    Skills Gained
+                </h2>
+
+                <div class="skills-list">
+
+                    <div class="skill-item">
+                        <div class="skill-header">
+                            <span class="skill-name">
+                                <i class="fab fa-html5"></i> HTML & CSS
+                            </span>
+                            <span class="skill-pct">80%</span>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-fill" data-width="80"
+                                 style="background: linear-gradient(90deg, #f97316, #ef4444)">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="skill-item">
+                        <div class="skill-header">
+                            <span class="skill-name">
+                                <i class="fab fa-js"></i> JavaScript
+                            </span>
+                            <span class="skill-pct">60%</span>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-fill" data-width="60"
+                                 style="background: linear-gradient(90deg, #f59e0b, #f97316)">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="skill-item">
+                        <div class="skill-header">
+                            <span class="skill-name">
+                                <i class="fab fa-python"></i> Python & Flask
+                            </span>
+                            <span class="skill-pct">70%</span>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-fill" data-width="70"
+                                 style="background: linear-gradient(90deg, #3b82f6, #8b5cf6)">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="skill-item">
+                        <div class="skill-header">
+                            <span class="skill-name">
+                                <i class="fas fa-database"></i> SQL & Databases
+                            </span>
+                            <span class="skill-pct">65%</span>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-fill" data-width="65"
+                                 style="background: linear-gradient(90deg, #10b981, #3b82f6)">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="skill-item">
+                        <div class="skill-header">
+                            <span class="skill-name">
+                                <i class="fas fa-shield-halved"></i> Web Security
+                            </span>
+                            <span class="skill-pct">55%</span>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-fill" data-width="55"
+                                 style="background: linear-gradient(90deg, #00d4ff, #10b981)">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="skill-item">
+                        <div class="skill-header">
+                            <span class="skill-name">
+                                <i class="fab fa-linux"></i> Linux & Servers
+                            </span>
+                            <span class="skill-pct">60%</span>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-fill" data-width="60"
+                                 style="background: linear-gradient(90deg, #8b5cf6, #00d4ff)">
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- What was hardest -->
+                <div class="reflection-box" style="margin-top:2rem;">
+                    <h3>
+                        <i class="fas fa-puzzle-piece"></i>
+                        Biggest Challenge
+                    </h3>
+                    <p>
+                        "Connecting all the different parts of the puzzle —
+                        making HTML talk to JavaScript, JavaScript talk to Flask,
+                        Flask talk to the database, and all of it stay secure.
+                        Each piece made sense alone. Making them work together
+                        was the real challenge."
+                    </p>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ── Tech Stack ─────────────────────────────── -->
+        <div class="tech-section">
+            <h2 class="about-col-title" style="margin-bottom:1.5rem;">
+                <i class="fas fa-screwdriver-wrench"></i>
+                Built With
+            </h2>
+            <div class="tech-stack">
+                <span class="tech-badge">
+                    <i class="fab fa-html5"></i> HTML5
+                </span>
+                <span class="tech-badge">
+                    <i class="fab fa-css3-alt"></i> CSS3
+                </span>
+                <span class="tech-badge">
+                    <i class="fab fa-js"></i> JavaScript
+                </span>
+                <span class="tech-badge">
+                    <i class="fab fa-python"></i> Python
+                </span>
+                <span class="tech-badge">
+                    <i class="fas fa-pepper-hot"></i> Flask
+                </span>
+                <span class="tech-badge">
+                    <i class="fas fa-database"></i> SQLite
+                </span>
+                <span class="tech-badge">
+                    <i class="fab fa-linux"></i> Ubuntu VPS
+                </span>
+                <span class="tech-badge">
+                    <i class="fas fa-server"></i> Nginx
+                </span>
+                <span class="tech-badge">
+                    <i class="fab fa-github"></i> GitHub
+                </span>
+            </div>
+        </div>
+
+        <!-- ── Personal Quote ─────────────────────────── -->
+        <div class="quote-section">
+            <div class="big-quote">
+                <i class="fas fa-quote-left"></i>
+                <blockquote>
+                    Never stop learning in a world that never sleeps.
+                </blockquote>
+                <cite>— Mohsen</cite>
+            </div>
+        </div>
+
+        <!-- ── Sources ───────────────────────────────── -->
+        <div class="sources-section">
+            <h2 class="about-col-title" style="margin-bottom:1rem;">
+                <i class="fas fa-newspaper"></i>
+                News Sources We Track
+            </h2>
+            <div class="sources-list">
+                <span class="source-tag">
+                    <i class="fas fa-newspaper"></i> The Hacker News
+                </span>
+                <span class="source-tag">
+                    <i class="fas fa-newspaper"></i> SecurityWeek
+                </span>
+                <span class="source-tag">
+                    <i class="fas fa-newspaper"></i> Krebs on Security
+                </span>
+                <span class="source-tag">
+                    <i class="fas fa-newspaper"></i> Mandiant
+                </span>
+                <span class="source-tag">
+                    <i class="fas fa-newspaper"></i> CISA
+                </span>
+                <span class="source-tag">
+                    <i class="fas fa-newspaper"></i> NSA
+                </span>
+                <span class="source-tag">
+                    <i class="fas fa-newspaper"></i> FBI Cyber Division
+                </span>
+            </div>
+        </div>
+
     </div>
 </section>
 
