@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Privacy Policy — CyberNews{% endblock %}
+
+{% block content %}
+
+<section class="page-header">
+    <div class="container">
+        <h1><i class="fas fa-shield-halved"></i> Privacy Policy</h1>
+        <p>How we handle your data</p>
+    </div>
+</section>
+
+<section class="legal-page">
+    <div class="container">
+        <div class="legal-content">
+
+            <div class="legal-updated">
+                <i class="fas fa-calendar"></i>
+                Last updated: July 2026
+            </div>
+
+            <h2>1. What We Collect</h2>
+            <p>When you visit CyberNews, we automatically collect basic analytics data to improve the site:</p>
+            <ul>
+                <li><strong>Page visited</strong> — which pages you view</li>
+                <li><strong>Timestamp</strong> — when you visited</li>
+                <li><strong>IP address</strong> — for security and analytics</li>
+                <li><strong>Browser and device type</strong> — to optimize the experience</li>
+                <li><strong>Referrer</strong> — how you found us</li>
+            </ul>
+
+            <h2>2. Newsletter Subscription</h2>
+            <p>If you subscribe to our newsletter, we collect your <strong>email address</strong>. We use it only to send cybersecurity news updates. You can unsubscribe at any time.</p>
+
+            <h2>3. What We Do NOT Collect</h2>
+            <ul>
+                <li>We do <strong>not</strong> use cookies for tracking</li>
+                <li>We do <strong>not</strong> use Google Analytics or any third-party tracking</li>
+                <li>We do <strong>not</strong> sell or share your data with anyone</li>
+                <li>We do <strong>not</strong> use advertising trackers</li>
+                <li>We do <strong>not</strong> create user profiles or fingerprints</li>
+            </ul>
+
+            <h2>4. How We Use Your Data</h2>
+            <p>The data we collect is used only for:</p>
+            <ul>
+                <li>Displaying visitor statistics on the site</li>
+                <li>Understanding which content is popular</li>
+                <li>Detecting and blocking malicious activity</li>
+                <li>Improving site performance and user experience</li>
+            </ul>
+
+            <h2>5. Data Storage</h2>
+            <p>All data is stored locally on our server. We do not use any third-party cloud analytics services. Data is stored in an encrypted SQLite database on a secured Ubuntu VPS.</p>
+
+            <h2>6. Security</h2>
+            <p>We take security seriously. Our site implements:</p>
+            <ul>
+                <li>HTTPS encryption (Let's Encrypt)</li>
+                <li>Content Security Policy headers</li>
+                <li>Rate limiting and brute force protection</li>
+                <li>Attack detection and blocking</li>
+                <li>Regular security monitoring</li>
+            </ul>
+
+            <h2>7. Your Rights</h2>
+            <p>You have the right to:</p>
+            <ul>
+                <li>Request what data we have about you</li>
+                <li>Request deletion of your data</li>
+                <li>Unsubscribe from the newsletter</li>
+                <li>Contact us with any privacy concerns</li>
+            </ul>
+
+            <h2>8. Contact</h2>
+            <p>For any privacy-related questions, please use our <a href="{{ url_for('main.contact') }}">contact page</a> or reach out via GitHub: <a href="https://github.com/nrikmoh" target="_blank">@nrikmoh</a></p>
+
+        </div>
+    </div>
+</section>
+
+{% endblock %}

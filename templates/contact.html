@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}Contact — CyberNews{% endblock %}
+
+{% block content %}
+
+<section class="page-header">
+    <div class="container">
+        <h1><i class="fas fa-envelope"></i> Contact</h1>
+        <p>Get in touch with us</p>
+    </div>
+</section>
+
+<section class="contact-page">
+    <div class="container">
+        <div class="contact-grid">
+
+            <!-- Contact Info -->
+            <div class="contact-info">
+
+                <div class="contact-card">
+                    <div class="contact-card-icon">
+                        <i class="fab fa-github"></i>
+                    </div>
+                    <h3>GitHub</h3>
+                    <p>Check out the source code and report issues</p>
+                    <a href="https://github.com/nrikmoh" target="_blank"
+                       class="contact-link">
+                        github.com/nrikmoh
+                        <i class="fas fa-arrow-up-right-from-square"></i>
+                    </a>
+                </div>
+
+                <div class="contact-card">
+                    <div class="contact-card-icon">
+                        <i class="fas fa-shield-halved"></i>
+                    </div>
+                    <h3>Security Issues</h3>
+                    <p>Found a vulnerability? Please report it responsibly</p>
+                    <a href="https://github.com/nrikmoh/cybernews/issues" target="_blank"
+                       class="contact-link">
+                        Report on GitHub
+                        <i class="fas fa-arrow-up-right-from-square"></i>
+                    </a>
+                </div>
+
+                <div class="contact-card">
+                    <div class="contact-card-icon">
+                        <i class="fas fa-newspaper"></i>
+                    </div>
+                    <h3>Newsletter</h3>
+                    <p>Subscribe to get cybersecurity news in your inbox</p>
+                    <a href="{{ url_for('main.home') }}#newsletter"
+                       class="contact-link">
+                        Subscribe Now
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+
+            </div>
+
+            <!-- About Section -->
+            <div class="contact-about">
+                <div class="contact-about-card">
+                    <div class="contact-avatar">
+                        <span>M</span>
+                    </div>
+                    <h3>Mohsen</h3>
+                    <p class="contact-location">
+                        <i class="fas fa-location-dot"></i>
+                        Germany
+                    </p>
+                    <p class="contact-bio">
+                        CyberNews was built from scratch as a two-week
+                        learning project. Every line of code was written
+                        by hand — HTML, CSS, JavaScript, Python, and SQL.
+                    </p>
+                    <div class="contact-links">
+                        <a href="https://github.com/nrikmoh" target="_blank"
+                           class="contact-social">
+                            <i class="fab fa-github"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+{% endblock %}

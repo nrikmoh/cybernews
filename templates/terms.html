@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Terms of Use — CyberNews{% endblock %}
+
+{% block content %}
+
+<section class="page-header">
+    <div class="container">
+        <h1><i class="fas fa-file-contract"></i> Terms of Use</h1>
+        <p>Rules for using CyberNews</p>
+    </div>
+</section>
+
+<section class="legal-page">
+    <div class="container">
+        <div class="legal-content">
+
+            <div class="legal-updated">
+                <i class="fas fa-calendar"></i>
+                Last updated: July 2026
+            </div>
+
+            <h2>1. About CyberNews</h2>
+            <p>CyberNews is a cybersecurity news aggregator that collects and displays articles from trusted public sources. This website was built as a learning project and is provided as-is.</p>
+
+            <h2>2. Content</h2>
+            <p>The news articles displayed on CyberNews are aggregated from public RSS feeds of established cybersecurity news sources including:</p>
+            <ul>
+                <li>The Hacker News</li>
+                <li>Krebs on Security</li>
+                <li>Bleeping Computer</li>
+                <li>Dark Reading</li>
+                <li>SecurityWeek</li>
+            </ul>
+            <p>All article content belongs to its respective original authors and publications. CyberNews displays summaries and links to the original sources.</p>
+
+            <h2>3. No Warranty</h2>
+            <p>CyberNews is provided "as is" without any warranties. We make no guarantees about:</p>
+            <ul>
+                <li>The accuracy or completeness of any information</li>
+                <li>The availability of the service</li>
+                <li>The security of the information displayed</li>
+            </ul>
+
+            <h2>4. Use of the Site</h2>
+            <p>You agree to use CyberNews only for lawful purposes. You may not:</p>
+            <ul>
+                <li>Attempt to hack, exploit, or attack this website</li>
+                <li>Use automated tools to scrape content excessively</li>
+                <li>Attempt to access the admin panel without authorization</li>
+                <li>Use the site to distribute malware or spam</li>
+            </ul>
+
+            <h2>5. Security Monitoring</h2>
+            <p>For security purposes, we monitor and log:</p>
+            <ul>
+                <li>All login attempts (successful and failed)</li>
+                <li>Blocked attack attempts</li>
+                <li>Suspicious activity patterns</li>
+            </ul>
+            <p>Malicious activity may result in your IP address being blocked.</p>
+
+            <h2>6. Newsletter</h2>
+            <p>By subscribing to our newsletter, you agree to receive cybersecurity news updates via email. You can unsubscribe at any time.</p>
+
+            <h2>7. Changes to Terms</h2>
+            <p>We may update these terms at any time. Continued use of the site means you accept any changes.</p>
+
+            <h2>8. Contact</h2>
+            <p>Questions about these terms? Visit our <a href="{{ url_for('main.contact') }}">contact page</a>.</p>
+
+        </div>
+    </div>
+</section>
+
+{% endblock %}

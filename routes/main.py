@@ -308,6 +308,19 @@ def api_live_feed():
         'timestamp': now.strftime('%Y-%m-%d %H:%M:%S'),
     })
 
+@main_bp.route('/privacy')
+def privacy():
+    return render_template('privacy.html')
+
+
+@main_bp.route('/terms')
+def terms():
+    return render_template('terms.html')
+
+
+@main_bp.route('/contact')
+def contact():
+    return render_template('contact.html')
 
 @main_bp.route('/api/subscribe', methods=['POST'])
 def api_subscribe():
