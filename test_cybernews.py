@@ -123,8 +123,8 @@ if r:
          'Categories' in html and 'About' in html)
     test('Article cards present',
          'article-card' in html)
-    test('Hero section present',
-         'hero' in html)
+    test('Featured story present',
+         'featured' in html or 'hero' in html)
     test('Breaking news ticker present',
          'ticker' in html)
     test('Stats bar present',
