@@ -1,8 +1,13 @@
+# ─────────────────────────────────────────
+# CyberNews — .gitignore
+# ─────────────────────────────────────────
+
 # Virtual environment
 venv/
 env/
+.venv/
 
-# Database (contains real data)
+# Database (contains real data — never commit!)
 *.db
 *.sqlite
 *.sqlite3
@@ -10,10 +15,13 @@ env/
 # Environment variables (contains secrets!)
 .env
 
-# Logs (can contain sensitive data)
+# Logs
 *.log
 security.log
 rss_fetch.log
+access.log
+error.log
+daily_check.log
 
 # Python cache
 __pycache__/
@@ -22,27 +30,46 @@ __pycache__/
 *.pyd
 .Python
 *.py[cod]
+*$py.class
 
-# Local photos (too large for GitHub - ~50MB)
+# Local photos (too large ~50MB — download separately)
 static/images/photos/
 static/images/covers/
 static/images/fallback/
 
-# Test/temp files
-*.tmp
-*.temp
-test_output/
+# Backups
+backups/
+*.backup
 
 # OS files
 .DS_Store
+.DS_Store?
 Thumbs.db
+ehthumbs.db
 
 # IDE files
 .vscode/
 .idea/
 *.swp
 *.swo
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
 
-# Backup files
-*.backup
-app.py.backup
+# Distribution
+dist/
+build/
+*.egg-info/
+
+# Temporary
+*.tmp
+*.temp
+test_output/
+
+# Minified files (generated — not source)
+static/css/*.min.css
+static/js/*.min.js
+
+# Generated covers
+generate_local_covers.py

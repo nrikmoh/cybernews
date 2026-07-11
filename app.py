@@ -283,34 +283,20 @@ def create_app(config_name=None):
         from models import Article, PageView
         from flask_login import current_user
 
-        # Cache these expensive queries for 5 minutes
-        cache_key = 'global_context'
-        with _cache_lock:
-            cached_data = _cache.get(cache_key)
+        # Only get what we absolutely need
+        try:
+            recent = Article.query.filter_by(published=True) \
+                                  .order_by(Article.created_at.desc()) \
+                                  .limit(8).all()
+        except Exception:
+            recent = []
 
-        if not cached_data:
-            try:
-                recent = Article.query.filter_by(published=True) \
-                                      .order_by(Article.created_at.desc()) \
-                                      .limit(10).all()
-                total_views = PageView.total_views()
-                unique_visitors = PageView.unique_visitors()
-
-                cached_data = {
-                    'all_articles': recent,
-                    'total_views': total_views,
-                    'unique_visitors': unique_visitors,
-                }
-
-                with _cache_lock:
-                    _cache[cache_key] = cached_data
-
-            except Exception:
-                cached_data = {
-                    'all_articles': [],
-                    'total_views': 0,
-                    'unique_visitors': 0,
-                }
+        try:
+            total_views     = PageView.total_views()
+            unique_visitors = PageView.unique_visitors()
+        except Exception:
+            total_views     = 0
+            unique_visitors = 0
 
         return {
             'app_name':        app.config['APP_NAME'],
@@ -318,8 +304,11 @@ def create_app(config_name=None):
             'categories':      app.config['CATEGORIES'],
             'current_year':    datetime.now().year,
             'current_user':    current_user,
-            **cached_data,
+            'total_views':     total_views,
+            'unique_visitors': unique_visitors,
+            'all_articles':    recent,
         }
+
 
     # ═══════════════════════════════════════════════════
     # TEMPLATE FILTERS

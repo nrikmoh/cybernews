@@ -268,6 +268,39 @@ def clean_text(text):
 
     return text.strip()
 
+# ── RSS Feed Sources ───────────────────────────────────
+FEEDS = [
+    {
+        'url':    'https://feeds.feedburner.com/TheHackersNews',
+        'source': 'The Hacker News',
+        'category': 'Vulnerabilities',
+        'default_image': '/static/images/photos/vulnerabilities/01.jpg',
+    },
+    {
+        'url':    'https://krebsonsecurity.com/feed/',
+        'source': 'Krebs on Security',
+        'category': 'Threats',
+        'default_image': '/static/images/photos/threats/01.jpg',
+    },
+    {
+        'url':    'https://www.bleepingcomputer.com/feed/',
+        'source': 'Bleeping Computer',
+        'category': 'Malware',
+        'default_image': '/static/images/photos/malware/01.jpg',
+    },
+    {
+        'url':    'https://www.darkreading.com/rss.xml',
+        'source': 'Dark Reading',
+        'category': 'Research',
+        'default_image': '/static/images/photos/research/01.jpg',
+    },
+    {
+        'url':    'https://feeds.feedburner.com/securityweek',
+        'source': 'SecurityWeek',
+        'category': 'Threats',
+        'default_image': '/static/images/photos/threats/02.jpg',
+    },
+]
 
 def fetch_feed(feed_config):
     """
