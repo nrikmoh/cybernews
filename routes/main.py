@@ -20,7 +20,7 @@ def get_client_ip():
 @main_bp.route('/')
 def home():
     page = request.args.get('page', 1, type=int)
-    per_page = 20
+    per_page = 10
 
     featured = Article.query.filter_by(
         featured=True, published=True
