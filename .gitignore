@@ -1,22 +1,48 @@
-# Virtual environment - never commit this
+# Virtual environment
 venv/
+env/
 
-# Python cache files
-__pycache__/
-*.pyc
-*.pyo
-
-# Database file (we'll handle this separately later)
+# Database (contains real data)
 *.db
+*.sqlite
+*.sqlite3
 
-# Environment variables (will contain passwords later)
+# Environment variables (contains secrets!)
 .env
 
-# OS files
-.DS_Store
-cybernews.db
-static/images/photos/
-static/images/covers/
+# Logs (can contain sensitive data)
 *.log
 security.log
 rss_fetch.log
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.py[cod]
+
+# Local photos (too large for GitHub - ~50MB)
+static/images/photos/
+static/images/covers/
+static/images/fallback/
+
+# Test/temp files
+*.tmp
+*.temp
+test_output/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Backup files
+*.backup
+app.py.backup
