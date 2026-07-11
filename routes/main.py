@@ -276,8 +276,9 @@ def api_search():
             Article.category.ilike(search_term),
             Article.source.ilike(search_term),
             Article.tags_string.ilike(search_term),
+            Article.body.ilike(search_term),
         )
-    ).order_by(Article.created_at.desc()).all()
+    ).order_by(Article.created_at.desc()).limit(50).all()
 
     return jsonify({
         'results': [a.to_dict() for a in results],
