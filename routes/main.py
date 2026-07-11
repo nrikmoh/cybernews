@@ -247,59 +247,206 @@ def api_stats():
 
 @main_bp.route('/api/live-feed')
 def api_live_feed():
+    """Return real activity including attack data for the live monitor."""
+    import os
     now = datetime.utcnow()
     last_hour = now - timedelta(hours=1)
     last_24h = now - timedelta(hours=24)
     today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
     events = []
 
+    # ── Recent page views ──────────────────────────────
     views = PageView.query.filter(
         PageView.timestamp >= last_hour
-    ).order_by(PageView.timestamp.desc()).limit(5).all()
+    ).order_by(PageView.timestamp.desc()).limit(3).all()
+
     for v in views:
+        # Mask last IP octet for privacy
+        ip = v.ip_address or 'unknown'
+        if '.' in ip:
+            parts = ip.split('.')
+            ip = f'{parts[0]}.{parts[1]}.{parts[2]}.xxx'
+
         events.append({
             'type': 'info',
-            'text': f'Page view: {v.page} from {v.ip_address}',
+            'text': f'Visitor: {ip} → {v.page}',
             'time': v.timestamp.strftime('%H:%M:%S'),
         })
 
+    # ── Recent login attempts ──────────────────────────
     logins = LoginLog.query.filter(
         LoginLog.timestamp >= last_24h
-    ).order_by(LoginLog.timestamp.desc()).limit(3).all()
-    for log in logins:
-        status = 'Login OK' if log.success else 'Login FAILED'
-        events.append({
-            'type': 'success' if log.success else 'warn',
-            'text': f'{status}: {log.username} from {log.ip_address}',
-            'time': log.timestamp.strftime('%H:%M:%S'),
-        })
+    ).order_by(LoginLog.timestamp.desc()).limit(5).all()
 
-    total = Article.query.filter_by(published=True).count()
-    today_new = Article.query.filter(
+    for log in logins:
+        ip = log.ip_address or 'unknown'
+        if log.success:
+            events.append({
+                'type': 'success',
+                'text': f'Admin login: {log.username} from {ip}',
+                'time': log.timestamp.strftime('%H:%M:%S'),
+            })
+        else:
+            events.append({
+                'type': 'error',
+                'text': f'FAILED login: {log.username} from {ip}',
+                'time': log.timestamp.strftime('%H:%M:%S'),
+            })
+
+    # ── Blocked attacks from security.log ──────────────
+    try:
+        log_path = os.path.join(
+            os.path.dirname(os.path.dirname(__file__)),
+            'security.log'
+        )
+        if os.path.exists(log_path):
+            with open(log_path, 'r') as f:
+                lines = f.readlines()
+
+            # Get last 50 blocked entries
+            blocked = [l.strip() for l in lines if 'BLOCKED' in l]
+            recent_blocks = blocked[-10:]
+
+            for line in recent_blocks:
+                parts = line.split(' | ')
+                reason = ''
+                ip = ''
+                path = ''
+                ua = ''
+                timestamp = ''
+
+                for part in parts:
+                    part = part.strip()
+                    if part.startswith('20'):
+                        timestamp = part[-8:]
+                    if 'Reason:' in part:
+                        reason = part.replace('Reason: ', '').strip()
+                    if 'IP:' in part:
+                        ip = part.replace('IP: ', '').strip()
+                    if 'Path:' in part:
+                        path = part.replace('Path: ', '').strip()
+                    if 'UA:' in part:
+                        ua = part.replace('UA: ', '').strip()[:50]
+
+                if reason:
+                    events.append({
+                        'type': 'error',
+                        'text': f'BLOCKED {ip}: {reason} → {path}',
+                        'time': timestamp or now.strftime('%H:%M:%S'),
+                    })
+    except Exception:
+        pass
+
+    # ── Blocked attacks from nginx log ─────────────────
+    try:
+        nginx_log = '/var/log/nginx/cybernews_access.log'
+        if os.path.exists(nginx_log):
+            with open(nginx_log, 'r') as f:
+                lines = f.readlines()
+
+            # Find recent 403 and 429 responses
+            blocked_nginx = []
+            for line in lines[-200:]:
+                if '" 403 ' in line or '" 429 ' in line:
+                    blocked_nginx.append(line.strip())
+
+            for line in blocked_nginx[-5:]:
+                try:
+                    ip = line.split(' ')[0]
+                    # Extract the requested path
+                    request_part = line.split('"')[1] if '"' in line else ''
+                    method_path = request_part.split(' ')
+                    path = method_path[1] if len(method_path) > 1 else '/'
+
+                    # Determine type
+                    if '" 429 ' in line:
+                        events.append({
+                            'type': 'warn',
+                            'text': f'Rate limited: {ip} → {path}',
+                            'time': now.strftime('%H:%M:%S'),
+                        })
+                    else:
+                        events.append({
+                            'type': 'error',
+                            'text': f'Nginx blocked: {ip} → {path}',
+                            'time': now.strftime('%H:%M:%S'),
+                        })
+                except Exception:
+                    pass
+    except Exception:
+        pass
+
+    # ── Fail2ban banned IPs ────────────────────────────
+    try:
+        import subprocess
+        result = subprocess.run(
+            ['sudo', 'fail2ban-client', 'status'],
+            capture_output=True, text=True, timeout=5
+        )
+        if result.returncode == 0:
+            # Count total bans
+            jail_output = result.stdout
+            if 'Number of jail' in jail_output:
+                events.append({
+                    'type': 'warn',
+                    'text': f'Fail2ban: monitoring active',
+                    'time': now.strftime('%H:%M:%S'),
+                })
+    except Exception:
+        pass
+
+    # ── System stats ───────────────────────────────────
+    total_articles = Article.query.filter_by(published=True).count()
+    today_articles = Article.query.filter(
         Article.published == True,
         Article.created_at >= today_start
     ).count()
+
     events.append({
         'type': 'info',
-        'text': f'Database: {total} articles | {today_new} new today',
+        'text': f'Database: {total_articles} articles | {today_articles} new today',
         'time': now.strftime('%H:%M:%S'),
     })
 
+    # Today visitors
     today_views = PageView.query.filter(
         PageView.timestamp >= today_start
     ).count()
     unique = db.session.query(
         db.func.count(db.distinct(PageView.ip_address))
     ).filter(PageView.timestamp >= today_start).scalar() or 0
-    events.append({
-        'type': 'success',
-        'text': f'Today: {today_views} views from {unique} visitors',
-        'time': now.strftime('%H:%M:%S'),
-    })
 
     events.append({
         'type': 'success',
-        'text': 'All systems operational.',
+        'text': f'Today: {today_views} views | {unique} unique visitors',
+        'time': now.strftime('%H:%M:%S'),
+    })
+
+    # ── Attack summary ─────────────────────────────────
+    try:
+        log_path = os.path.join(
+            os.path.dirname(os.path.dirname(__file__)),
+            'security.log'
+        )
+        if os.path.exists(log_path):
+            with open(log_path, 'r') as f:
+                content = f.read()
+
+            total_blocked = content.count('BLOCKED')
+            total_failed_logins = content.count('LOGIN FAILED')
+
+            events.append({
+                'type': 'warn',
+                'text': f'Total blocked: {total_blocked} attacks | {total_failed_logins} failed logins',
+                'time': now.strftime('%H:%M:%S'),
+            })
+    except Exception:
+        pass
+
+    # System status
+    events.append({
+        'type': 'success',
+        'text': 'All systems operational. Security monitoring active.',
         'time': now.strftime('%H:%M:%S'),
     })
 
@@ -307,6 +454,7 @@ def api_live_feed():
         'events': events,
         'timestamp': now.strftime('%Y-%m-%d %H:%M:%S'),
     })
+
 
 @main_bp.route('/privacy')
 def privacy():

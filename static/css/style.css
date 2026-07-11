@@ -5332,3 +5332,63 @@ select:focus {
         padding: 1.5rem;
     }
 }
+
+
+/* ═══════════════════════════════════════════════════════
+   ENHANCED TERMINAL WIDGET
+═══════════════════════════════════════════════════════ */
+
+/* Make terminal taller to show more data */
+.terminal-body {
+    max-height: 280px;
+    font-size: 0.7rem;
+    line-height: 1.7;
+}
+
+/* Error lines stand out */
+.terminal-body .t-error {
+    color: #ef4444;
+    font-weight: 600;
+}
+
+/* Warning lines */
+.terminal-body .t-warn {
+    color: #f59e0b;
+}
+
+/* Success lines */
+.terminal-body .t-success {
+    color: #10b981;
+}
+
+/* Info lines */
+.terminal-body .t-info {
+    color: var(--primary);
+}
+
+/* Command prompt */
+.terminal-body .t-prompt {
+    color: var(--primary);
+    font-weight: 700;
+}
+
+/* Command text */
+.terminal-body .t-cmd {
+    color: var(--secondary);
+}
+
+/* New line animation */
+.terminal-line {
+    animation: termSlideIn 0.3s ease forwards;
+}
+
+@keyframes termSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

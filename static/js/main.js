@@ -1278,23 +1278,27 @@ function initParticles() {
 /* ═══════════════════════════════════════════════════════
    LIVE TERMINAL WIDGET — Shows REAL website activity
 ═══════════════════════════════════════════════════════ */
+
 function initTerminal() {
     var terminal = document.getElementById('live-terminal');
     if (!terminal) return;
 
-    var maxLines = 20;
+    var maxLines = 25;
     var commandIndex = 0;
 
-    // Static security commands to show between real data
     var staticCommands = [
-        { type: 'cmd', text: 'nmap -sS --top-ports 100 target' },
-        { type: 'cmd', text: 'tail -f /var/log/auth.log' },
-        { type: 'cmd', text: 'suricata -c /etc/suricata.yaml -i eth0' },
-        { type: 'cmd', text: 'fail2ban-client status sshd' },
-        { type: 'cmd', text: 'openssl s_client -connect server:443' },
-        { type: 'cmd', text: 'curl -I https://cybernews/health' },
-        { type: 'cmd', text: 'grep BLOCKED /var/log/security.log' },
-        { type: 'cmd', text: 'systemctl status nginx gunicorn' },
+        'nmap -sS --top-ports 100 192.168.1.0/24',
+        'tail -f /var/log/auth.log | grep FAILED',
+        'fail2ban-client status sshd',
+        'grep BLOCKED /var/log/security.log | tail -5',
+        'openssl s_client -connect server:443',
+        'systemctl status nginx gunicorn',
+        'netstat -tlnp | grep LISTEN',
+        'iptables -L INPUT -n | grep DROP',
+        'journalctl -u cybernews --since "1 hour ago"',
+        'curl -sI https://cyber-news.duckdns.org | head -5',
+        'wc -l /var/log/nginx/cybernews_access.log',
+        'du -sh /home/hassan007/cybernews/cybernews.db',
     ];
 
     function addLine(type, text) {
@@ -1302,16 +1306,25 @@ function initTerminal() {
         line.className = 'terminal-line';
 
         if (type === 'cmd') {
-            line.innerHTML = '<span class="t-prompt">sec@cybernews ~$</span> <span class="t-cmd">' + text + '</span>';
+            line.innerHTML =
+                '<span class="t-prompt">sec@cybernews ~$</span> ' +
+                '<span class="t-cmd">' + text + '</span>';
         } else {
-            line.innerHTML = '<span class="t-' + type + '">' + text + '</span>';
+            var icon = '';
+            if (type === 'error')   icon = '&#9888; ';
+            if (type === 'warn')    icon = '&#9888; ';
+            if (type === 'success') icon = '&#10004; ';
+
+            line.innerHTML =
+                '<span class="t-' + type + '">' + icon + text + '</span>';
         }
 
         terminal.appendChild(line);
 
         var lines = terminal.querySelectorAll('.terminal-line');
-        if (lines.length > maxLines) {
+        while (lines.length > maxLines) {
             lines[0].remove();
+            lines = terminal.querySelectorAll('.terminal-line');
         }
 
         terminal.scrollTop = terminal.scrollHeight;
@@ -1319,39 +1332,47 @@ function initTerminal() {
 
     function fetchRealData() {
         fetch('/api/live-feed')
-            .then(function(response) { return response.json(); })
+            .then(function(r) { return r.json(); })
             .then(function(data) {
-                if (data.events && data.events.length > 0) {
-                    // Show a command first
-                    var cmd = staticCommands[commandIndex % staticCommands.length];
-                    addLine('cmd', cmd.text);
-                    commandIndex++;
+                if (!data.events || data.events.length === 0) return;
 
-                    // Then show 2-3 real events
-                    var eventsToShow = data.events.slice(0, 3);
-                    var delay = 800;
+                // Show a command first
+                var cmd = staticCommands[commandIndex % staticCommands.length];
+                addLine('cmd', cmd);
+                commandIndex++;
 
-                    eventsToShow.forEach(function(event, i) {
-                        setTimeout(function() {
-                            addLine(event.type, '[' + event.time + '] ' + event.text);
-                        }, delay * (i + 1));
-                    });
-                }
+                // Show real events one by one with delays
+                var events = data.events;
+                var delay = 600;
+
+                events.forEach(function(event, i) {
+                    setTimeout(function() {
+                        var prefix = '[' + event.time + '] ';
+                        addLine(event.type, prefix + event.text);
+                    }, delay * (i + 1));
+                });
             })
             .catch(function() {
                 addLine('warn', 'Connection timeout. Retrying...');
             });
     }
 
-    // Initial commands
+    // Initial boot sequence
     addLine('cmd', 'cybernews --security-monitor --start');
-    addLine('success', 'Security monitor initialized');
-    addLine('info', 'Connecting to live feed...');
+    addLine('success', 'Security monitor v2.0 initialized');
+    addLine('info', 'Loading threat intelligence feeds...');
 
-    // Fetch real data every 15 seconds
+    setTimeout(function() {
+        addLine('success', 'Connected to security.log');
+        addLine('success', 'Connected to nginx access log');
+        addLine('info', 'Monitoring for threats...');
+    }, 1500);
+
+    // Fetch real data every 12 seconds
     setTimeout(fetchRealData, 3000);
-    setInterval(fetchRealData, 15000);
+    setInterval(fetchRealData, 12000);
 }
+
 
 /* ═══════════════════════════════════════════════════════
    SCROLL REVEAL — Fade in elements as they scroll into view
