@@ -46,6 +46,7 @@
             <div class="article-hero-image">
                 <img src="{{ article.image }}"
                      alt="{{ article.title }}"
+                     loading="lazy"
                      onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/fallback/cyber-default.jpg') }}';">
             </div>
 

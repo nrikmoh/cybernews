@@ -3697,3 +3697,469 @@ body.light-mode body::before {
         font-size: 1.1rem;
     }
 }
+
+
+/* ── Scanline overlay on entire page ─────────────────── */
+body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 9990;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.03) 0px,
+        rgba(0, 0, 0, 0.03) 1px,
+        transparent 1px,
+        transparent 3px
+    );
+    opacity: 0.4;
+}
+
+/* ── Glowing cyan/green text accents ─────────────────── */
+.hero-title,
+.featured-title a,
+.card-title a:hover,
+.section-title,
+.page-header h1 {
+    text-shadow: 0 0 10px rgba(0, 212, 255, 0.15);
+}
+
+/* ── Matrix rain cursor on links ─────────────────────── */
+a {
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Ctext y='15' font-size='14'%3E%E2%96%8A%3C/text%3E%3C/svg%3E") 10 10, pointer;
+}
+
+/* ── Glitch effect on main logo ──────────────────────── */
+.logo-main {
+    position: relative;
+    display: inline-block;
+}
+
+.logo-main::before,
+.logo-main::after {
+    content: 'CyberNews';
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+}
+
+.logo:hover .logo-main::before {
+    animation: glitchTop 0.4s ease;
+    color: #ef4444;
+    opacity: 0.8;
+}
+
+.logo:hover .logo-main::after {
+    animation: glitchBottom 0.4s ease;
+    color: #3b82f6;
+    opacity: 0.8;
+}
+
+@keyframes glitchTop {
+    0%   { clip-path: inset(0 0 60% 0); transform: translate(-3px, -2px); opacity: 0.8; }
+    25%  { clip-path: inset(20% 0 40% 0); transform: translate(3px, 1px); opacity: 0.6; }
+    50%  { clip-path: inset(40% 0 20% 0); transform: translate(-2px, 2px); opacity: 0.8; }
+    75%  { clip-path: inset(60% 0 0 0); transform: translate(2px, -1px); opacity: 0.6; }
+    100% { clip-path: inset(0 0 60% 0); transform: translate(0); opacity: 0; }
+}
+
+@keyframes glitchBottom {
+    0%   { clip-path: inset(60% 0 0 0); transform: translate(3px, 2px); opacity: 0.8; }
+    25%  { clip-path: inset(40% 0 20% 0); transform: translate(-3px, -1px); opacity: 0.6; }
+    50%  { clip-path: inset(20% 0 40% 0); transform: translate(2px, -2px); opacity: 0.8; }
+    75%  { clip-path: inset(0 0 60% 0); transform: translate(-2px, 1px); opacity: 0.6; }
+    100% { clip-path: inset(60% 0 0 0); transform: translate(0); opacity: 0; }
+}
+
+/* ── Neon glow borders on cards ──────────────────────── */
+.article-card:hover {
+    box-shadow:
+        0 0 5px rgba(0, 212, 255, 0.2),
+        0 0 20px rgba(0, 212, 255, 0.1),
+        0 0 40px rgba(0, 212, 255, 0.05),
+        0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+/* ── Neon glow on featured card ──────────────────────── */
+.featured-card:hover {
+    box-shadow:
+        0 0 10px rgba(0, 212, 255, 0.15),
+        0 0 30px rgba(0, 212, 255, 0.1),
+        0 0 60px rgba(0, 212, 255, 0.05),
+        0 10px 40px rgba(0, 0, 0, 0.4);
+}
+
+/* ── Hacker terminal font on mono elements ───────────── */
+.terminal-body,
+.stat-number,
+.about-stat-number,
+.threat-level,
+.footer-stat {
+    font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+    letter-spacing: 0.05em;
+}
+
+/* ── Flicker animation for "LIVE" elements ───────────── */
+.live-dot {
+    animation: livePulse 1.5s ease-in-out infinite;
+}
+
+@keyframes livePulse {
+    0%, 100% {
+        opacity: 1;
+        box-shadow: 0 0 4px rgba(0, 255, 136, 0.5),
+                    0 0 8px rgba(0, 255, 136, 0.3);
+    }
+    50% {
+        opacity: 0.3;
+        box-shadow: 0 0 2px rgba(0, 255, 136, 0.2);
+    }
+}
+
+/* ── Cyber grid background (enhanced) ────────────────── */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image:
+        radial-gradient(circle at 20% 50%, rgba(0, 212, 255, 0.03) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(124, 58, 237, 0.03) 0%, transparent 50%),
+        radial-gradient(circle at 50% 80%, rgba(0, 255, 136, 0.02) 0%, transparent 50%),
+        linear-gradient(rgba(0, 212, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 212, 255, 0.02) 1px, transparent 1px);
+    background-size: 100% 100%, 100% 100%, 100% 100%, 60px 60px, 60px 60px;
+    animation: gridDrift 30s linear infinite;
+}
+
+@keyframes gridDrift {
+    0%   { background-position: 0 0, 0 0, 0 0, 0 0, 0 0; }
+    100% { background-position: 0 0, 0 0, 0 0, 60px 60px, 60px 60px; }
+}
+
+/* ── Neon underline on navigation links ──────────────── */
+.nav-link.active {
+    border-bottom: 2px solid var(--primary);
+    box-shadow: 0 2px 10px rgba(0, 212, 255, 0.3);
+}
+
+/* ── Glowing search bar ──────────────────────────────── */
+.header-search:focus-within {
+    border-color: var(--primary);
+    box-shadow:
+        0 0 10px rgba(0, 212, 255, 0.2),
+        0 0 30px rgba(0, 212, 255, 0.1),
+        inset 0 0 10px rgba(0, 212, 255, 0.05);
+}
+
+/* ── Ticker with neon glow ───────────────────────────── */
+.ticker-label {
+    box-shadow: 4px 0 15px rgba(239, 68, 68, 0.3);
+}
+
+/* ── Stats bar cyber look ────────────────────────────── */
+.stats-bar {
+    border-bottom: 1px solid rgba(0, 212, 255, 0.15);
+    background: linear-gradient(
+        180deg,
+        var(--bg-card) 0%,
+        rgba(0, 212, 255, 0.02) 100%
+    );
+}
+
+.stat-number {
+    text-shadow: 0 0 15px rgba(0, 212, 255, 0.4);
+}
+
+/* ── Threat widget intense glow ──────────────────────── */
+.threat-level.high,
+.threat-level.critical {
+    text-shadow:
+        0 0 10px rgba(239, 68, 68, 0.5),
+        0 0 30px rgba(239, 68, 68, 0.3),
+        0 0 60px rgba(239, 68, 68, 0.15);
+}
+
+.threat-fill {
+    box-shadow:
+        0 0 5px rgba(239, 68, 68, 0.4),
+        0 0 15px rgba(239, 68, 68, 0.2);
+}
+
+/* ── Widgets with subtle glow border ─────────────────── */
+.widget:hover {
+    border-color: rgba(0, 212, 255, 0.2);
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.05);
+}
+
+/* ── Terminal widget enhanced ────────────────────────── */
+.terminal-widget {
+    border-color: rgba(0, 255, 136, 0.2);
+    box-shadow:
+        0 0 10px rgba(0, 255, 136, 0.05),
+        inset 0 0 30px rgba(0, 255, 136, 0.02);
+}
+
+.terminal-body {
+    background:
+        radial-gradient(ellipse at center, rgba(0, 255, 136, 0.02), transparent 70%),
+        #020408;
+    text-shadow: 0 0 5px rgba(0, 255, 136, 0.3);
+}
+
+/* ── Category badges glow ────────────────────────────── */
+.badge:hover {
+    box-shadow: 0 0 10px currentColor;
+}
+
+/* ── Footer cyber style ──────────────────────────────── */
+.main-footer {
+    border-top: 1px solid rgba(0, 212, 255, 0.15);
+    background: linear-gradient(
+        180deg,
+        var(--bg-darkest) 0%,
+        rgba(0, 212, 255, 0.02) 100%
+    );
+}
+
+.footer-social a:hover {
+    box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
+}
+
+/* ── Category cards glow on hover ────────────────────── */
+.category-card:hover {
+    box-shadow:
+        0 0 10px currentColor,
+        0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+/* ── About page avatar enhanced glow ─────────────────── */
+.profile-avatar {
+    box-shadow:
+        0 0 20px rgba(0, 212, 255, 0.3),
+        0 0 40px rgba(0, 212, 255, 0.15),
+        0 0 80px rgba(0, 212, 255, 0.05);
+}
+
+/* ── Scrollbar cyber style ───────────────────────────── */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-darkest);
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(
+        180deg,
+        var(--primary),
+        var(--accent)
+    );
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary);
+    box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+}
+
+/* ── Button hover glow ───────────────────────────────── */
+.hero-btn:hover,
+.featured-btn:hover,
+.btn-primary:hover {
+    box-shadow:
+        0 0 10px rgba(0, 212, 255, 0.3),
+        0 0 30px rgba(0, 212, 255, 0.15),
+        0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+/* ── Input fields cyber glow ─────────────────────────── */
+input:focus,
+textarea:focus,
+select:focus {
+    box-shadow:
+        0 0 10px rgba(0, 212, 255, 0.15),
+        0 0 30px rgba(0, 212, 255, 0.05);
+}
+
+/* ── Pagination buttons glow ─────────────────────────── */
+[style*="page-btn"]:hover,
+.page-btn:hover {
+    box-shadow: 0 0 10px rgba(0, 212, 255, 0.2);
+}
+
+/* ── Loading animation for images ────────────────────── */
+.card-image img {
+    background: linear-gradient(
+        135deg,
+        var(--bg-elevated) 25%,
+        var(--bg-card) 50%,
+        var(--bg-elevated) 75%
+    );
+    background-size: 200% 200%;
+    animation: imageLoad 1.5s ease infinite;
+}
+
+.card-image img[src] {
+    animation: none;
+}
+
+@keyframes imageLoad {
+    0%   { background-position: 200% 200%; }
+    100% { background-position: -200% -200%; }
+}
+
+/* ── Alert dropdown neon ─────────────────────────────── */
+.alerts-panel.open {
+    box-shadow:
+        0 0 20px rgba(0, 212, 255, 0.1),
+        0 20px 60px rgba(0, 0, 0, 0.5);
+    border-color: rgba(0, 212, 255, 0.2);
+}
+
+.alerts-badge {
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+}
+
+/* ── Hexagon pattern behind hero/featured ────────────── */
+.featured-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 400px;
+    pointer-events: none;
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5 L55 20 L55 40 L30 55 L5 40 L5 20 Z' fill='none' stroke='%2300d4ff' stroke-width='1'/%3E%3C/svg%3E");
+    background-size: 60px 60px;
+}
+
+.featured-section {
+    position: relative;
+}
+
+/* ── Cyber corner decorations on featured card ───────── */
+.featured-card::after {
+    content: '';
+    position: absolute;
+    top: -1px;
+    right: -1px;
+    width: 30px;
+    height: 30px;
+    border-top: 2px solid var(--primary);
+    border-right: 2px solid var(--primary);
+    border-radius: 0 var(--radius-xl) 0 0;
+    opacity: 0.5;
+}
+
+/* ── Search page cyber style ─────────────────────────── */
+.search-page-input-wrap:focus-within {
+    box-shadow:
+        0 0 15px rgba(0, 212, 255, 0.15),
+        0 0 40px rgba(0, 212, 255, 0.08);
+}
+
+/* ── Typing cursor blink ─────────────────────────────── */
+.featured-title a::after {
+    content: '|';
+    color: var(--primary);
+    animation: cursorBlink 1s step-end infinite;
+    font-weight: 300;
+    margin-left: 2px;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.featured-card:hover .featured-title a::after {
+    opacity: 1;
+}
+
+@keyframes cursorBlink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+}
+
+/* ── Code-style line numbers on article body ─────────── */
+.article-body p {
+    position: relative;
+    padding-left: 2rem;
+}
+
+.article-body p::before {
+    content: counter(line-counter, decimal-leading-zero);
+    counter-increment: line-counter;
+    position: absolute;
+    left: 0;
+    color: var(--text-faint);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    opacity: 0.4;
+    user-select: none;
+}
+
+.article-body {
+    counter-reset: line-counter;
+}
+
+
+/* ═══════════════════════════════════════════════════════
+   SUBTLE CYBER ENHANCEMENTS
+   Light touches that enhance without overwhelming
+═══════════════════════════════════════════════════════ */
+
+/* Smooth custom scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-darkest);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--bg-border);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary);
+}
+
+/* Subtle glow on featured card hover */
+.featured-card:hover {
+    box-shadow:
+        0 8px 40px rgba(0, 0, 0, 0.4),
+        0 0 30px rgba(0, 212, 255, 0.06);
+}
+
+/* Soft glow on search focus */
+.header-search:focus-within {
+    border-color: var(--primary);
+    box-shadow: 0 0 15px rgba(0, 212, 255, 0.1);
+}
+
+/* Terminal widget subtle CRT feel */
+.terminal-body {
+    text-shadow: 0 0 3px rgba(0, 255, 136, 0.2);
+}
+
+/* Alert badge subtle pulse */
+.alerts-badge {
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
+}
+
+/* Stat numbers subtle glow */
+.stat-number {
+    text-shadow: 0 0 8px rgba(0, 212, 255, 0.2);
+}
+
+/* Footer social icons glow on hover */
+.footer-social a:hover {
+    box-shadow: 0 0 10px rgba(0, 212, 255, 0.2);
+}

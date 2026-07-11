@@ -26,6 +26,18 @@ class Config:
         'pool_recycle': 300,
     }
 
+    # ── Compression ─────────────────────────────────────
+    COMPRESS_MIMETYPES = [
+        'text/html', 'text/css',
+        'text/javascript', 'application/json',
+        'application/javascript',
+    ]
+    COMPRESS_LEVEL  = 6
+    COMPRESS_MIN_SIZE = 500
+
+    # ── Browser Caching ─────────────────────────────────
+    SEND_FILE_MAX_AGE_DEFAULT = 31536000  # 1 year for static files
+
     # ── Session Security ────────────────────────────────
     SESSION_COOKIE_HTTPONLY  = True    # JS cannot access cookie
     SESSION_COOKIE_SAMESITE  = 'Lax'  # CSRF protection
