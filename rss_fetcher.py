@@ -123,8 +123,9 @@ CYBER_IMAGES = {
 
 def find_best_image(title, summary, default_image=None):
     """
-    Return a local SVG cover path based on article keywords.
-    24 variants per category for maximum variety.
+    Return a LOCAL photo path based on article keywords.
+    Uses curated photos stored on the VPS.
+    10 photos per category for good variety.
     """
     import hashlib
 
@@ -132,23 +133,24 @@ def find_best_image(title, summary, default_image=None):
 
     category = 'general'
 
-    if any(k in text for k in ['ransomware', 'malware', 'trojan', 'virus', 'spyware', 'botnet', 'backdoor', 'rootkit', 'keylogger', 'cryptominer']):
+    if any(k in text for k in ['ransomware', 'malware', 'trojan', 'virus', 'spyware', 'botnet', 'backdoor', 'rootkit']):
         category = 'malware'
-    elif any(k in text for k in ['breach', 'leak', 'compromised', 'stolen', 'exposed', 'dump', 'records', 'credential']):
+    elif any(k in text for k in ['breach', 'leak', 'compromised', 'stolen', 'exposed', 'dump', 'records']):
         category = 'breaches'
-    elif any(k in text for k in ['vulnerability', 'zero-day', 'cve-', 'exploit', 'patch', 'buffer overflow', 'rce', 'injection']):
+    elif any(k in text for k in ['vulnerability', 'zero-day', 'cve-', 'exploit', 'patch', 'buffer overflow', 'rce']):
         category = 'vulnerabilities'
-    elif any(k in text for k in ['privacy', 'gdpr', 'tracking', 'surveillance', 'consent', 'personal data', 'cookie']):
+    elif any(k in text for k in ['privacy', 'gdpr', 'tracking', 'surveillance', 'consent', 'personal data']):
         category = 'privacy'
-    elif any(k in text for k in ['apt', 'threat', 'phishing', 'ddos', 'government', 'espionage', 'nation state', 'campaign', 'c2']):
+    elif any(k in text for k in ['apt', 'threat', 'phishing', 'ddos', 'government', 'espionage', 'nation state', 'campaign']):
         category = 'threats'
-    elif any(k in text for k in ['research', 'analysis', 'report', 'study', 'tool', 'framework', 'discovered', 'technique', 'bug bounty']):
+    elif any(k in text for k in ['research', 'analysis', 'report', 'study', 'tool', 'framework', 'discovered']):
         category = 'research'
 
+    # Use hash to pick consistently (same title = same image)
     h = int(hashlib.md5(title.encode()).hexdigest(), 16)
-    variant = (h % 24) + 1
+    variant = (h % 10) + 1  # 1-10
 
-    return f'/static/images/covers/{category}/{category}-{variant:02d}.svg'
+    return f'/static/images/photos/{category}/{variant:02d}.jpg'
 
 
 # ── Category Keywords ──────────────────────────────────

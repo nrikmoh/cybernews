@@ -22,16 +22,16 @@
             {% for article in articles %}
             <article class="article-card" data-category="{{ article.category }}">
                 <div class="card-image">
-                         <img src="{{ article.image }}"
-     alt="{{ article.title }}"
-     loading="lazy"
-     onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/fallback/cyber-default.svg') }}';">
+                    <img src="{{ article.image }}"
+                         alt="{{ article.title }}"
+                         loading="lazy"
+                         onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/fallback/cyber-default.jpg') }}';">
                     <span class="card-category badge badge-{{ article.category | category_color }}">
                         {{ article.category }}
                     </span>
-                        <span class="card-source-overlay">
-                            {{ article.source }}
-                        </span>
+                    <span class="card-source-overlay">
+                        {{ article.source }}
+                    </span>
                 </div>
                 <div class="card-body">
                     <div class="card-meta">
@@ -42,6 +42,10 @@
                         <span class="card-date">
                             <i class="fas fa-clock"></i>
                             {{ article.formatted_date }}
+                        </span>
+                        <span class="card-read-time">
+                            <i class="fas fa-book-open"></i>
+                            {{ article.read_time }}
                         </span>
                     </div>
                     <h3 class="card-title">
