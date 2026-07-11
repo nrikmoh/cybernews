@@ -1,0 +1,4 @@
+Contact: https://github.com/nrikmoh/cybernews/issues
+Preferred-Languages: en, de
+Scope: https://cyber-news.duckdns.org
+Policy: https://cyber-news.duckdns.org/privacy

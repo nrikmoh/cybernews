@@ -341,3 +341,11 @@ def api_subscribe():
     db.session.add(sub)
     db.session.commit()
     return jsonify({'success': True, 'message': 'Subscribed!'})
+
+@main_bp.route('/.well-known/security.txt')
+def security_txt():
+    return send_from_directory(
+        'static/.well-known',
+        'security.txt',
+        mimetype='text/plain'
+    )
