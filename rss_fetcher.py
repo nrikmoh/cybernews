@@ -124,34 +124,46 @@ CYBER_IMAGES = {
 def find_best_image(title, summary, default_image=None):
     """
     Return a LOCAL photo path based on article keywords.
-    Uses curated photos stored on the VPS.
-    10 photos per category for good variety.
+    28+ photos per category for maximum variety.
     """
     import hashlib
+    import os
 
     text = (title + ' ' + summary).lower()
 
     category = 'general'
 
-    if any(k in text for k in ['ransomware', 'malware', 'trojan', 'virus', 'spyware', 'botnet', 'backdoor', 'rootkit']):
+    if any(k in text for k in ['ransomware', 'malware', 'trojan', 'virus', 'spyware', 'botnet', 'backdoor', 'rootkit', 'keylogger', 'worm']):
         category = 'malware'
-    elif any(k in text for k in ['breach', 'leak', 'compromised', 'stolen', 'exposed', 'dump', 'records']):
+    elif any(k in text for k in ['breach', 'leak', 'compromised', 'stolen', 'exposed', 'dump', 'records', 'credential', 'unauthorized']):
         category = 'breaches'
-    elif any(k in text for k in ['vulnerability', 'zero-day', 'cve-', 'exploit', 'patch', 'buffer overflow', 'rce']):
+    elif any(k in text for k in ['vulnerability', 'zero-day', 'cve-', 'exploit', 'patch', 'buffer overflow', 'rce', 'injection', 'flaw']):
         category = 'vulnerabilities'
-    elif any(k in text for k in ['privacy', 'gdpr', 'tracking', 'surveillance', 'consent', 'personal data']):
+    elif any(k in text for k in ['privacy', 'gdpr', 'tracking', 'surveillance', 'consent', 'personal data', 'cookie', 'regulation']):
         category = 'privacy'
-    elif any(k in text for k in ['apt', 'threat', 'phishing', 'ddos', 'government', 'espionage', 'nation state', 'campaign']):
+    elif any(k in text for k in ['apt', 'threat', 'phishing', 'ddos', 'government', 'espionage', 'nation state', 'campaign', 'attack group']):
         category = 'threats'
-    elif any(k in text for k in ['research', 'analysis', 'report', 'study', 'tool', 'framework', 'discovered']):
+    elif any(k in text for k in ['research', 'analysis', 'report', 'study', 'tool', 'framework', 'discovered', 'technique', 'bug bounty', 'open source']):
         category = 'research'
 
-    # Use hash to pick consistently (same title = same image)
+    # Count how many photos exist in this category folder
+    photo_dir = os.path.join('static', 'images', 'photos', category)
+    try:
+        photo_count = len([
+            f for f in os.listdir(photo_dir)
+            if f.endswith('.jpg')
+        ])
+    except FileNotFoundError:
+        photo_count = 10
+
+    if photo_count < 1:
+        photo_count = 10
+
+    # Use hash to pick consistently
     h = int(hashlib.md5(title.encode()).hexdigest(), 16)
-    variant = (h % 10) + 1  # 1-10
+    variant = (h % photo_count) + 1
 
     return f'/static/images/photos/{category}/{variant:02d}.jpg'
-
 
 # ── Category Keywords ──────────────────────────────────
 # These help us auto-detect the right category
