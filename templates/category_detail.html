@@ -22,9 +22,10 @@
             {% for article in articles %}
             <article class="article-card" data-category="{{ article.category }}">
                 <div class="card-image">
-                    <img src="{{ article.image }}"
-                         alt="{{ article.title }}"
-                         loading="lazy">
+                         <img src="{{ article.image }}"
+     alt="{{ article.title }}"
+     loading="lazy"
+     onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/fallback/cyber-default.svg') }}';">
                     <span class="card-category badge badge-{{ article.category | category_color }}">
                         {{ article.category }}
                     </span>

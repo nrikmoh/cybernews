@@ -43,7 +43,9 @@
 
             <!-- Article Image -->
             <div class="article-hero-image">
-                <img src="{{ article.image }}" alt="{{ article.title }}">
+                <img src="{{ article.image }}"
+     alt="{{ article.title }}"
+     onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/fallback/cyber-default.svg') }}';">
             </div>
 
             <!-- Article Body -->

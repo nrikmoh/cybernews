@@ -122,9 +122,10 @@
 
                     <!-- Card Image -->
                     <div class="card-image">
-                        <img src="{{ article.image }}"
-                             alt="{{ article.title }}"
-                             loading="lazy">
+<img src="{{ article.image }}"
+     alt="{{ article.title }}"
+     loading="lazy"
+     onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/fallback/cyber-default.svg') }}';">
                         <span class="card-category badge badge-{{ article.category | lower | replace(' ', '-') }}">
                             {{ article.category }}
                         </span>

@@ -117,90 +117,38 @@ CYBER_IMAGES = {
     ],
 }
 
-# ── Keyword to Image Mapping ──────────────────────────
-KEYWORD_IMAGES = {
-    'malware':       'https://images.unsplash.com/photo-1614064641938-3bbee52942c7?w=800&q=80',
-    'ransomware':    'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=800&q=80',
-    'phishing':      'https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=800&q=80',
-    'breach':        'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80',
-    'data leak':     'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80',
-    'vulnerability': 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&q=80',
-    'zero-day':      'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&q=80',
-    'cve-':          'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&q=80',
-    'privacy':       'https://images.unsplash.com/photo-1510511459019-5dda7724fd87?w=800&q=80',
-    'gdpr':          'https://images.unsplash.com/photo-1510511459019-5dda7724fd87?w=800&q=80',
-    'encryption':    'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=800&q=80',
-    'cloud':         'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=800&q=80',
-    'ai':            'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&q=80',
-    'artificial':    'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&q=80',
-    'network':       'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&q=80',
-    'ddos':          'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&q=80',
-    'government':    'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&q=80',
-    'apt':           'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&q=80',
-    'espionage':     'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&q=80',
-    'microsoft':     'https://images.unsplash.com/photo-1607799279861-4dd421887fb3?w=800&q=80',
-    'windows':       'https://images.unsplash.com/photo-1607799279861-4dd421887fb3?w=800&q=80',
-    'chrome':        'https://images.unsplash.com/photo-1573804633927-bfcbcd909acd?w=800&q=80',
-    'google':        'https://images.unsplash.com/photo-1573804633927-bfcbcd909acd?w=800&q=80',
-    'linux':         'https://images.unsplash.com/photo-1629654297299-c8506221ca97?w=800&q=80',
-    'mobile':        'https://images.unsplash.com/photo-1580894894513-541e068a3e2b?w=800&q=80',
-    'android':       'https://images.unsplash.com/photo-1580894894513-541e068a3e2b?w=800&q=80',
-    'healthcare':    'https://images.unsplash.com/photo-1551808525-51a94da548ce?w=800&q=80',
-    'hospital':      'https://images.unsplash.com/photo-1551808525-51a94da548ce?w=800&q=80',
-    'code':          'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800&q=80',
-    'developer':     'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800&q=80',
-}
+# ── Smart Image Generator ─────────────────────────────
+# Uses article keywords to generate unique relevant images
+# Each article gets a different image based on its title
 
-# Fallback pool of generic cybersecurity images
-IMAGE_POOL = [
-    'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&q=80',
-    'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&q=80',
-    'https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=800&q=80',
-    'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=800&q=80',
-    'https://images.unsplash.com/photo-1510511459019-5dda7724fd87?w=800&q=80',
-    'https://images.unsplash.com/photo-1614064641938-3bbee52942c7?w=800&q=80',
-    'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80',
-    'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&q=80',
-    'https://images.unsplash.com/photo-1607799279861-4dd421887fb3?w=800&q=80',
-    'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&q=80',
-    'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&q=80',
-    'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=800&q=80',
-    'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&q=80',
-    'https://images.unsplash.com/photo-1573804633927-bfcbcd909acd?w=800&q=80',
-    'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80',
-    'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=800&q=80',
-    'https://images.unsplash.com/photo-1504639725590-34d0984388bd?w=800&q=80',
-    'https://images.unsplash.com/photo-1562813733-b31f71025d54?w=800&q=80',
-    'https://images.unsplash.com/photo-1580894894513-541e068a3e2b?w=800&q=80',
-    'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800&q=80',
-    'https://images.unsplash.com/photo-1560732488-6b0df240254a?w=800&q=80',
-    'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=800&q=80',
-    'https://images.unsplash.com/photo-1629654297299-c8506221ca97?w=800&q=80',
-    'https://images.unsplash.com/photo-1551808525-51a94da548ce?w=800&q=80',
-]
-
-
-def find_best_image(title, summary, default_image):
+def find_best_image(title, summary, default_image=None):
     """
-    Find the most relevant image for an article.
-    
-    Strategy:
-    1. Check title for keyword matches → use specific image
-    2. Check summary for keyword matches → use specific image
-    3. Fall back to pool → pick using title hash for variety
+    Return a LOCAL SVG cover based on category/keywords.
+    Stable, varied, no broken links.
     """
+    import hashlib
+
     text = (title + ' ' + summary).lower()
 
-    # Try keyword matching
-    for keyword, image in KEYWORD_IMAGES.items():
-        if keyword in text:
-            return image
+    category = 'general'
 
-    # No keyword match → pick from pool using hash
-    # Hash ensures same title always gets same image
-    # but different titles get different images
+    if any(k in text for k in ['ransomware', 'malware', 'trojan', 'virus', 'spyware', 'botnet']):
+        category = 'malware'
+    elif any(k in text for k in ['breach', 'leak', 'compromised', 'stolen', 'exposed']):
+        category = 'breaches'
+    elif any(k in text for k in ['vulnerability', 'zero-day', 'cve-', 'exploit', 'patch']):
+        category = 'vulnerabilities'
+    elif any(k in text for k in ['privacy', 'gdpr', 'tracking', 'surveillance']):
+        category = 'privacy'
+    elif any(k in text for k in ['apt', 'threat', 'phishing', 'ddos', 'government', 'espionage']):
+        category = 'threats'
+    elif any(k in text for k in ['research', 'analysis', 'report', 'study', 'tool', 'framework']):
+        category = 'research'
+
     h = int(hashlib.md5(title.encode()).hexdigest(), 16)
-    return IMAGE_POOL[h % len(IMAGE_POOL)]
+    variant = (h % 16) + 1
+
+    return f'/static/images/covers/{category}/{category}-{variant:02d}.svg'
 
 # ── RSS Feed Sources ───────────────────────────────────
 # Each feed has:

@@ -295,32 +295,61 @@ def fetch_news():
 @login_required
 def analytics():
     """Detailed visitor analytics dashboard."""
-    from models import PageView
+    from models import PageView, Article
     from sqlalchemy import func, distinct
     from datetime import datetime, timedelta
+    from collections import Counter
+    from urllib.parse import urlparse
 
     now = datetime.utcnow()
     today = now.replace(hour=0, minute=0, second=0, microsecond=0)
     week_ago = now - timedelta(days=7)
     month_ago = now - timedelta(days=30)
+    active_since = now - timedelta(minutes=15)
 
-    # ── Overview Stats ─────────────────────────────────
+    # Overview stats
+    total_views = PageView.query.count()
+    unique_visitors = db.session.query(
+        func.count(distinct(PageView.ip_address))
+    ).scalar() or 0
+
+    today_views = PageView.query.filter(PageView.timestamp >= today).count()
+    today_unique = db.session.query(
+        func.count(distinct(PageView.ip_address))
+    ).filter(PageView.timestamp >= today).scalar() or 0
+
+    active_now = db.session.query(
+        func.count(distinct(PageView.ip_address))
+    ).filter(PageView.timestamp >= active_since).scalar() or 0
+
+    week_views = PageView.query.filter(PageView.timestamp >= week_ago).count()
+    month_views = PageView.query.filter(PageView.timestamp >= month_ago).count()
+
+    # Repeat visitors (IPs with more than 1 visit)
+    repeat_visitors = db.session.query(
+        PageView.ip_address
+    ).group_by(PageView.ip_address).having(
+        func.count(PageView.id) > 1
+    ).count()
+
+    # Article page views
+    article_views = PageView.query.filter(
+        PageView.page.like('/article/%')
+    ).count()
+
     stats = {
-        'total_views':      PageView.total_views(),
-        'unique_visitors':  PageView.unique_visitors(),
-        'today_views':      PageView.today_views(),
-        'today_unique':     db.session.query(
-                                func.count(distinct(PageView.ip_address))
-                            ).filter(PageView.timestamp >= today).scalar() or 0,
-        'week_views':       PageView.query.filter(
-                                PageView.timestamp >= week_ago
-                            ).count(),
-        'month_views':      PageView.query.filter(
-                                PageView.timestamp >= month_ago
-                            ).count(),
+        'total_views': total_views,
+        'unique_visitors': unique_visitors,
+        'today_views': today_views,
+        'today_unique': today_unique,
+        'active_now': active_now,
+        'week_views': week_views,
+        'month_views': month_views,
+        'repeat_visitors': repeat_visitors,
+        'article_views': article_views,
     }
 
-    # ── Views per day (last 7 days) ────────────────────
+    # Daily views last 7 days
     daily_views = []
     for i in range(6, -1, -1):
         day_start = (now - timedelta(days=i)).replace(hour=0, minute=0, second=0, microsecond=0)
@@ -334,64 +363,9 @@ def analytics():
             'count': count,
         })
 
-    # Find max for bar chart scaling
     max_daily = max((d['count'] for d in daily_views), default=1) or 1
 
-    # ── Top Pages ──────────────────────────────────────
-    top_pages = db.session.query(
-        PageView.page,
-        func.count(PageView.id).label('views')
-    ).group_by(PageView.page).order_by(
-        func.count(PageView.id).desc()
-    ).limit(10).all()
-
-    # ── Device Breakdown ───────────────────────────────
-    devices = db.session.query(
-        PageView.device,
-        func.count(PageView.id).label('count')
-    ).filter(PageView.device != None).group_by(
-        PageView.device
-    ).order_by(func.count(PageView.id).desc()).all()
-
-    total_device = sum(d.count for d in devices) or 1
-
-    # ── Browser Breakdown ──────────────────────────────
-    browsers = db.session.query(
-        PageView.browser,
-        func.count(PageView.id).label('count')
-    ).filter(PageView.browser != None).group_by(
-        PageView.browser
-    ).order_by(func.count(PageView.id).desc()).all()
-
-    total_browser = sum(b.count for b in browsers) or 1
-
-    # ── Top Referrers ──────────────────────────────────
-    referrers = db.session.query(
-        PageView.referrer,
-        func.count(PageView.id).label('count')
-    ).filter(
-        PageView.referrer != None,
-        PageView.referrer != '',
-    ).group_by(PageView.referrer).order_by(
-        func.count(PageView.id).desc()
-    ).limit(10).all()
-
-    # ── Recent Visitors ────────────────────────────────
-    recent_visitors = PageView.query.order_by(
-        PageView.timestamp.desc()
-    ).limit(20).all()
-
-    # ── Top Visitor IPs ────────────────────────────────
-    top_ips = db.session.query(
-        PageView.ip_address,
-        func.count(PageView.id).label('views'),
-        func.max(PageView.timestamp).label('last_visit'),
-        func.min(PageView.timestamp).label('first_visit'),
-    ).group_by(PageView.ip_address).order_by(
-        func.count(PageView.id).desc()
-    ).limit(15).all()
-
-    # ── Hourly Distribution (today) ────────────────────
+    # Hourly views today
     hourly = []
     for h in range(24):
         hour_start = today + timedelta(hours=h)
@@ -407,19 +381,152 @@ def analytics():
 
     max_hourly = max((h['count'] for h in hourly), default=1) or 1
 
+    # Top pages
+    top_pages = db.session.query(
+        PageView.page,
+        func.count(PageView.id).label('views')
+    ).group_by(PageView.page).order_by(
+        func.count(PageView.id).desc()
+    ).limit(10).all()
+
+    # Top article pages
+    article_page_counts = db.session.query(
+        PageView.page,
+        func.count(PageView.id).label('views')
+    ).filter(
+        PageView.page.like('/article/%')
+    ).group_by(PageView.page).order_by(
+        func.count(PageView.id).desc()
+    ).limit(10).all()
+
+    top_articles = []
+    for row in article_page_counts:
+        try:
+            article_id = int(row.page.strip('/').split('/')[-1])
+            article = Article.query.get(article_id)
+            if article:
+                top_articles.append({
+                    'id': article.id,
+                    'title': article.title,
+                    'views': row.views,
+                    'source': article.source,
+                })
+        except Exception:
+            pass
+
+    # Devices
+    devices = db.session.query(
+        PageView.device,
+        func.count(PageView.id).label('count')
+    ).filter(PageView.device != None).group_by(
+        PageView.device
+    ).order_by(func.count(PageView.id).desc()).all()
+
+    total_device = sum(d.count for d in devices) or 1
+
+    # Browsers
+    browsers = db.session.query(
+        PageView.browser,
+        func.count(PageView.id).label('count')
+    ).filter(PageView.browser != None).group_by(
+        PageView.browser
+    ).order_by(func.count(PageView.id).desc()).all()
+
+    total_browser = sum(b.count for b in browsers) or 1
+
+    # Referrer domains
+    ref_rows = PageView.query.filter(
+        PageView.referrer != None,
+        PageView.referrer != ''
+    ).all()
+
+    ref_counter = Counter()
+    for row in ref_rows:
+        try:
+            domain = urlparse(row.referrer).netloc.lower().replace('www.', '')
+            if domain:
+                ref_counter[domain] += 1
+        except Exception:
+            pass
+
+    top_referrers = ref_counter.most_common(10)
+
+    # Recent visitors
+    recent_visitors = PageView.query.order_by(
+        PageView.timestamp.desc()
+    ).limit(20).all()
+
+    # Top visitor IPs
+    top_ips = db.session.query(
+        PageView.ip_address,
+        func.count(PageView.id).label('views'),
+        func.max(PageView.timestamp).label('last_visit')
+    ).group_by(PageView.ip_address).order_by(
+        func.count(PageView.id).desc()
+    ).limit(15).all()
+
     return render_template(
         'admin/analytics.html',
         stats=stats,
         daily_views=daily_views,
         max_daily=max_daily,
+        hourly=hourly,
+        max_hourly=max_hourly,
         top_pages=top_pages,
+        top_articles=top_articles,
         devices=devices,
         total_device=total_device,
         browsers=browsers,
         total_browser=total_browser,
-        referrers=referrers,
+        top_referrers=top_referrers,
         recent_visitors=recent_visitors,
         top_ips=top_ips,
-        hourly=hourly,
-        max_hourly=max_hourly,
+    )
+
+@admin_bp.route('/analytics/export.csv')
+@login_required
+def analytics_export():
+    """Export recent analytics data as CSV."""
+    from models import PageView
+    from flask import Response
+    import csv
+    import io
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+
+    writer.writerow([
+        'timestamp',
+        'page',
+        'ip_address',
+        'device',
+        'browser',
+        'referrer',
+        'user_agent',
+    ])
+
+    rows = PageView.query.order_by(
+        PageView.timestamp.desc()
+    ).limit(5000).all()
+
+    for row in rows:
+        writer.writerow([
+            row.timestamp.strftime('%Y-%m-%d %H:%M:%S') if row.timestamp else '',
+            row.page or '',
+            row.ip_address or '',
+            row.device or '',
+            row.browser or '',
+            row.referrer or '',
+            row.user_agent or '',
+        ])
+
+    csv_data = output.getvalue()
+    output.close()
+
+    return Response(
+        csv_data,
+        mimetype='text/csv',
+        headers={
+            'Content-Disposition': 'attachment; filename=cybernews_analytics.csv'
+        }
     )
