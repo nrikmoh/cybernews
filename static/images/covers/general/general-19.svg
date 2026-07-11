@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="100%" stop-color="#00d4ff" />
+    </linearGradient>
+    <linearGradient id="shine" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.08)" />
+      <stop offset="100%" stop-color="rgba(255,255,255,0)" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background gradient -->
+  <rect width="800" height="450" fill="url(#bg)" />
+  <rect width="800" height="225" fill="url(#shine)" />
+  <rect width="800" height="450" fill="rgba(0,0,0,0.15)" />
+
+  <!-- Grid pattern -->
+  <g opacity="0.06">
+    <path d="M0 50H800 M0 100H800 M0 150H800 M0 200H800 M0 250H800 M0 300H800 M0 350H800 M0 400H800"
+          stroke="white" stroke-width="1" />
+    <path d="M100 0V450 M200 0V450 M300 0V450 M400 0V450 M500 0V450 M600 0V450 M700 0V450"
+          stroke="white" stroke-width="1" />
+  </g>
+
+  <!-- Decorative elements -->
+  <circle cx="674" cy="142" r="12" fill="rgba(255,255,255,0.121)" />
+<circle cx="517" cy="338" r="49" fill="rgba(255,255,255,0.059)" />
+<circle cx="776" cy="317" r="47" fill="rgba(255,255,255,0.116)" />
+<circle cx="506" cy="197" r="38" fill="rgba(255,255,255,0.142)" />
+<circle cx="758" cy="358" r="91" fill="rgba(255,255,255,0.137)" />
+<circle cx="64" cy="21" r="44" fill="rgba(255,255,255,0.093)" />
+
+  <line x1="368" y1="249" x2="523" y2="280" stroke="rgba(255,255,255,0.082)" stroke-width="1" />
+<line x1="67" y1="52" x2="257" y2="-19" stroke="rgba(255,255,255,0.094)" stroke-width="1" />
+<line x1="437" y1="151" x2="337" y2="276" stroke="rgba(255,255,255,0.06)" stroke-width="1" />
+<line x1="422" y1="61" x2="339" y2="30" stroke="rgba(255,255,255,0.058)" stroke-width="1" />
+<line x1="688" y1="137" x2="855" y2="222" stroke="rgba(255,255,255,0.063)" stroke-width="1" />
+<line x1="750" y1="47" x2="644" y2="14" stroke="rgba(255,255,255,0.101)" stroke-width="1" />
+<line x1="30" y1="425" x2="-57" y2="301" stroke="rgba(255,255,255,0.042)" stroke-width="1" />
+<line x1="677" y1="5" x2="564" y2="57" stroke="rgba(255,255,255,0.048)" stroke-width="1" />
+<line x1="656" y1="205" x2="801" y2="274" stroke="rgba(255,255,255,0.089)" stroke-width="1" />
+<line x1="456" y1="89" x2="632" y2="170" stroke="rgba(255,255,255,0.109)" stroke-width="1" />
+<line x1="643" y1="307" x2="638" y2="261" stroke="rgba(255,255,255,0.115)" stroke-width="2" />
+
+  <circle cx="382" cy="51" r="1.056939381934345" fill="rgba(255,255,255,0.32)" />
+<circle cx="659" cy="256" r="2.5951094214107986" fill="rgba(255,255,255,0.39)" />
+<circle cx="333" cy="245" r="2.2978641342394823" fill="rgba(255,255,255,0.22)" />
+<circle cx="788" cy="230" r="1.1870736193160298" fill="rgba(255,255,255,0.17)" />
+<circle cx="200" cy="293" r="2.3534454980068116" fill="rgba(255,255,255,0.31)" />
+<circle cx="593" cy="35" r="2.2117684069362653" fill="rgba(255,255,255,0.29)" />
+<circle cx="272" cy="384" r="1.4714096766937514" fill="rgba(255,255,255,0.16)" />
+<circle cx="163" cy="417" r="1.527274036817374" fill="rgba(255,255,255,0.15)" />
+<circle cx="592" cy="75" r="2.211044166278424" fill="rgba(255,255,255,0.16)" />
+<circle cx="728" cy="427" r="1.80098634995296" fill="rgba(255,255,255,0.19)" />
+<circle cx="249" cy="129" r="2.560813590772451" fill="rgba(255,255,255,0.33)" />
+<circle cx="703" cy="402" r="2.3309593651198792" fill="rgba(255,255,255,0.32)" />
+<circle cx="372" cy="174" r="1.724472169913155" fill="rgba(255,255,255,0.27)" />
+<circle cx="290" cy="187" r="1.0113716065379752" fill="rgba(255,255,255,0.11)" />
+<circle cx="70" cy="238" r="2.029341414566832" fill="rgba(255,255,255,0.24)" />
+<circle cx="256" cy="19" r="2.9359212611533407" fill="rgba(255,255,255,0.11)" />
+<circle cx="677" cy="64" r="2.9740475717854626" fill="rgba(255,255,255,0.25)" />
+<circle cx="537" cy="430" r="1.9594836796743271" fill="rgba(255,255,255,0.14)" />
+<circle cx="674" cy="189" r="1.942053950733686" fill="rgba(255,255,255,0.25)" />
+<circle cx="584" cy="208" r="1.5756810885470933" fill="rgba(255,255,255,0.27)" />
+<circle cx="176" cy="166" r="1.3357615409378203" fill="rgba(255,255,255,0.26)" />
+<circle cx="14" cy="178" r="2.4377650766259973" fill="rgba(255,255,255,0.37)" />
+<circle cx="252" cy="258" r="1.9211781366822793" fill="rgba(255,255,255,0.17)" />
+<circle cx="242" cy="171" r="2.6374453999073975" fill="rgba(255,255,255,0.24)" />
+<circle cx="83" cy="147" r="2.4236014780178334" fill="rgba(255,255,255,0.21)" />
+
+
+  <!-- Top left: CyberNews badge -->
+  <g>
+    <rect x="32" y="28" rx="10" ry="10" width="150" height="36" fill="rgba(255,255,255,0.12)" />
+    <text x="46" y="52" font-family="Arial,Helvetica,sans-serif" font-size="17"
+          font-weight="800" fill="white" letter-spacing="1">CYBERNEWS</text>
+  </g>
+
+  <!-- Top right: icon badge -->
+  <g opacity="0.25">
+    <text x="720" y="65" font-family="Arial,sans-serif" font-size="42"
+          fill="white" text-anchor="middle">&#127760;</text>
+  </g>
+
+  <!-- Main label -->
+  <text x="46" y="260" font-family="Arial,Helvetica,sans-serif" font-size="48"
+        font-weight="900" fill="white" letter-spacing="2">CYBERNEWS</text>
+
+  <!-- Subtitle -->
+  <text x="46" y="295" font-family="Arial,Helvetica,sans-serif" font-size="18"
+        font-weight="500" fill="rgba(255,255,255,0.8)">Breaking • Analysis • Advisory</text>
+
+  <!-- Divider line -->
+  <rect x="46" y="316" width="200" height="2" fill="rgba(255,255,255,0.5)" rx="1" />
+
+  <!-- Code lines -->
+  <text x="46" y="348" font-family="Courier New,monospace" font-size="14"
+        fill="rgba(255,255,255,0.7)">&gt; auth.verify(token)</text>
+  <text x="46" y="372" font-family="Courier New,monospace" font-size="14"
+        fill="rgba(255,255,255,0.5)">&gt; IOC.match(hash)</text>
+
+  <!-- Variant number watermark -->
+  <g opacity="0.08">
+    <text x="640" y="380" font-family="Arial,sans-serif" font-size="120"
+          font-weight="900" fill="white">19</text>
+  </g>
+
+  <!-- Bottom accent line -->
+  <rect x="0" y="444" width="800" height="6" fill="rgba(255,255,255,0.15)" />
+
+</svg>

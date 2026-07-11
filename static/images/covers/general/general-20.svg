@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#111827" />
+      <stop offset="100%" stop-color="#7c3aed" />
+    </linearGradient>
+    <linearGradient id="shine" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.08)" />
+      <stop offset="100%" stop-color="rgba(255,255,255,0)" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background gradient -->
+  <rect width="800" height="450" fill="url(#bg)" />
+  <rect width="800" height="225" fill="url(#shine)" />
+  <rect width="800" height="450" fill="rgba(0,0,0,0.15)" />
+
+  <!-- Grid pattern -->
+  <g opacity="0.06">
+    <path d="M0 50H800 M0 100H800 M0 150H800 M0 200H800 M0 250H800 M0 300H800 M0 350H800 M0 400H800"
+          stroke="white" stroke-width="1" />
+    <path d="M100 0V450 M200 0V450 M300 0V450 M400 0V450 M500 0V450 M600 0V450 M700 0V450"
+          stroke="white" stroke-width="1" />
+  </g>
+
+  <!-- Decorative elements -->
+  <circle cx="135" cy="369" r="26" fill="rgba(255,255,255,0.073)" />
+<circle cx="110" cy="421" r="22" fill="rgba(255,255,255,0.05)" />
+<circle cx="109" cy="311" r="71" fill="rgba(255,255,255,0.042)" />
+<circle cx="122" cy="368" r="38" fill="rgba(255,255,255,0.032)" />
+<circle cx="617" cy="425" r="31" fill="rgba(255,255,255,0.096)" />
+
+  <line x1="429" y1="93" x2="303" y2="157" stroke="rgba(255,255,255,0.106)" stroke-width="1" />
+<line x1="110" y1="236" x2="228" y2="291" stroke="rgba(255,255,255,0.093)" stroke-width="1" />
+<line x1="350" y1="148" x2="416" y2="295" stroke="rgba(255,255,255,0.113)" stroke-width="1" />
+<line x1="665" y1="220" x2="781" y2="125" stroke="rgba(255,255,255,0.042)" stroke-width="2" />
+<line x1="708" y1="184" x2="816" y2="299" stroke="rgba(255,255,255,0.085)" stroke-width="2" />
+<line x1="739" y1="37" x2="934" y2="-85" stroke="rgba(255,255,255,0.073)" stroke-width="1" />
+<line x1="248" y1="316" x2="204" y2="331" stroke="rgba(255,255,255,0.109)" stroke-width="1" />
+<line x1="243" y1="151" x2="428" y2="239" stroke="rgba(255,255,255,0.115)" stroke-width="1" />
+
+  <circle cx="655" cy="23" r="1.0866519513834072" fill="rgba(255,255,255,0.26)" />
+<circle cx="337" cy="213" r="2.900385608567098" fill="rgba(255,255,255,0.28)" />
+<circle cx="544" cy="209" r="1.596184301269474" fill="rgba(255,255,255,0.13)" />
+<circle cx="557" cy="26" r="2.072315973561801" fill="rgba(255,255,255,0.17)" />
+<circle cx="590" cy="56" r="2.3641877121670545" fill="rgba(255,255,255,0.29)" />
+<circle cx="713" cy="199" r="2.2290357397641722" fill="rgba(255,255,255,0.31)" />
+<circle cx="242" cy="192" r="1.3495467038576288" fill="rgba(255,255,255,0.23)" />
+<circle cx="186" cy="299" r="2.433488171341502" fill="rgba(255,255,255,0.15)" />
+<circle cx="385" cy="338" r="2.9652284615721864" fill="rgba(255,255,255,0.36)" />
+<circle cx="719" cy="96" r="2.1894392108364524" fill="rgba(255,255,255,0.12)" />
+<circle cx="795" cy="146" r="1.4330749016737208" fill="rgba(255,255,255,0.34)" />
+<circle cx="155" cy="341" r="1.73877866606807" fill="rgba(255,255,255,0.21)" />
+<circle cx="4" cy="49" r="1.4418901373602615" fill="rgba(255,255,255,0.36)" />
+<circle cx="319" cy="442" r="1.4545718768710352" fill="rgba(255,255,255,0.14)" />
+<circle cx="152" cy="151" r="1.7200747577208513" fill="rgba(255,255,255,0.3)" />
+<circle cx="175" cy="404" r="2.8533026079406394" fill="rgba(255,255,255,0.22)" />
+<circle cx="656" cy="337" r="1.1582409608850808" fill="rgba(255,255,255,0.32)" />
+<circle cx="730" cy="324" r="2.169828065112249" fill="rgba(255,255,255,0.4)" />
+<circle cx="58" cy="430" r="2.2076861118567987" fill="rgba(255,255,255,0.25)" />
+
+
+  <!-- Top left: CyberNews badge -->
+  <g>
+    <rect x="32" y="28" rx="10" ry="10" width="150" height="36" fill="rgba(255,255,255,0.12)" />
+    <text x="46" y="52" font-family="Arial,Helvetica,sans-serif" font-size="17"
+          font-weight="800" fill="white" letter-spacing="1">CYBERNEWS</text>
+  </g>
+
+  <!-- Top right: icon badge -->
+  <g opacity="0.25">
+    <text x="720" y="65" font-family="Arial,sans-serif" font-size="42"
+          fill="white" text-anchor="middle">&#128272;</text>
+  </g>
+
+  <!-- Main label -->
+  <text x="46" y="260" font-family="Arial,Helvetica,sans-serif" font-size="48"
+        font-weight="900" fill="white" letter-spacing="2">CYBERNEWS</text>
+
+  <!-- Subtitle -->
+  <text x="46" y="295" font-family="Arial,Helvetica,sans-serif" font-size="18"
+        font-weight="500" fill="rgba(255,255,255,0.8)">Cyber Defense • Response • Intel</text>
+
+  <!-- Divider line -->
+  <rect x="46" y="316" width="200" height="2" fill="rgba(255,255,255,0.5)" rx="1" />
+
+  <!-- Code lines -->
+  <text x="46" y="348" font-family="Courier New,monospace" font-size="14"
+        fill="rgba(255,255,255,0.7)">&gt; threat_detected()</text>
+  <text x="46" y="372" font-family="Courier New,monospace" font-size="14"
+        fill="rgba(255,255,255,0.5)">&gt; exploit.execute()</text>
+
+  <!-- Variant number watermark -->
+  <g opacity="0.08">
+    <text x="620" y="390" font-family="Arial,sans-serif" font-size="120"
+          font-weight="900" fill="white">20</text>
+  </g>
+
+  <!-- Bottom accent line -->
+  <rect x="0" y="444" width="800" height="6" fill="rgba(255,255,255,0.15)" />
+
+</svg>

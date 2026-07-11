@@ -2967,3 +2967,89 @@ body.light-mode body::before {
     color: var(--secondary);
     text-shadow: 0 0 20px rgba(0,255,136,0.5);
 }
+
+
+/* ═══════════════════════════════════════════════════════
+   IMPROVED ARTICLE CARDS
+═══════════════════════════════════════════════════════ */
+
+/* SVG covers should fill the card image area nicely */
+.card-image img[src*=".svg"] {
+    object-fit: cover;
+    background: var(--bg-elevated);
+}
+
+/* Better card hover with colored top border */
+.article-card {
+    border-top: 3px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.article-card:hover {
+    border-top-color: var(--primary);
+}
+
+/* Category-specific top border colors on hover */
+.article-card[data-category="Malware"]:hover {
+    border-top-color: var(--cat-malware);
+}
+.article-card[data-category="Data Breaches"]:hover {
+    border-top-color: var(--cat-breaches);
+}
+.article-card[data-category="Vulnerabilities"]:hover {
+    border-top-color: var(--cat-vulns);
+}
+.article-card[data-category="Privacy"]:hover {
+    border-top-color: var(--cat-privacy);
+}
+.article-card[data-category="Research"]:hover {
+    border-top-color: var(--cat-research);
+}
+.article-card[data-category="Threats"]:hover {
+    border-top-color: var(--cat-threats);
+}
+
+/* Better source display */
+.card-source {
+    background: rgba(0,212,255,0.06);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+}
+
+/* Read time badge */
+.card-read-time {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    background: var(--bg-elevated);
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+}
+
+/* Gradient overlay on card images for better text readability */
+.card-image::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: linear-gradient(to top, rgba(13,21,32,0.8), transparent);
+    pointer-events: none;
+}
+
+/* Source badge on image */
+.card-source-overlay {
+    position: absolute;
+    bottom: 0.6rem;
+    right: 0.6rem;
+    font-size: 0.68rem;
+    color: rgba(255,255,255,0.85);
+    background: rgba(0,0,0,0.55);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    backdrop-filter: blur(4px);
+    z-index: 2;
+}

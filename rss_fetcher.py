@@ -123,8 +123,8 @@ CYBER_IMAGES = {
 
 def find_best_image(title, summary, default_image=None):
     """
-    Return a LOCAL SVG cover based on category/keywords.
-    Stable, varied, no broken links.
+    Return a local SVG cover path based on article keywords.
+    24 variants per category for maximum variety.
     """
     import hashlib
 
@@ -132,63 +132,23 @@ def find_best_image(title, summary, default_image=None):
 
     category = 'general'
 
-    if any(k in text for k in ['ransomware', 'malware', 'trojan', 'virus', 'spyware', 'botnet']):
+    if any(k in text for k in ['ransomware', 'malware', 'trojan', 'virus', 'spyware', 'botnet', 'backdoor', 'rootkit', 'keylogger', 'cryptominer']):
         category = 'malware'
-    elif any(k in text for k in ['breach', 'leak', 'compromised', 'stolen', 'exposed']):
+    elif any(k in text for k in ['breach', 'leak', 'compromised', 'stolen', 'exposed', 'dump', 'records', 'credential']):
         category = 'breaches'
-    elif any(k in text for k in ['vulnerability', 'zero-day', 'cve-', 'exploit', 'patch']):
+    elif any(k in text for k in ['vulnerability', 'zero-day', 'cve-', 'exploit', 'patch', 'buffer overflow', 'rce', 'injection']):
         category = 'vulnerabilities'
-    elif any(k in text for k in ['privacy', 'gdpr', 'tracking', 'surveillance']):
+    elif any(k in text for k in ['privacy', 'gdpr', 'tracking', 'surveillance', 'consent', 'personal data', 'cookie']):
         category = 'privacy'
-    elif any(k in text for k in ['apt', 'threat', 'phishing', 'ddos', 'government', 'espionage']):
+    elif any(k in text for k in ['apt', 'threat', 'phishing', 'ddos', 'government', 'espionage', 'nation state', 'campaign', 'c2']):
         category = 'threats'
-    elif any(k in text for k in ['research', 'analysis', 'report', 'study', 'tool', 'framework']):
+    elif any(k in text for k in ['research', 'analysis', 'report', 'study', 'tool', 'framework', 'discovered', 'technique', 'bug bounty']):
         category = 'research'
 
     h = int(hashlib.md5(title.encode()).hexdigest(), 16)
-    variant = (h % 16) + 1
+    variant = (h % 24) + 1
 
     return f'/static/images/covers/{category}/{category}-{variant:02d}.svg'
-
-# ── RSS Feed Sources ───────────────────────────────────
-# Each feed has:
-#   url      → the RSS feed URL
-#   source   → display name shown on the article card
-#   category → which category to assign articles to
-#   default_image → fallback image if article has no image
-
-FEEDS = [
-    {
-        'url':    'https://feeds.feedburner.com/TheHackersNews',
-        'source': 'The Hacker News',
-        'category': 'Vulnerabilities',
-        'default_image': 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&q=80',
-    },
-    {
-        'url':    'https://krebsonsecurity.com/feed/',
-        'source': 'Krebs on Security',
-        'category': 'Threats',
-        'default_image': 'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=800&q=80',
-    },
-    {
-        'url':    'https://www.bleepingcomputer.com/feed/',
-        'source': 'Bleeping Computer',
-        'category': 'Malware',
-        'default_image': 'https://images.unsplash.com/photo-1614064641938-3bbee52942c7?w=800&q=80',
-    },
-    {
-        'url':    'https://www.darkreading.com/rss.xml',
-        'source': 'Dark Reading',
-        'category': 'Research',
-        'default_image': 'https://images.unsplash.com/photo-1510511459019-5dda7724fd87?w=800&q=80',
-    },
-    {
-        'url':    'https://feeds.feedburner.com/securityweek',
-        'source': 'SecurityWeek',
-        'category': 'Threats',
-        'default_image': 'https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=800&q=80',
-    },
-]
 
 
 # ── Category Keywords ──────────────────────────────────

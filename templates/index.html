@@ -129,6 +129,10 @@
                         <span class="card-category badge badge-{{ article.category | lower | replace(' ', '-') }}">
                             {{ article.category }}
                         </span>
+                            <span class="card-date">
+                                <i class="fas fa-clock"></i>
+                                {{ article.formatted_date }}
+                            </span>
                     </div>
 
                     <!-- Card Body -->
@@ -141,6 +145,10 @@
                             <span class="card-date">
                                 <i class="fas fa-clock"></i>
                                 {{ article.date }}
+                            </span>
+                            <span class="card-read-time">
+                                <i class="fas fa-book-open"></i>
+                                {{ article.read_time }}
                             </span>
                         </div>
 
