@@ -125,11 +125,11 @@ CYBER_IMAGES = {
 def find_best_image(title, summary, default_image=None):
     """
     Return a LOCAL photo path.
-    Uses article title hash spread across ALL photos
-    for maximum variety.
+    Spreads across ALL available photos for maximum variety.
     """
     import hashlib
     import os
+    import random as rng
 
     base_dir = os.path.join('static', 'images', 'photos')
     all_photos = []
@@ -145,7 +145,11 @@ def find_best_image(title, summary, default_image=None):
     if not all_photos:
         return '/static/images/fallback/cyber-default.jpg'
 
-    # Use full title + summary hash for uniqueness
+    # Shuffle consistently
+    rng.seed(42)
+    rng.shuffle(all_photos)
+
+    # Use hash of title+summary for unique selection
     unique = title + summary
     h = int(hashlib.md5(unique.encode()).hexdigest(), 16)
     return all_photos[h % len(all_photos)]

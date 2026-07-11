@@ -838,6 +838,48 @@ function initReadingProgress() {
     });
 }
 
+/* ═══════════════════════════════════════════════════════
+   ALERTS DROPDOWN
+═══════════════════════════════════════════════════════ */
+function initAlerts() {
+    var btn   = document.getElementById('alerts-btn');
+    var panel = document.getElementById('alerts-panel');
+    var badge = document.getElementById('alerts-count');
+
+    if (!btn || !panel) return;
+
+    // Toggle panel on click
+    btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var isOpen = panel.classList.toggle('open');
+
+        // When opened, hide the badge (alerts "read")
+        if (isOpen && badge) {
+            badge.style.display = 'none';
+        }
+    });
+
+    // Close when clicking outside
+    document.addEventListener('click', function(e) {
+        var dropdown = document.getElementById('alerts-dropdown');
+        if (dropdown && !dropdown.contains(e.target)) {
+            panel.classList.remove('open');
+        }
+    });
+
+    // Close on Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            panel.classList.remove('open');
+        }
+    });
+
+    // Update alert count from article count
+    if (badge) {
+        var items = document.querySelectorAll('.alert-item');
+        badge.textContent = items.length;
+    }
+}
 
 /* ═══════════════════════════════════════════════════════
    INIT — Run everything when the page loads
@@ -875,6 +917,9 @@ document.addEventListener('DOMContentLoaded', function () {
     // Personal touches
     initThemeToggle();
     initEasterEgg();
+
+    // Alerts dropdown
+    initAlerts();
 
     // Cool effects
     initTypingEffect();

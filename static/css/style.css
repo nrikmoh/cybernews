@@ -3298,3 +3298,179 @@ body.light-mode body::before {
         font-size: 1rem;
     }
 }
+
+
+/* ═══════════════════════════════════════════════════════
+   ALERTS DROPDOWN
+═══════════════════════════════════════════════════════ */
+.alerts-dropdown {
+    position: relative;
+}
+
+.alerts-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    width: 18px;
+    height: 18px;
+    background: var(--cat-malware);
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 800;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--bg-dark);
+    animation: alertPulse 2s ease-in-out infinite;
+}
+
+@keyframes alertPulse {
+    0%, 100% { transform: scale(1); }
+    50%      { transform: scale(1.15); }
+}
+
+.nav-btn {
+    position: relative;
+}
+
+.alerts-panel {
+    display: none;
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    width: 380px;
+    background: var(--bg-card);
+    border: 1px solid var(--bg-border);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.alerts-panel.open {
+    display: block;
+    animation: alertsSlideIn 0.2s ease;
+}
+
+@keyframes alertsSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.alerts-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.85rem 1rem;
+    background: var(--bg-elevated);
+    border-bottom: 1px solid var(--bg-border);
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.alerts-header i {
+    color: var(--primary);
+    margin-right: 0.4rem;
+}
+
+.alerts-header a {
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--primary);
+}
+
+.alerts-list {
+    max-height: 350px;
+    overflow-y: auto;
+}
+
+.alert-item {
+    display: block;
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid rgba(26,40,64,0.5);
+    text-decoration: none;
+    transition: background 0.2s ease;
+}
+
+.alert-item:hover {
+    background: rgba(0,212,255,0.04);
+}
+
+.alert-item:last-child {
+    border-bottom: none;
+}
+
+.alert-category {
+    margin-bottom: 0.3rem;
+}
+
+.alert-category .badge {
+    font-size: 0.65rem;
+    padding: 0.15rem 0.5rem;
+}
+
+.alert-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.4;
+    margin-bottom: 0.3rem;
+}
+
+.alert-item:hover .alert-title {
+    color: var(--primary);
+}
+
+.alert-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+}
+
+.alerts-footer {
+    padding: 0.75rem 1rem;
+    background: var(--bg-elevated);
+    border-top: 1px solid var(--bg-border);
+    text-align: center;
+}
+
+.alerts-footer a {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+}
+
+/* Scrollbar for alerts list */
+.alerts-list::-webkit-scrollbar {
+    width: 4px;
+}
+
+.alerts-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.alerts-list::-webkit-scrollbar-thumb {
+    background: var(--bg-border);
+    border-radius: 4px;
+}
+
+/* Mobile: full width panel */
+@media (max-width: 768px) {
+    .alerts-panel {
+        width: 300px;
+        right: -50px;
+    }
+}
