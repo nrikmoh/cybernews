@@ -1,53 +1,45 @@
 # config.py
 import os
+from datetime import timedelta
 from dotenv import load_dotenv
 
-# Load environment variables from .env file
+# Load .env file
 load_dotenv()
 
-# Base directory of the project
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 
 class Config:
     """Base configuration."""
 
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'cybernews-dev-key-change-in-production'
+    # ── Secret Key ─────────────────────────────────────
+    SECRET_KEY = os.environ.get('SECRET_KEY') or 'change-this-in-production'
 
-    WTF_CSRF_ENABLED = True
-
-    # ── Database ───────────────────────────────────────
-    # SQLite database stored in a file called cybernews.db
-    # in the project root directory.
-    # os.path.join builds the full path correctly on any OS.
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
+    # ── Database ────────────────────────────────────────
+    SQLALCHEMY_DATABASE_URI = (
+        os.environ.get('DATABASE_URL') or
         'sqlite:///' + os.path.join(BASE_DIR, 'cybernews.db')
-
-    # Disable modification tracking — saves memory
-    # (We don't need this SQLAlchemy feature)
+    )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        'pool_pre_ping': True,
+        'pool_recycle': 300,
+    }
 
-    # ── Session Security ───────────────────────────────
-    # Cookie only sent over HTTPS (enable when you have SSL)
-    # SESSION_COOKIE_SECURE = True
+    # ── Session Security ────────────────────────────────
+    SESSION_COOKIE_HTTPONLY  = True    # JS cannot access cookie
+    SESSION_COOKIE_SAMESITE  = 'Lax'  # CSRF protection
+    PERMANENT_SESSION_LIFETIME = timedelta(hours=2)
 
-    # JavaScript cannot access the session cookie
-    SESSION_COOKIE_HTTPONLY = True
+    # ── CSRF ────────────────────────────────────────────
+    WTF_CSRF_ENABLED      = True
+    WTF_CSRF_TIME_LIMIT   = 3600  # 1 hour
 
-    # Cookie only sent in first-party context
-    SESSION_COOKIE_SAMESITE = 'Lax'
-
-    # Session expires after 1 hour of inactivity
-    PERMANENT_SESSION_LIFETIME = 3600
-
-    # Don't reveal the framework in error pages
-    PROPAGATE_EXCEPTIONS = False
-
-    # App info
+    # ── App Info ────────────────────────────────────────
     APP_NAME    = 'CyberNews'
     APP_TAGLINE = 'Security Intelligence Daily'
 
-    ARTICLES_PER_PAGE = 9
+    ARTICLES_PER_PAGE = 20
 
     CATEGORIES = [
         'Malware',
@@ -73,17 +65,21 @@ class Config:
 
 
 class DevelopmentConfig(Config):
+    """Development — debug on, less strict."""
     DEBUG = True
+    SESSION_COOKIE_SECURE = False  # HTTP ok in dev
 
 
 class ProductionConfig(Config):
-    DEBUG = False
+    """Production — debug off, maximum security."""
+    DEBUG   = False
     TESTING = False
 
-    # Extra production security
-    SESSION_COOKIE_SECURE   = True   # only send over HTTPS
-    SESSION_COOKIE_HTTPONLY = True   # no JavaScript access
-    SESSION_COOKIE_SAMESITE = 'Lax'
+    # Only send cookie over HTTPS
+    SESSION_COOKIE_SECURE = True
+
+    # Shorter session in production
+    PERMANENT_SESSION_LIFETIME = timedelta(hours=1)
 
 
 config = {

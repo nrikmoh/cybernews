@@ -29,140 +29,118 @@ from wtforms.validators import (
 # Used for both adding AND editing articles.
 # ═══════════════════════════════════════════════════════
 class ArticleForm(FlaskForm):
-    """
-    Form for creating and editing news articles.
-    
-    FlaskForm automatically adds CSRF protection —
-    a hidden token in the form that prevents
-    Cross-Site Request Forgery attacks.
-    """
+    """Form for creating and editing news articles."""
 
-    # ── Title ──────────────────────────────────────────
     title = StringField(
-        label      = 'Article Title',
-        validators = [
-            # DataRequired: field cannot be empty
+        label='Article Title',
+        validators=[
             DataRequired(message='Title is required.'),
-            # Length: must be between 10 and 300 characters
-            Length(
-                min     = 10,
-                max     = 300,
-                message = 'Title must be between 10 and 300 characters.'
-            ),
+            Length(min=10, max=300,
+                   message='Title must be between 10 and 300 characters.'),
         ],
-        render_kw = {
+        render_kw={
             'placeholder': 'e.g. Critical Zero-Day Found in Windows Kernel',
-            'class':       'form-input',
+            'class': 'form-input',
+            'maxlength': '300',
         }
     )
 
-    # ── Summary ────────────────────────────────────────
     summary = TextAreaField(
-        label      = 'Short Summary',
-        validators = [
+        label='Short Summary',
+        validators=[
             DataRequired(message='Summary is required.'),
-            Length(
-                min     = 20,
-                max     = 500,
-                message = 'Summary must be between 20 and 500 characters.'
-            ),
+            Length(min=20, max=500,
+                   message='Summary must be between 20 and 500 characters.'),
         ],
-        render_kw = {
-            'placeholder': 'A brief description shown on article cards (2-3 sentences)',
-            'class':       'form-input',
-            'rows':        '3',
+        render_kw={
+            'placeholder': 'Brief description (2-3 sentences)',
+            'class': 'form-input',
+            'rows': '3',
+            'maxlength': '500',
         }
     )
 
-    # ── Body ───────────────────────────────────────────
     body = TextAreaField(
-        label      = 'Full Article Body',
-        validators = [
+        label='Full Article Body',
+        validators=[
             DataRequired(message='Article body is required.'),
-            Length(
-                min     = 50,
-                message = 'Article body must be at least 50 characters.'
-            ),
+            Length(min=50, message='Body must be at least 50 characters.'),
         ],
-        render_kw = {
-            'placeholder': 'Write the full article here. Separate paragraphs with blank lines.',
-            'class':       'form-input form-textarea',
-            'rows':        '15',
+        render_kw={
+            'placeholder': 'Full article text. Separate paragraphs with blank lines.',
+            'class': 'form-input form-textarea',
+            'rows': '15',
         }
     )
 
-    # ── Category ───────────────────────────────────────
-    # SelectField creates a dropdown menu
     category = SelectField(
-        label      = 'Category',
-        validators = [DataRequired(message='Please select a category.')],
-        choices    = [
-            # ('value stored in DB', 'Label shown to user')
+        label='Category',
+        validators=[DataRequired(message='Please select a category.')],
+        choices=[
             ('',               'Select a category...'),
             ('Malware',        '🦠 Malware'),
             ('Data Breaches',  '💾 Data Breaches'),
-            ('Vulnerabilities','⚠️  Vulnerabilities'),
+            ('Vulnerabilities','⚠️ Vulnerabilities'),
             ('Privacy',        '🔒 Privacy'),
             ('Research',       '🔬 Research'),
             ('Threats',        '🎯 Threats'),
         ],
-        render_kw = {'class': 'form-input form-select'}
+        render_kw={'class': 'form-input form-select'}
     )
 
-    # ── Source ─────────────────────────────────────────
     source = StringField(
-        label      = 'News Source',
-        validators = [
+        label='News Source',
+        validators=[
             DataRequired(message='Source is required.'),
-            Length(max=100),
+            Length(max=100, message='Source too long.'),
         ],
-        render_kw = {
+        render_kw={
             'placeholder': 'e.g. The Hacker News, SecurityWeek',
-            'class':       'form-input',
-            'list':        'sources-list',  # links to HTML datalist
+            'class': 'form-input',
+            'list': 'sources-list',
+            'maxlength': '100',
         }
     )
 
-    # ── Image URL ──────────────────────────────────────
     image_url = URLField(
-        label      = 'Image URL',
-        validators = [
-            Optional(),       # This field is not required
-            URL(message='Please enter a valid URL starting with http:// or https://')
+        label='Image URL',
+        validators=[
+            Optional(),
+            URL(require_tld=True,
+                message='Please enter a valid URL starting with https://')
         ],
-        render_kw = {
+        render_kw={
             'placeholder': 'https://images.unsplash.com/...',
-            'class':       'form-input',
+            'class': 'form-input',
         }
     )
 
-    # ── Tags ───────────────────────────────────────────
     tags_string = StringField(
-        label      = 'Tags',
-        validators = [Optional(), Length(max=300)],
-        render_kw  = {
-            'placeholder': 'Windows, Zero-Day, CVE, Microsoft (comma-separated)',
-            'class':       'form-input',
+        label='Tags',
+        validators=[Optional(), Length(max=300)],
+        render_kw={
+            'placeholder': 'Windows, Zero-Day, CVE (comma-separated)',
+            'class': 'form-input',
+            'maxlength': '300',
         }
     )
 
-    # ── Checkboxes ─────────────────────────────────────
     featured = BooleanField(
-        label     = 'Feature this article (shows as hero story)',
-        render_kw = {'class': 'form-checkbox'}
+        label='Feature this article (shows as hero story)',
+        render_kw={'class': 'form-checkbox'}
     )
 
     published = BooleanField(
-        label     = 'Published (visible to public)',
-        default   = True,
-        render_kw = {'class': 'form-checkbox'}
+        label='Published (visible to public)',
+        default=True,
+        render_kw={'class': 'form-checkbox'}
     )
 
-    # ── Submit Button ──────────────────────────────────
     submit = SubmitField(
-        label     = 'Save Article',
-        render_kw = {'class': 'btn-submit'}
+        label='Save Article',
+        render_kw={'class': 'btn-submit'}
     )
+
 
 
 # ═══════════════════════════════════════════════════════

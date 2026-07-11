@@ -14,6 +14,7 @@ from models             import db
 from routes             import all_blueprints
 from datetime           import datetime
 import logging
+import os
 
 # ── Extension instances ────────────────────────────────
 bcrypt        = Bcrypt()
@@ -22,22 +23,26 @@ csrf          = CSRFProtect()
 limiter       = Limiter(
     key_func       = get_remote_address,
     default_limits = ['300 per minute'],
+    storage_uri    = 'memory://',
 )
 
 # ── Security Logger ───────────────────────────────────
 security_logger = logging.getLogger('cybernews.security')
 security_logger.setLevel(logging.WARNING)
 
-file_handler = logging.FileHandler('security.log')
-file_handler.setFormatter(logging.Formatter(
+_log_handler = logging.FileHandler('security.log')
+_log_handler.setFormatter(logging.Formatter(
     '%(asctime)s | %(levelname)s | %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S'
 ))
-security_logger.addHandler(file_handler)
+security_logger.addHandler(_log_handler)
 
 
-def create_app(config_name='development'):
+def create_app(config_name=None):
     """Application factory."""
+
+    if config_name is None:
+        config_name = os.environ.get('FLASK_ENV', 'development')
 
     app = Flask(__name__)
     app.config.from_object(config[config_name])
@@ -47,8 +52,6 @@ def create_app(config_name='development'):
     bcrypt.init_app(app)
     login_manager.init_app(app)
     csrf.init_app(app)
-    # Exempt JSON API endpoints from CSRF
-    # (They don't use browser forms, so CSRF tokens don't apply)
     limiter.init_app(app)
 
     # ── Flask-Login settings ───────────────────────────
@@ -66,151 +69,122 @@ def create_app(config_name='development'):
     for blueprint in all_blueprints:
         app.register_blueprint(blueprint)
 
-    # Exempt JSON API endpoints from CSRF
-    if 'main.api_subscribe' in app.view_functions:
-        csrf.exempt(app.view_functions['main.api_subscribe'])
-    if 'main.api_search' in app.view_functions:
-        csrf.exempt(app.view_functions['main.api_search'])
-    if 'main.api_articles' in app.view_functions:
-        csrf.exempt(app.view_functions['main.api_articles'])
-    if 'main.api_live_feed' in app.view_functions:
-        csrf.exempt(app.view_functions['main.api_live_feed'])
+    # ── CSRF Exemptions for JSON APIs ──────────────────
+    api_endpoints = [
+        'main.api_subscribe',
+        'main.api_search',
+        'main.api_articles',
+        'main.api_live_feed',
+        'main.api_stats',
+    ]
+    for endpoint in api_endpoints:
+        if endpoint in app.view_functions:
+            csrf.exempt(app.view_functions[endpoint])
 
-    limiter.init_app(app)
-
-    # ── Rate limit the login endpoint ─────────────────
+    # ── Rate limit login endpoint ──────────────────────
     login_view = app.view_functions.get('auth.login')
     if login_view:
         limiter.limit('10 per minute')(login_view)
 
-    # ── Template globals ───────────────────────────────
-    @app.template_global()
-    def csrf_token_form():
-        """Generate CSRF token input for plain HTML forms."""
-        from flask_wtf.csrf import generate_csrf
-        token = generate_csrf()
-        return f'<input type="hidden" name="csrf_token" value="{token}">'
-
     # ═══════════════════════════════════════════════════
-    # SECURITY MIDDLEWARE — runs before EVERY request
+    # SECURITY MIDDLEWARE
     # ═══════════════════════════════════════════════════
     @app.before_request
     def security_middleware():
+        """Block malicious requests before Flask processes them."""
 
         ip   = _get_ip()
         path = request.path.lower()
         url  = request.url.lower()
         ua   = request.headers.get('User-Agent', '').lower()
 
-        # ── Allow static files through immediately ─────
+        # ── Allow static files ─────────────────────────
         if path.startswith('/static/'):
             return None
 
-        # ── 1. Block attack tool user agents ───────────
+        # ── Block attack tools by User-Agent ──────────
         bad_agents = [
             'sqlmap', 'nikto', 'nmap', 'masscan',
-            'dirbuster', 'gobuster', 'hydra',
-            'burpsuite', 'metasploit', 'acunetix',
-            'nessus', 'openvas', 'w3af', 'zaproxy',
+            'dirbuster', 'gobuster', 'hydra', 'burpsuite',
+            'metasploit', 'acunetix', 'nessus', 'openvas',
+            'w3af', 'zaproxy', 'havij', 'pangolin',
         ]
         for agent in bad_agents:
             if agent in ua:
-                _log_block(ip, 'Attack tool: ' + agent)
+                _log_block(ip, f'Attack tool: {agent}')
                 abort(403)
 
-        # ── 2. Block scanner/attack paths ──────────────
+        # ── Block scanner/attack paths ─────────────────
         attack_paths = [
             '/wp-admin', '/wp-login', '/wp-content',
             '/wp-includes', '/xmlrpc.php', '/admin.php',
             '/phpmyadmin', '/.env', '/config.php',
             '/shell.php', '/cmd.php', '/eval.php',
-            '/.git', '/.ssh',
-            '/backup', '/db.sql', '/dump.sql',
+            '/.git', '/.ssh', '/backup',
+            '/db.sql', '/dump.sql', '/database.sql',
+            '/config.yml', '/config.yaml',
+            '/actuator', '/console', '/.htaccess',
         ]
         for attack_path in attack_paths:
             if path == attack_path or path.startswith(attack_path + '/'):
-                _log_block(ip, 'Scanner path: ' + attack_path)
+                _log_block(ip, f'Scanner path: {attack_path}')
                 abort(403)
 
-        # ── 3. Block SQL injection in URL ──────────────
+        # ── Block SQL injection in query string ────────
+        query_string = request.query_string.decode('utf-8', errors='ignore').lower()
         sql_patterns = [
             "' or ", "' and ", "union select",
             "drop table", "insert into", "'; drop",
-            "exec(", "xp_cmdshell",
+            "exec(", "xp_cmdshell", "waitfor delay",
+            "benchmark(", "sleep(",
         ]
-        # Only check query string, not the path
-        query_string = request.query_string.decode('utf-8', errors='ignore').lower()
         for pattern in sql_patterns:
             if pattern in query_string:
-                _log_block(ip, 'SQL injection: ' + pattern)
+                _log_block(ip, f'SQL injection: {pattern}')
                 abort(403)
 
-        # ── 4. Block path traversal ────────────────────
-        if '..' in path:
-            _log_block(ip, 'Path traversal attempt')
+        # ── Block path traversal ───────────────────────
+        if '..' in path or '%2e%2e' in url:
+            _log_block(ip, 'Path traversal')
             abort(403)
 
-        # ── 5. Block very long URLs ────────────────────
+        # ── Block excessively long URLs ────────────────
         if len(url) > 2000:
-            _log_block(ip, 'URL too long: ' + str(len(url)))
+            _log_block(ip, f'URL too long: {len(url)}')
             abort(403)
 
-    def _get_ip():
-        """Get real client IP."""
-        forwarded = request.headers.get('X-Forwarded-For')
-        if forwarded:
-            return forwarded.split(',')[0].strip()
-        return request.remote_addr or 'unknown'
+        # ── Block requests with no User-Agent ─────────
+        # (real browsers always send User-Agent)
+        # Comment out if causing issues with legitimate bots
+        # if not request.headers.get('User-Agent'):
+        #     _log_block(ip, 'Missing User-Agent')
+        #     abort(403)
 
-    def _log_block(ip, reason):
-        """Log a blocked request to security.log."""
-        security_logger.warning(
-            'BLOCKED | IP: %s | Reason: %s | Path: %s | UA: %s',
-            ip, reason, request.path,
-            request.headers.get('User-Agent', '')[:80]
-        )
+        return None
 
     # ═══════════════════════════════════════════════════
-    # SECURITY HEADERS — added to every response
+    # PAGE VIEW TRACKING
     # ═══════════════════════════════════════════════════
-    # ── Track all page views automatically ────────────
     @app.before_request
     def track_all_pages():
-        """
-        Automatically track every page view.
-        Runs before every request.
-        Skips static files, API endpoints, and admin pages.
-        """
-        from flask import request
-
+        """Automatically track every page view."""
         path = request.path
 
-        # Skip these paths
         skip_prefixes = [
-            '/static/',
-            '/api/',
-            '/admin',
-            '/favicon',
-            '/robots.txt',
-            '/sitemap.xml',
+            '/static/', '/api/', '/admin',
+            '/favicon', '/robots.txt', '/sitemap.xml',
         ]
 
-        # Skip if path starts with any skip prefix
         for prefix in skip_prefixes:
             if path.startswith(prefix):
                 return None
 
-        # Skip non-GET requests (POST, etc.)
         if request.method != 'GET':
             return None
 
-        # Track the page view
         try:
-            from models import PageView, db
-            ip = request.headers.get('X-Forwarded-For', '').split(',')[0].strip()
-            if not ip:
-                ip = request.remote_addr or 'unknown'
-
+            from models import PageView
+            ip = _get_ip()
             PageView.record_view(
                 page       = path,
                 ip         = ip,
@@ -219,23 +193,38 @@ def create_app(config_name='development'):
             )
         except Exception:
             try:
-                from models import db
                 db.session.rollback()
             except Exception:
                 pass
 
         return None
 
+    # ═══════════════════════════════════════════════════
+    # SECURITY HEADERS
+    # ═══════════════════════════════════════════════════
     @app.after_request
     def apply_security_headers(response):
+        """Add security headers to every response."""
+
+        # Prevent MIME type sniffing
         response.headers['X-Content-Type-Options'] = 'nosniff'
-        response.headers['X-Frame-Options']        = 'SAMEORIGIN'
-        response.headers['X-XSS-Protection']       = '1; mode=block'
-        response.headers['Referrer-Policy']        = 'strict-origin-when-cross-origin'
-        response.headers['Permissions-Policy']     = (
+
+        # Prevent clickjacking
+        response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+
+        # XSS protection for older browsers
+        response.headers['X-XSS-Protection'] = '1; mode=block'
+
+        # Control referrer information
+        response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+
+        # Restrict browser features
+        response.headers['Permissions-Policy'] = (
             'camera=(), microphone=(), geolocation=(), '
             'payment=(), usb=(), magnetometer=()'
         )
+
+        # Content Security Policy
         response.headers['Content-Security-Policy'] = (
             "default-src 'self'; "
             "script-src 'self' 'unsafe-inline' cdnjs.cloudflare.com; "
@@ -246,6 +235,10 @@ def create_app(config_name='development'):
             "connect-src 'self'; "
             "frame-ancestors 'none';"
         )
+
+        # Hide server information
+        response.headers.pop('Server', None)
+
         return response
 
     # ═══════════════════════════════════════════════════
@@ -253,16 +246,22 @@ def create_app(config_name='development'):
     # ═══════════════════════════════════════════════════
     @app.context_processor
     def inject_globals():
-        from models import Article
+        from models import Article, PageView
         from flask_login import current_user
 
         try:
-            from models import PageView
             total_views     = PageView.total_views()
             unique_visitors = PageView.unique_visitors()
         except Exception:
             total_views     = 0
             unique_visitors = 0
+
+        try:
+            recent = Article.query.filter_by(published=True) \
+                                  .order_by(Article.created_at.desc()) \
+                                  .limit(10).all()
+        except Exception:
+            recent = []
 
         return {
             'app_name':        app.config['APP_NAME'],
@@ -272,9 +271,7 @@ def create_app(config_name='development'):
             'current_user':    current_user,
             'total_views':     total_views,
             'unique_visitors': unique_visitors,
-            'all_articles':    Article.query.filter_by(published=True)
-                                            .order_by(Article.created_at.desc())
-                                            .limit(10).all(),
+            'all_articles':    recent,
         }
 
     # ═══════════════════════════════════════════════════
@@ -282,15 +279,14 @@ def create_app(config_name='development'):
     # ═══════════════════════════════════════════════════
     @app.template_filter('category_color')
     def category_color_filter(category):
-        colors = {
+        return {
             'Malware':         'malware',
             'Data Breaches':   'data-breaches',
             'Vulnerabilities': 'vulnerabilities',
             'Privacy':         'privacy',
             'Research':        'research',
             'Threats':         'threats',
-        }
-        return colors.get(category, 'research')
+        }.get(category, 'research')
 
     @app.template_filter('reading_time')
     def reading_time_filter(text):
@@ -305,11 +301,33 @@ def create_app(config_name='development'):
             return text
         return ' '.join(words[:num]) + '...'
 
+    @app.template_global()
+    def csrf_token_form():
+        from flask_wtf.csrf import generate_csrf
+        token = generate_csrf()
+        return f'<input type="hidden" name="csrf_token" value="{token}">'
+
     return app
 
 
+# ── Helper functions ───────────────────────────────────
+def _get_ip():
+    forwarded = request.headers.get('X-Forwarded-For')
+    if forwarded:
+        return forwarded.split(',')[0].strip()
+    return request.remote_addr or 'unknown'
+
+
+def _log_block(ip, reason):
+    security_logger.warning(
+        'BLOCKED | IP: %s | Reason: %s | Path: %s | UA: %s',
+        ip, reason, request.path,
+        request.headers.get('User-Agent', '')[:80]
+    )
+
+
 # ── Create app instance ────────────────────────────────
-app = create_app('development')
+app = create_app()
 
 
 if __name__ == '__main__':

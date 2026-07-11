@@ -17,3 +17,6 @@ __pycache__/
 cybernews.db
 static/images/photos/
 static/images/covers/
+*.log
+security.log
+rss_fetch.log
