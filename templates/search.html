@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+
+{% block title %}
+{% if query %}Search: {{ query }}{% else %}Search{% endif %} — CyberNews
+{% endblock %}
+
+{% block content %}
+
+<!-- Search Header -->
+<section class="search-header">
+    <div class="container">
+
+        <h1 class="search-page-title">
+            <i class="fas fa-magnifying-glass"></i>
+            Search CyberNews
+        </h1>
+
+        <!-- Big Search Form -->
+        <form action="{{ url_for('main.search_page') }}" method="GET"
+              class="search-page-form">
+            <div class="search-page-input-wrap">
+                <i class="fas fa-search search-page-icon"></i>
+                <input type="text"
+                       name="q"
+                       value="{{ query }}"
+                       placeholder="Search articles, topics, sources..."
+                       class="search-page-input"
+                       autofocus
+                       autocomplete="off">
+                {% if query %}
+                <a href="{{ url_for('main.search_page') }}"
+                   class="search-clear-btn"
+                   title="Clear search">
+                    <i class="fas fa-times"></i>
+                </a>
+                {% endif %}
+                <button type="submit" class="search-page-btn">
+                    <i class="fas fa-arrow-right"></i>
+                    Search
+                </button>
+            </div>
+        </form>
+
+        <!-- Quick filter suggestions -->
+        <div class="search-suggestions">
+            <span class="search-suggest-label">Try:</span>
+            <a href="{{ url_for('main.search_page', q='ransomware') }}"
+               class="search-suggest-tag">ransomware</a>
+            <a href="{{ url_for('main.search_page', q='zero-day') }}"
+               class="search-suggest-tag">zero-day</a>
+            <a href="{{ url_for('main.search_page', q='phishing') }}"
+               class="search-suggest-tag">phishing</a>
+            <a href="{{ url_for('main.search_page', q='Microsoft') }}"
+               class="search-suggest-tag">Microsoft</a>
+            <a href="{{ url_for('main.search_page', q='Google') }}"
+               class="search-suggest-tag">Google</a>
+            <a href="{{ url_for('main.search_page', q='privacy') }}"
+               class="search-suggest-tag">privacy</a>
+            <a href="{{ url_for('main.search_page', q='AI') }}"
+               class="search-suggest-tag">AI</a>
+        </div>
+
+    </div>
+</section>
+
+<!-- Search Results -->
+<section class="search-results-section">
+    <div class="container">
+
+        {% if query %}
+        <!-- Results Header -->
+        <div class="search-results-header">
+            <div class="search-results-count">
+                {% if count > 0 %}
+                <i class="fas fa-check-circle" style="color:var(--secondary);"></i>
+                Found <strong>{{ count }}</strong> article{{ 's' if count != 1 }}
+                for "<strong>{{ query }}</strong>"
+                {% else %}
+                <i class="fas fa-times-circle" style="color:var(--cat-malware);"></i>
+                No results found for "<strong>{{ query }}</strong>"
+                {% endif %}
+            </div>
+        </div>
+
+        {% if results %}
+        <!-- Results Grid -->
+        <div class="articles-grid">
+            {% for article in results %}
+            <article class="article-card" data-category="{{ article.category }}">
+                <div class="card-image">
+                    <img src="{{ article.image }}"
+                         alt="{{ article.title }}"
+                         loading="lazy"
+                         onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/fallback/cyber-default.jpg') }}';">
+                    <span class="card-category badge badge-{{ article.category | lower | replace(' ', '-') }}">
+                        {{ article.category }}
+                    </span>
+                    <span class="card-source-overlay">
+                        {{ article.source }}
+                    </span>
+                </div>
+                <div class="card-body">
+                    <div class="card-meta">
+                        <span class="card-source">
+                            <i class="fas fa-newspaper"></i>
+                            {{ article.source }}
+                        </span>
+                        <span class="card-date">
+                            <i class="fas fa-clock"></i>
+                            {{ article.formatted_date }}
+                        </span>
+                        <span class="card-read-time">
+                            <i class="fas fa-book-open"></i>
+                            {{ article.read_time }}
+                        </span>
+                    </div>
+                    <h3 class="card-title">
+                        <a href="/article/{{ article.id }}">{{ article.title }}</a>
+                    </h3>
+                    <p class="card-summary">{{ article.summary }}</p>
+                    <div class="card-footer">
+                        <a href="/article/{{ article.id }}" class="card-read-more">
+                            Read More <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+
+        {% else %}
+        <!-- No Results -->
+        <div class="search-no-results">
+            <div class="search-no-results-icon">
+                <i class="fas fa-satellite-dish"></i>
+            </div>
+            <h2>No Articles Found</h2>
+            <p>We couldn't find any articles matching "<strong>{{ query }}</strong>"</p>
+            <div class="search-no-results-tips">
+                <h3><i class="fas fa-lightbulb"></i> Tips:</h3>
+                <ul>
+                    <li>Try different or more general keywords</li>
+                    <li>Check your spelling</li>
+                    <li>Try searching by category: malware, privacy, threats</li>
+                    <li>Search by source: "Krebs", "Hacker News"</li>
+                </ul>
+            </div>
+            <a href="{{ url_for('main.home') }}" class="hero-btn" style="margin-top:1.5rem;">
+                <i class="fas fa-house"></i> Browse All Articles
+            </a>
+        </div>
+        {% endif %}
+
+        {% else %}
+        <!-- Empty State — No Query Yet -->
+        <div class="search-empty-state">
+            <div class="search-empty-icon">
+                <i class="fas fa-magnifying-glass"></i>
+            </div>
+            <h2>Search the CyberNews Archive</h2>
+            <p>Search across {{ all_articles | length if all_articles else 0 }}+ cybersecurity articles from trusted sources</p>
+            <div class="search-empty-categories">
+                <h3>Browse by Category:</h3>
+                <div class="category-pills" style="justify-content:center; margin-top:1rem;">
+                    {% for cat in categories %}
+                    <a href="/category/{{ cat }}"
+                       class="cat-pill cat-{{ cat | category_color }}">
+                        {{ cat }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+</section>
+
+{% endblock %}

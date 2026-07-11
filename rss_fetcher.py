@@ -124,69 +124,30 @@ CYBER_IMAGES = {
 
 def find_best_image(title, summary, default_image=None):
     """
-    Return a LOCAL photo path with maximum variety.
-    Uses ALL photos across all categories to minimize repetition.
-    First tries category-specific, then falls back to any photo.
+    Return a LOCAL photo path.
+    Uses article title hash spread across ALL photos
+    for maximum variety.
     """
     import hashlib
     import os
 
-    text = (title + ' ' + summary).lower()
-
-    # Determine primary category
-    category = 'general'
-    if any(k in text for k in ['ransomware', 'malware', 'trojan', 'virus', 'spyware', 'botnet', 'backdoor', 'rootkit']):
-        category = 'malware'
-    elif any(k in text for k in ['breach', 'leak', 'compromised', 'stolen', 'exposed', 'dump', 'records']):
-        category = 'breaches'
-    elif any(k in text for k in ['vulnerability', 'zero-day', 'cve-', 'exploit', 'patch', 'rce', 'flaw']):
-        category = 'vulnerabilities'
-    elif any(k in text for k in ['privacy', 'gdpr', 'tracking', 'surveillance', 'consent', 'regulation']):
-        category = 'privacy'
-    elif any(k in text for k in ['apt', 'threat', 'phishing', 'ddos', 'government', 'espionage', 'campaign']):
-        category = 'threats'
-    elif any(k in text for k in ['research', 'analysis', 'report', 'study', 'tool', 'framework', 'discovered']):
-        category = 'research'
-
-    # Build a MASTER list of all available photos
     base_dir = os.path.join('static', 'images', 'photos')
     all_photos = []
 
-    # Category photos first (higher priority)
-    cat_dir = os.path.join(base_dir, category)
-    try:
-        cat_photos = sorted([
-            f'/static/images/photos/{category}/{f}'
-            for f in os.listdir(cat_dir)
-            if f.endswith('.jpg')
-        ])
-        all_photos.extend(cat_photos)
-    except FileNotFoundError:
-        pass
-
-    # Then add ALL other category photos
-    all_categories = ['malware', 'breaches', 'vulnerabilities',
-                      'privacy', 'threats', 'research', 'general']
-    for other_cat in all_categories:
-        if other_cat == category:
+    for cat in sorted(os.listdir(base_dir)):
+        cat_dir = os.path.join(base_dir, cat)
+        if not os.path.isdir(cat_dir):
             continue
-        other_dir = os.path.join(base_dir, other_cat)
-        try:
-            other_photos = sorted([
-                f'/static/images/photos/{other_cat}/{f}'
-                for f in os.listdir(other_dir)
-                if f.endswith('.jpg')
-            ])
-            all_photos.extend(other_photos)
-        except FileNotFoundError:
-            pass
+        for f in sorted(os.listdir(cat_dir)):
+            if f.endswith('.jpg'):
+                all_photos.append(f'/static/images/photos/{cat}/{f}')
 
     if not all_photos:
         return '/static/images/fallback/cyber-default.jpg'
 
-    # Use a hash of the FULL title (not just keywords) to pick
-    # This ensures maximum spread across the entire library
-    h = int(hashlib.md5(title.encode()).hexdigest(), 16)
+    # Use full title + summary hash for uniqueness
+    unique = title + summary
+    h = int(hashlib.md5(unique.encode()).hexdigest(), 16)
     return all_photos[h % len(all_photos)]
 
 

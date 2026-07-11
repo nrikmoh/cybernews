@@ -455,3 +455,38 @@ def api_subscribe():
         'success': True,
         'message': 'Subscribed successfully! Welcome to CyberNews.',
     })
+
+
+@main_bp.route('/search')
+def search_page():
+    """Dedicated search results page."""
+    query = request.args.get('q', '').strip()
+
+    if not query:
+        return render_template(
+            'search.html',
+            query='',
+            results=[],
+            count=0,
+        )
+
+    search_term = f'%{query}%'
+    results = Article.query.filter(
+        Article.published == True
+    ).filter(
+        db.or_(
+            Article.title.ilike(search_term),
+            Article.summary.ilike(search_term),
+            Article.category.ilike(search_term),
+            Article.source.ilike(search_term),
+            Article.tags_string.ilike(search_term),
+            Article.body.ilike(search_term),
+        )
+    ).order_by(Article.created_at.desc()).limit(50).all()
+
+    return render_template(
+        'search.html',
+        query=query,
+        results=results,
+        count=len(results),
+    )

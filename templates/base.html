@@ -60,15 +60,18 @@
             </a>
 
             <!-- Search Bar -->
-            <div class="header-search">
+            <form action="{{ url_for('main.search_page') }}" method="GET"
+                  class="header-search">
                 <input type="text"
+                       name="q"
                        id="search-input"
                        placeholder="Search threats, breaches, vulnerabilities..."
-                       autocomplete="off">
-                <button type="button" id="search-btn">
+                       autocomplete="off"
+                       value="{{ request.args.get('q', '') }}">
+                <button type="submit" id="search-btn">
                     <i class="fas fa-search"></i>
                 </button>
-            </div>
+            </form>
 
             <!-- Dark/Light Mode Toggle -->
             <button class="theme-toggle" id="theme-toggle"
@@ -86,6 +89,9 @@
                 </a>
                 <a href="/about" class="nav-link {% if request.endpoint == 'about' %}active{% endif %}">
                     <i class="fas fa-circle-info"></i> About
+                </a>
+                <a href="{{ url_for('main.search_page') }}" class="nav-link {% if request.endpoint == 'main.search_page' %}active{% endif %}">
+                    <i class="fas fa-magnifying-glass"></i> Search
                 </a>
                 <a href="#" class="nav-btn">
                     <i class="fas fa-bell"></i> Alerts

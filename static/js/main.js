@@ -191,206 +191,30 @@ function initTicker() {
    Filters article cards as the user types
 ═══════════════════════════════════════════════════════ */
 
-/* ═══════════════════════════════════════════════════════
-   SEARCH — Real database search + live card filtering
-═══════════════════════════════════════════════════════ */
 function initSearch() {
-    var searchInput  = id('search-input');
-    var searchBtn    = id('search-btn');
-    var searchNotice = id('search-notice');
-    var searchTerm   = id('search-term');
-    var clearBtn     = id('clear-search');
-    var grid         = id('articles-grid');
-    var noResults    = id('no-results');
-
+    var searchInput = id('search-input');
     if (!searchInput) return;
 
-    // Store original cards HTML for restoring later
-    var originalHTML = grid ? grid.innerHTML : '';
-    var isSearchMode = false;
+    // Press "/" to focus search
+    document.addEventListener('keydown', function(e) {
+        var tag = document.activeElement.tagName.toLowerCase();
+        if (tag === 'input' || tag === 'textarea') return;
 
-    function doSearch(query) {
-        query = query.trim();
-
-        if (!query) {
-            clearSearch();
-            return;
+        if (e.key === '/') {
+            e.preventDefault();
+            searchInput.focus();
+            searchInput.select();
         }
-
-        // First: filter visible cards on the page (instant)
-        filterVisibleCards(query);
-
-        // Then: search the database for ALL results (ajax)
-        fetch('/api/search?q=' + encodeURIComponent(query))
-            .then(function(r) { return r.json(); })
-            .then(function(data) {
-                if (data.count > 0 && grid) {
-                    isSearchMode = true;
-
-                    // Show search notice
-                    if (searchNotice && searchTerm) {
-                        searchTerm.textContent = '"' + query + '"';
-                        searchNotice.style.display = 'flex';
-                    }
-
-                    // Build new cards from search results
-                    var html = '';
-                    data.results.forEach(function(article) {
-                        html += buildSearchCard(article);
-                    });
-                    grid.innerHTML = html;
-
-                    if (noResults) noResults.style.display = 'none';
-
-                    // Update article count
-                    var statEl = id('stat-articles');
-                    if (statEl) statEl.textContent = data.count;
-
-                } else if (data.count === 0) {
-                    if (grid) grid.innerHTML = '';
-                    if (noResults) noResults.style.display = 'block';
-                    if (searchNotice && searchTerm) {
-                        searchTerm.textContent = '"' + query + '"';
-                        searchNotice.style.display = 'flex';
-                    }
-                }
-            })
-            .catch(function() {
-                // If API fails, just use the local filter
-                filterVisibleCards(query);
-            });
-    }
-
-    function filterVisibleCards(query) {
-        var cards = qsa('.article-card');
-        var visible = 0;
-        query = query.toLowerCase();
-
-        cards.forEach(function(card) {
-            var text = card.textContent.toLowerCase();
-            if (text.includes(query)) {
-                card.style.display = '';
-                visible++;
-            } else {
-                card.style.display = 'none';
-            }
-        });
-
-        if (noResults) {
-            noResults.style.display = visible === 0 ? 'block' : 'none';
-        }
-    }
-
-    function buildSearchCard(article) {
-        var imgSrc = article.image || '/static/images/fallback/cyber-default.jpg';
-        var catClass = (article.category || '').toLowerCase().replace(' ', '-');
-
-        return '<article class="article-card" data-category="' + article.category + '">' +
-            '<div class="card-image">' +
-                '<img src="' + imgSrc + '"' +
-                    ' alt="' + escapeHtml(article.title) + '"' +
-                    ' loading="lazy"' +
-                    ' onerror="this.onerror=null;this.src=\'/static/images/fallback/cyber-default.jpg\';">' +
-                '<span class="card-category badge badge-' + catClass + '">' +
-                    article.category +
-                '</span>' +
-                '<span class="card-source-overlay">' + article.source + '</span>' +
-            '</div>' +
-            '<div class="card-body">' +
-                '<div class="card-meta">' +
-                    '<span class="card-source">' +
-                        '<i class="fas fa-newspaper"></i> ' + article.source +
-                    '</span>' +
-                    '<span class="card-date">' +
-                        '<i class="fas fa-clock"></i> ' + article.date +
-                    '</span>' +
-                '</div>' +
-                '<h3 class="card-title">' +
-                    '<a href="' + article.url + '">' + escapeHtml(article.title) + '</a>' +
-                '</h3>' +
-                '<p class="card-summary">' + escapeHtml(article.summary) + '</p>' +
-                '<div class="card-footer">' +
-                    '<a href="' + article.url + '" class="card-read-more">' +
-                        'Read More <i class="fas fa-arrow-right"></i>' +
-                    '</a>' +
-                '</div>' +
-            '</div>' +
-        '</article>';
-    }
-
-    function escapeHtml(text) {
-        var div = document.createElement('div');
-        div.textContent = text || '';
-        return div.innerHTML;
-    }
-
-    function clearSearch() {
-        searchInput.value = '';
-        currentSearch = '';
-        isSearchMode = false;
-
-        if (searchNotice) searchNotice.style.display = 'none';
-
-        // Restore original cards
-        if (grid && originalHTML) {
-            grid.innerHTML = originalHTML;
-        }
-
-        if (noResults) noResults.style.display = 'none';
-
-        // Show all cards
-        qsa('.article-card').forEach(function(card) {
-            card.style.display = '';
-        });
-    }
-
-    // Debounced search on input
-    var typingTimer;
-    searchInput.addEventListener('input', function() {
-        clearTimeout(typingTimer);
-        var query = this.value.trim();
-
-        if (!query) {
-            clearSearch();
-            return;
-        }
-
-        // Instant local filter
-        filterVisibleCards(query);
-
-        // Delayed database search
-        typingTimer = setTimeout(function() {
-            doSearch(query);
-        }, 400);
     });
 
-    // Search button click
-    if (searchBtn) {
-        searchBtn.addEventListener('click', function() {
-            doSearch(searchInput.value);
-        });
-    }
-
-    // Enter key
+    // Press Escape to clear and unfocus
     searchInput.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') {
-            doSearch(this.value);
-        }
         if (e.key === 'Escape') {
-            clearSearch();
+            this.value = '';
             this.blur();
         }
     });
-
-    // Clear button
-    if (clearBtn) {
-        clearBtn.addEventListener('click', function() {
-            clearSearch();
-            searchInput.focus();
-        });
-    }
 }
-
 
 
 /* ═══════════════════════════════════════════════════════
