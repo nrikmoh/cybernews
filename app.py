@@ -47,6 +47,8 @@ def create_app(config_name='development'):
     bcrypt.init_app(app)
     login_manager.init_app(app)
     csrf.init_app(app)
+    # Exempt JSON API endpoints from CSRF
+    # (They don't use browser forms, so CSRF tokens don't apply)
     limiter.init_app(app)
 
     # ── Flask-Login settings ───────────────────────────
@@ -63,6 +65,18 @@ def create_app(config_name='development'):
     # ── Register blueprints ────────────────────────────
     for blueprint in all_blueprints:
         app.register_blueprint(blueprint)
+
+    # Exempt JSON API endpoints from CSRF
+    if 'main.api_subscribe' in app.view_functions:
+        csrf.exempt(app.view_functions['main.api_subscribe'])
+    if 'main.api_search' in app.view_functions:
+        csrf.exempt(app.view_functions['main.api_search'])
+    if 'main.api_articles' in app.view_functions:
+        csrf.exempt(app.view_functions['main.api_articles'])
+    if 'main.api_live_feed' in app.view_functions:
+        csrf.exempt(app.view_functions['main.api_live_feed'])
+
+    limiter.init_app(app)
 
     # ── Rate limit the login endpoint ─────────────────
     login_view = app.view_functions.get('auth.login')
@@ -88,6 +102,10 @@ def create_app(config_name='development'):
         url  = request.url.lower()
         ua   = request.headers.get('User-Agent', '').lower()
 
+        # ── Allow static files through immediately ─────
+        if path.startswith('/static/'):
+            return None
+
         # ── 1. Block attack tool user agents ───────────
         bad_agents = [
             'sqlmap', 'nikto', 'nmap', 'masscan',
@@ -100,7 +118,7 @@ def create_app(config_name='development'):
                 _log_block(ip, 'Attack tool: ' + agent)
                 abort(403)
 
-        # ── 2. Block common scanner/attack paths ───────
+        # ── 2. Block scanner/attack paths ──────────────
         attack_paths = [
             '/wp-admin', '/wp-login', '/wp-content',
             '/wp-includes', '/xmlrpc.php', '/admin.php',
@@ -116,12 +134,14 @@ def create_app(config_name='development'):
 
         # ── 3. Block SQL injection in URL ──────────────
         sql_patterns = [
-            "' or ", "' and ", "1=1", "union select",
+            "' or ", "' and ", "union select",
             "drop table", "insert into", "'; drop",
             "exec(", "xp_cmdshell",
         ]
+        # Only check query string, not the path
+        query_string = request.query_string.decode('utf-8', errors='ignore').lower()
         for pattern in sql_patterns:
-            if pattern in url:
+            if pattern in query_string:
                 _log_block(ip, 'SQL injection: ' + pattern)
                 abort(403)
 
@@ -153,6 +173,59 @@ def create_app(config_name='development'):
     # ═══════════════════════════════════════════════════
     # SECURITY HEADERS — added to every response
     # ═══════════════════════════════════════════════════
+    # ── Track all page views automatically ────────────
+    @app.before_request
+    def track_all_pages():
+        """
+        Automatically track every page view.
+        Runs before every request.
+        Skips static files, API endpoints, and admin pages.
+        """
+        from flask import request
+
+        path = request.path
+
+        # Skip these paths
+        skip_prefixes = [
+            '/static/',
+            '/api/',
+            '/admin',
+            '/favicon',
+            '/robots.txt',
+            '/sitemap.xml',
+        ]
+
+        # Skip if path starts with any skip prefix
+        for prefix in skip_prefixes:
+            if path.startswith(prefix):
+                return None
+
+        # Skip non-GET requests (POST, etc.)
+        if request.method != 'GET':
+            return None
+
+        # Track the page view
+        try:
+            from models import PageView, db
+            ip = request.headers.get('X-Forwarded-For', '').split(',')[0].strip()
+            if not ip:
+                ip = request.remote_addr or 'unknown'
+
+            PageView.record_view(
+                page       = path,
+                ip         = ip,
+                user_agent = request.headers.get('User-Agent'),
+                referrer   = request.headers.get('Referer', ''),
+            )
+        except Exception:
+            try:
+                from models import db
+                db.session.rollback()
+            except Exception:
+                pass
+
+        return None
+
     @app.after_request
     def apply_security_headers(response):
         response.headers['X-Content-Type-Options'] = 'nosniff'

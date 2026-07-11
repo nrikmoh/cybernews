@@ -1,0 +1,309 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Visitor Analytics{% endblock %}
+
+{% block page_title %}
+<h1 class="admin-page-title">
+    <i class="fas fa-chart-line"></i> Visitor Analytics
+</h1>
+{% endblock %}
+
+{% block content %}
+
+<!-- Overview Stats -->
+<div class="admin-stats-grid">
+    <div class="admin-stat-card">
+        <div class="stat-icon stat-icon-blue">
+            <i class="fas fa-eye"></i>
+        </div>
+        <div class="stat-info">
+            <div class="stat-number">{{ stats.total_views }}</div>
+            <div class="stat-label">Total Views</div>
+        </div>
+    </div>
+    <div class="admin-stat-card">
+        <div class="stat-icon stat-icon-green">
+            <i class="fas fa-users"></i>
+        </div>
+        <div class="stat-info">
+            <div class="stat-number">{{ stats.unique_visitors }}</div>
+            <div class="stat-label">Unique Visitors</div>
+        </div>
+    </div>
+    <div class="admin-stat-card">
+        <div class="stat-icon stat-icon-cyan">
+            <i class="fas fa-calendar-day"></i>
+        </div>
+        <div class="stat-info">
+            <div class="stat-number">{{ stats.today_views }}</div>
+            <div class="stat-label">Views Today</div>
+        </div>
+    </div>
+    <div class="admin-stat-card">
+        <div class="stat-icon stat-icon-amber">
+            <i class="fas fa-user-check"></i>
+        </div>
+        <div class="stat-info">
+            <div class="stat-number">{{ stats.today_unique }}</div>
+            <div class="stat-label">Unique Today</div>
+        </div>
+    </div>
+    <div class="admin-stat-card">
+        <div class="stat-icon stat-icon-purple">
+            <i class="fas fa-calendar-week"></i>
+        </div>
+        <div class="stat-info">
+            <div class="stat-number">{{ stats.week_views }}</div>
+            <div class="stat-label">This Week</div>
+        </div>
+    </div>
+    <div class="admin-stat-card">
+        <div class="stat-icon stat-icon-red">
+            <i class="fas fa-calendar"></i>
+        </div>
+        <div class="stat-info">
+            <div class="stat-number">{{ stats.month_views }}</div>
+            <div class="stat-label">This Month</div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="admin-grid-2">
+
+    <!-- Daily Views Bar Chart -->
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h2><i class="fas fa-chart-bar"></i> Last 7 Days</h2>
+        </div>
+        <div class="admin-card-body">
+            <div style="display:flex; align-items:flex-end; gap:0.5rem; height:150px; padding-top:1rem;">
+                {% for day in daily_views %}
+                <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:0.3rem;">
+                    <span style="font-size:0.7rem; color:var(--text-muted); font-family:var(--font-mono);">
+                        {{ day.count }}
+                    </span>
+                    <div style="width:100%;
+                                height:{{ (day.count / max_daily * 120) | int }}px;
+                                min-height:4px;
+                                background:linear-gradient(to top, var(--primary), var(--accent));
+                                border-radius:4px 4px 0 0;
+                                transition:height 1s ease;">
+                    </div>
+                    <span style="font-size:0.65rem; color:var(--text-muted);">
+                        {{ day.day }}
+                    </span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Hourly Distribution -->
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h2><i class="fas fa-clock"></i> Today by Hour</h2>
+        </div>
+        <div class="admin-card-body">
+            <div style="display:flex; align-items:flex-end; gap:2px; height:150px; padding-top:1rem;">
+                {% for h in hourly %}
+                <div style="flex:1; display:flex; flex-direction:column; align-items:center;">
+                    <div style="width:100%;
+                                height:{{ (h.count / max_hourly * 120) | int }}px;
+                                min-height:2px;
+                                background:{% if h.count > 0 %}var(--secondary){% else %}var(--bg-border){% endif %};
+                                border-radius:2px 2px 0 0;">
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-top:0.3rem;">
+                <span style="font-size:0.6rem; color:var(--text-muted);">00:00</span>
+                <span style="font-size:0.6rem; color:var(--text-muted);">06:00</span>
+                <span style="font-size:0.6rem; color:var(--text-muted);">12:00</span>
+                <span style="font-size:0.6rem; color:var(--text-muted);">18:00</span>
+                <span style="font-size:0.6rem; color:var(--text-muted);">23:00</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Second Row: Devices + Browsers -->
+<div class="admin-grid-2">
+
+    <!-- Devices -->
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h2><i class="fas fa-mobile-screen"></i> Devices</h2>
+        </div>
+        <div class="admin-card-body">
+            {% for device in devices %}
+            <div class="category-bar-item">
+                <div class="category-bar-label">
+                    <span style="font-size:0.88rem; color:var(--text-primary);">
+                        {% if device.device == 'Mobile' %}<i class="fas fa-mobile-screen" style="color:var(--primary)"></i>
+                        {% elif device.device == 'Tablet' %}<i class="fas fa-tablet-screen" style="color:var(--accent)"></i>
+                        {% else %}<i class="fas fa-desktop" style="color:var(--secondary)"></i>{% endif %}
+                        {{ device.device }}
+                    </span>
+                    <span class="category-bar-count">
+                        {{ device.count }} ({{ (device.count / total_device * 100) | round(1) }}%)
+                    </span>
+                </div>
+                <div class="category-bar-track">
+                    <div class="category-bar-fill"
+                         style="width:{{ (device.count / total_device * 100) | int }}%"></div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Browsers -->
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h2><i class="fas fa-globe"></i> Browsers</h2>
+        </div>
+        <div class="admin-card-body">
+            {% for browser in browsers %}
+            <div class="category-bar-item">
+                <div class="category-bar-label">
+                    <span style="font-size:0.88rem; color:var(--text-primary);">
+                        {% if browser.browser == 'Chrome' %}<i class="fab fa-chrome" style="color:#4285f4"></i>
+                        {% elif browser.browser == 'Firefox' %}<i class="fab fa-firefox" style="color:#ff7139"></i>
+                        {% elif browser.browser == 'Safari' %}<i class="fab fa-safari" style="color:#00d4ff"></i>
+                        {% elif browser.browser == 'Edge' %}<i class="fab fa-edge" style="color:#0078d7"></i>
+                        {% else %}<i class="fas fa-globe" style="color:var(--text-muted)"></i>{% endif %}
+                        {{ browser.browser }}
+                    </span>
+                    <span class="category-bar-count">
+                        {{ browser.count }} ({{ (browser.count / total_browser * 100) | round(1) }}%)
+                    </span>
+                </div>
+                <div class="category-bar-track">
+                    <div class="category-bar-fill"
+                         style="width:{{ (browser.count / total_browser * 100) | int }}%"></div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Third Row: Top Pages + Top IPs -->
+<div class="admin-grid-2">
+
+    <!-- Top Pages -->
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h2><i class="fas fa-file"></i> Top Pages</h2>
+        </div>
+        <div class="admin-card-body" style="padding:0;">
+            <table class="admin-table admin-table-full">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Page</th>
+                        <th>Views</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for page in top_pages %}
+                    <tr>
+                        <td class="id-cell">{{ loop.index }}</td>
+                        <td style="font-family:var(--font-mono); font-size:0.82rem;">
+                            {{ page.page[:50] }}
+                        </td>
+                        <td style="font-family:var(--font-mono);">
+                            {{ page.views }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Top Visitors -->
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h2><i class="fas fa-user-group"></i> Top Visitors (by IP)</h2>
+        </div>
+        <div class="admin-card-body" style="padding:0;">
+            <table class="admin-table admin-table-full">
+                <thead>
+                    <tr>
+                        <th>IP Address</th>
+                        <th>Views</th>
+                        <th>Last Visit</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ip in top_ips %}
+                    <tr>
+                        <td style="font-family:var(--font-mono); font-size:0.82rem;">
+                            {{ ip.ip_address }}
+                        </td>
+                        <td style="font-family:var(--font-mono);">
+                            {{ ip.views }}
+                        </td>
+                        <td style="font-size:0.78rem; color:var(--text-muted);">
+                            {{ ip.last_visit.strftime('%b %d %H:%M') }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Visitors Table -->
+<div class="admin-card">
+    <div class="admin-card-header">
+        <h2><i class="fas fa-clock-rotate-left"></i> Recent Visitors (Last 20)</h2>
+    </div>
+    <div class="admin-card-body" style="padding:0;">
+        <table class="admin-table admin-table-full">
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>Page</th>
+                    <th>IP Address</th>
+                    <th>Device</th>
+                    <th>Browser</th>
+                    <th>Referrer</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for v in recent_visitors %}
+                <tr>
+                    <td style="font-size:0.78rem; color:var(--text-muted); white-space:nowrap;">
+                        {{ v.timestamp.strftime('%b %d %H:%M:%S') }}
+                    </td>
+                    <td style="font-family:var(--font-mono); font-size:0.78rem; max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                        {{ v.page }}
+                    </td>
+                    <td style="font-family:var(--font-mono); font-size:0.78rem;">
+                        {{ v.ip_address }}
+                    </td>
+                    <td style="font-size:0.78rem;">
+                        {% if v.device == 'Mobile' %}<i class="fas fa-mobile-screen" style="color:var(--primary)"></i>
+                        {% elif v.device == 'Tablet' %}<i class="fas fa-tablet-screen" style="color:var(--accent)"></i>
+                        {% else %}<i class="fas fa-desktop" style="color:var(--secondary)"></i>{% endif %}
+                        {{ v.device or 'Unknown' }}
+                    </td>
+                    <td style="font-size:0.78rem;">
+                        {{ v.browser or 'Unknown' }}
+                    </td>
+                    <td style="font-size:0.72rem; color:var(--text-muted); max-width:150px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                        {{ v.referrer or 'Direct' }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

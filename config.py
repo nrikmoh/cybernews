@@ -78,6 +78,12 @@ class DevelopmentConfig(Config):
 
 class ProductionConfig(Config):
     DEBUG = False
+    TESTING = False
+
+    # Extra production security
+    SESSION_COOKIE_SECURE   = True   # only send over HTTPS
+    SESSION_COOKIE_HTTPONLY = True   # no JavaScript access
+    SESSION_COOKIE_SAMESITE = 'Lax'
 
 
 config = {

@@ -49,3 +49,6 @@
 2026-07-10 22:36:23 | WARNING | BLOCKED | IP: 89.22.224.4 | Reason: SQL injection: 1=1 | Path: / | UA: python-requests/2.34.2
 2026-07-10 22:36:23 | WARNING | BLOCKED | IP: 89.22.224.4 | Reason: Attack tool: sqlmap | Path: / | UA: sqlmap/1.0
 2026-07-10 22:36:23 | WARNING | BLOCKED | IP: 89.22.224.4 | Reason: Attack tool: sqlmap | Path: / | UA: sqlmap/1.0
+2026-07-11 00:09:34 | WARNING | LOGIN FAILED | Username: Hassan | IP: 84.235.238.20 | User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Sa
+2026-07-11 00:09:34 | WARNING | LOGIN FAILED | Username: Hassan | IP: 84.235.238.20 | User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Sa
+2026-07-11 00:09:34 | WARNING | LOGIN FAILED | Username: Hassan | IP: 84.235.238.20 | User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Sa

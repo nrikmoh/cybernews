@@ -287,3 +287,139 @@ def fetch_news():
         flash(f'❌ Error: {str(e)}', 'error')
 
     return redirect(url_for('admin.dashboard'))
+
+# ─────────────────────────────────────────
+# VISITOR ANALYTICS DASHBOARD
+# ─────────────────────────────────────────
+@admin_bp.route('/analytics')
+@login_required
+def analytics():
+    """Detailed visitor analytics dashboard."""
+    from models import PageView
+    from sqlalchemy import func, distinct
+    from datetime import datetime, timedelta
+
+    now = datetime.utcnow()
+    today = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    week_ago = now - timedelta(days=7)
+    month_ago = now - timedelta(days=30)
+
+    # ── Overview Stats ─────────────────────────────────
+    stats = {
+        'total_views':      PageView.total_views(),
+        'unique_visitors':  PageView.unique_visitors(),
+        'today_views':      PageView.today_views(),
+        'today_unique':     db.session.query(
+                                func.count(distinct(PageView.ip_address))
+                            ).filter(PageView.timestamp >= today).scalar() or 0,
+        'week_views':       PageView.query.filter(
+                                PageView.timestamp >= week_ago
+                            ).count(),
+        'month_views':      PageView.query.filter(
+                                PageView.timestamp >= month_ago
+                            ).count(),
+    }
+
+    # ── Views per day (last 7 days) ────────────────────
+    daily_views = []
+    for i in range(6, -1, -1):
+        day_start = (now - timedelta(days=i)).replace(hour=0, minute=0, second=0, microsecond=0)
+        day_end = day_start + timedelta(days=1)
+        count = PageView.query.filter(
+            PageView.timestamp >= day_start,
+            PageView.timestamp < day_end
+        ).count()
+        daily_views.append({
+            'day': day_start.strftime('%a %d'),
+            'count': count,
+        })
+
+    # Find max for bar chart scaling
+    max_daily = max((d['count'] for d in daily_views), default=1) or 1
+
+    # ── Top Pages ──────────────────────────────────────
+    top_pages = db.session.query(
+        PageView.page,
+        func.count(PageView.id).label('views')
+    ).group_by(PageView.page).order_by(
+        func.count(PageView.id).desc()
+    ).limit(10).all()
+
+    # ── Device Breakdown ───────────────────────────────
+    devices = db.session.query(
+        PageView.device,
+        func.count(PageView.id).label('count')
+    ).filter(PageView.device != None).group_by(
+        PageView.device
+    ).order_by(func.count(PageView.id).desc()).all()
+
+    total_device = sum(d.count for d in devices) or 1
+
+    # ── Browser Breakdown ──────────────────────────────
+    browsers = db.session.query(
+        PageView.browser,
+        func.count(PageView.id).label('count')
+    ).filter(PageView.browser != None).group_by(
+        PageView.browser
+    ).order_by(func.count(PageView.id).desc()).all()
+
+    total_browser = sum(b.count for b in browsers) or 1
+
+    # ── Top Referrers ──────────────────────────────────
+    referrers = db.session.query(
+        PageView.referrer,
+        func.count(PageView.id).label('count')
+    ).filter(
+        PageView.referrer != None,
+        PageView.referrer != '',
+    ).group_by(PageView.referrer).order_by(
+        func.count(PageView.id).desc()
+    ).limit(10).all()
+
+    # ── Recent Visitors ────────────────────────────────
+    recent_visitors = PageView.query.order_by(
+        PageView.timestamp.desc()
+    ).limit(20).all()
+
+    # ── Top Visitor IPs ────────────────────────────────
+    top_ips = db.session.query(
+        PageView.ip_address,
+        func.count(PageView.id).label('views'),
+        func.max(PageView.timestamp).label('last_visit'),
+        func.min(PageView.timestamp).label('first_visit'),
+    ).group_by(PageView.ip_address).order_by(
+        func.count(PageView.id).desc()
+    ).limit(15).all()
+
+    # ── Hourly Distribution (today) ────────────────────
+    hourly = []
+    for h in range(24):
+        hour_start = today + timedelta(hours=h)
+        hour_end = hour_start + timedelta(hours=1)
+        count = PageView.query.filter(
+            PageView.timestamp >= hour_start,
+            PageView.timestamp < hour_end
+        ).count()
+        hourly.append({
+            'hour': f'{h:02d}:00',
+            'count': count,
+        })
+
+    max_hourly = max((h['count'] for h in hourly), default=1) or 1
+
+    return render_template(
+        'admin/analytics.html',
+        stats=stats,
+        daily_views=daily_views,
+        max_daily=max_daily,
+        top_pages=top_pages,
+        devices=devices,
+        total_device=total_device,
+        browsers=browsers,
+        total_browser=total_browser,
+        referrers=referrers,
+        recent_visitors=recent_visitors,
+        top_ips=top_ips,
+        hourly=hourly,
+        max_hourly=max_hourly,
+    )

@@ -393,8 +393,7 @@ class LoginLog(db.Model):
         return log
 
 # ═══════════════════════════════════════════════════════
-# PAGE VIEW COUNTER
-# Tracks total page views
+# PAGE VIEW — Enhanced Visitor Tracking
 # ═══════════════════════════════════════════════════════
 class PageView(db.Model):
     __tablename__ = 'page_views'
@@ -402,30 +401,63 @@ class PageView(db.Model):
     id         = db.Column(db.Integer, primary_key=True)
     page       = db.Column(db.String(200), nullable=False)
     ip_address = db.Column(db.String(45),  nullable=True)
+    user_agent = db.Column(db.String(300), nullable=True)
+    referrer   = db.Column(db.String(500), nullable=True)
+    country    = db.Column(db.String(50),  nullable=True)
+    device     = db.Column(db.String(20),  nullable=True)
+    browser    = db.Column(db.String(50),  nullable=True)
     timestamp  = db.Column(db.DateTime,    default=datetime.utcnow)
 
     @classmethod
-    def record_view(cls, page, ip):
-        """Record a page view."""
-        view = cls(page=page, ip_address=ip)
+    def record_view(cls, page, ip, user_agent=None, referrer=None):
+        """Record a detailed page view."""
+        # Detect device and browser from user agent
+        ua = (user_agent or '').lower()
+        
+        # Detect device type
+        if 'mobile' in ua or 'android' in ua or 'iphone' in ua:
+            device = 'Mobile'
+        elif 'tablet' in ua or 'ipad' in ua:
+            device = 'Tablet'
+        else:
+            device = 'Desktop'
+
+        # Detect browser
+        if 'chrome' in ua and 'edg' not in ua:
+            browser = 'Chrome'
+        elif 'firefox' in ua:
+            browser = 'Firefox'
+        elif 'safari' in ua and 'chrome' not in ua:
+            browser = 'Safari'
+        elif 'edg' in ua:
+            browser = 'Edge'
+        elif 'opera' in ua or 'opr' in ua:
+            browser = 'Opera'
+        else:
+            browser = 'Other'
+
+        view = cls(
+            page=page,
+            ip_address=ip,
+            user_agent=(user_agent or '')[:300],
+            referrer=(referrer or '')[:500],
+            device=device,
+            browser=browser,
+        )
         db.session.add(view)
         db.session.commit()
 
     @classmethod
     def total_views(cls):
-        """Get total page views."""
         return cls.query.count()
 
     @classmethod
     def today_views(cls):
-        """Get views from today."""
-        from datetime import datetime, timedelta
         today = datetime.utcnow().replace(hour=0, minute=0, second=0)
         return cls.query.filter(cls.timestamp >= today).count()
 
     @classmethod
     def unique_visitors(cls):
-        """Count unique IP addresses."""
         return db.session.query(
             db.func.count(db.distinct(cls.ip_address))
         ).scalar()

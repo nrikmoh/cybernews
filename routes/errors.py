@@ -1,5 +1,4 @@
-# routes/errors.py
-from flask import Blueprint, render_template, request
+from flask import Blueprint, render_template
 
 errors_bp = Blueprint('errors', __name__)
 
@@ -21,9 +20,4 @@ def forbidden(error):
 
 @errors_bp.app_errorhandler(429)
 def rate_limit_exceeded(error):
-    """
-    Too Many Requests.
-    Triggered when Flask-Limiter blocks a request.
-    Shows a friendly page instead of a blank error.
-    """
     return render_template('errors/429.html'), 429

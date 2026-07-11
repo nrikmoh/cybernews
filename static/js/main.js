@@ -1195,91 +1195,82 @@ function initParticles() {
 
 
 /* ═══════════════════════════════════════════════════════
-   LIVE TERMINAL WIDGET
-   Shows simulated security monitoring commands
+   LIVE TERMINAL WIDGET — Shows REAL website activity
 ═══════════════════════════════════════════════════════ */
 function initTerminal() {
     var terminal = document.getElementById('live-terminal');
     if (!terminal) return;
 
-    // List of fake security commands and outputs
-    var commands = [
-        { type: 'cmd',     text: 'nmap -sS 192.168.1.0/24 --top-ports 100' },
-        { type: 'output',  text: 'Scanning 254 hosts...' },
-        { type: 'warn',    text: 'Port 22 open on 3 hosts (SSH)' },
-        { type: 'success', text: 'Scan complete. 12 hosts up.' },
-        { type: 'cmd',     text: 'tail -f /var/log/auth.log | grep FAILED' },
-        { type: 'error',   text: 'Failed password for root from 45.33.32.156' },
-        { type: 'error',   text: 'Failed password for admin from 185.220.101.1' },
-        { type: 'warn',    text: 'Brute force detected: 23 attempts in 60s' },
-        { type: 'cmd',     text: 'shodan search "port:3389 country:US"' },
-        { type: 'output',  text: 'Results: 4,821 hosts with RDP exposed' },
-        { type: 'warn',    text: 'WARNING: 12% running unpatched versions' },
-        { type: 'cmd',     text: 'suricata -c /etc/suricata/suricata.yaml -i eth0' },
-        { type: 'info',    text: '[IDS] Rule loaded: ET MALWARE CobaltStrike' },
-        { type: 'info',    text: '[IDS] Rule loaded: ET EXPLOIT Log4j RCE' },
-        { type: 'success', text: 'IDS engine running. 47,832 rules active.' },
-        { type: 'cmd',     text: 'curl -s https://api.abuseipdb.com/check' },
-        { type: 'error',   text: 'IP 91.240.118.172 — Confidence: 100% MALICIOUS' },
-        { type: 'warn',    text: 'Country: RU | ISP: Selectel | Reports: 1,847' },
-        { type: 'cmd',     text: 'openssl s_client -connect example.com:443' },
-        { type: 'success', text: 'TLS 1.3 | ECDHE-RSA-AES256-GCM-SHA384' },
-        { type: 'output',  text: 'Certificate valid until: Mar 15, 2027' },
-        { type: 'cmd',     text: 'grep -r "password" /var/www/ --include="*.py"' },
-        { type: 'error',   text: 'ALERT: Hardcoded password found in config.py' },
-        { type: 'warn',    text: 'Recommendation: Use environment variables' },
-        { type: 'cmd',     text: 'fail2ban-client status sshd' },
-        { type: 'output',  text: 'Currently banned: 14 IPs' },
-        { type: 'success', text: 'Total banned: 2,847 since last reset' },
-        { type: 'cmd',     text: 'zeek -i eth0 detect-attacks.zeek' },
-        { type: 'info',    text: '[Notice] SSH::Password_Guessing detected' },
-        { type: 'error',   text: '[Alert] SQL injection attempt from 103.75.32.1' },
-        { type: 'cmd',     text: 'virustotal --hash a1b2c3d4e5f6 --scan' },
-        { type: 'error',   text: 'Detection: 47/72 engines flagged as TROJAN' },
-        { type: 'warn',    text: 'Family: Emotet | First seen: 2024-11-23' },
-        { type: 'cmd',     text: 'nikto -h https://target.com -ssl' },
-        { type: 'output',  text: 'Scanning web server for vulnerabilities...' },
-        { type: 'warn',    text: 'X-Frame-Options header missing' },
-        { type: 'warn',    text: 'Server exposes version: Apache/2.4.41' },
-        { type: 'success', text: 'Scan complete: 4 vulnerabilities found' },
+    var maxLines = 20;
+    var commandIndex = 0;
+
+    // Static security commands to show between real data
+    var staticCommands = [
+        { type: 'cmd', text: 'nmap -sS --top-ports 100 target' },
+        { type: 'cmd', text: 'tail -f /var/log/auth.log' },
+        { type: 'cmd', text: 'suricata -c /etc/suricata.yaml -i eth0' },
+        { type: 'cmd', text: 'fail2ban-client status sshd' },
+        { type: 'cmd', text: 'openssl s_client -connect server:443' },
+        { type: 'cmd', text: 'curl -I https://cybernews/health' },
+        { type: 'cmd', text: 'grep BLOCKED /var/log/security.log' },
+        { type: 'cmd', text: 'systemctl status nginx gunicorn' },
     ];
 
-    var index = 0;
-    var maxLines = 20;
-
-    function addLine() {
-        var cmd = commands[index % commands.length];
+    function addLine(type, text) {
         var line = document.createElement('div');
         line.className = 'terminal-line';
 
-        if (cmd.type === 'cmd') {
-            line.innerHTML = '<span class="t-prompt">sec@cybernews ~$</span> <span class="t-cmd">' + cmd.text + '</span>';
+        if (type === 'cmd') {
+            line.innerHTML = '<span class="t-prompt">sec@cybernews ~$</span> <span class="t-cmd">' + text + '</span>';
         } else {
-            line.innerHTML = '<span class="t-' + cmd.type + '">' + cmd.text + '</span>';
+            line.innerHTML = '<span class="t-' + type + '">' + text + '</span>';
         }
 
         terminal.appendChild(line);
 
-        // Remove old lines to prevent overflow
         var lines = terminal.querySelectorAll('.terminal-line');
         if (lines.length > maxLines) {
             lines[0].remove();
         }
 
-        // Auto-scroll to bottom
         terminal.scrollTop = terminal.scrollHeight;
-
-        index++;
-
-        // Random delay between lines (faster for output, slower for commands)
-        var delay = cmd.type === 'cmd' ? 3000 + Math.random() * 2000 : 800 + Math.random() * 1200;
-        setTimeout(addLine, delay);
     }
 
-    // Start after a short delay
-    setTimeout(addLine, 2000);
-}
+    function fetchRealData() {
+        fetch('/api/live-feed')
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                if (data.events && data.events.length > 0) {
+                    // Show a command first
+                    var cmd = staticCommands[commandIndex % staticCommands.length];
+                    addLine('cmd', cmd.text);
+                    commandIndex++;
 
+                    // Then show 2-3 real events
+                    var eventsToShow = data.events.slice(0, 3);
+                    var delay = 800;
+
+                    eventsToShow.forEach(function(event, i) {
+                        setTimeout(function() {
+                            addLine(event.type, '[' + event.time + '] ' + event.text);
+                        }, delay * (i + 1));
+                    });
+                }
+            })
+            .catch(function() {
+                addLine('warn', 'Connection timeout. Retrying...');
+            });
+    }
+
+    // Initial commands
+    addLine('cmd', 'cybernews --security-monitor --start');
+    addLine('success', 'Security monitor initialized');
+    addLine('info', 'Connecting to live feed...');
+
+    // Fetch real data every 15 seconds
+    setTimeout(fetchRealData, 3000);
+    setInterval(fetchRealData, 15000);
+}
 
 /* ═══════════════════════════════════════════════════════
    SCROLL REVEAL — Fade in elements as they scroll into view
