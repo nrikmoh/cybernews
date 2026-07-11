@@ -6,36 +6,74 @@
 {% block content %}
 
 <!-- ═══════════════════════════════════
-     HERO — FEATURED STORY
+     FEATURED STORY — Premium Card
 ═══════════════════════════════════ -->
-<section class="hero">
-    <div class="hero-bg" style="background-image: url('{{ featured.image }}')"></div>
-    <div class="hero-overlay"></div>
-    <div class="container hero-content">
+{% if featured %}
+<section class="featured-section">
+    <div class="container">
+        <div class="featured-card">
 
-        <div class="hero-badge">
-            <span class="badge badge-{{ featured.category | lower | replace(' ', '-') }}">
-                <i class="fas fa-star"></i> FEATURED STORY
-            </span>
-            <span class="hero-source">
-                <i class="fas fa-newspaper"></i> {{ featured.source }}
-            </span>
+            <!-- Image Side -->
+            <div class="featured-image">
+                <img src="{{ featured.image }}"
+                     alt="{{ featured.title }}"
+                     onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/fallback/cyber-default.jpg') }}';">
+                <div class="featured-image-overlay"></div>
+                <span class="featured-label">
+                    <i class="fas fa-bolt"></i> FEATURED
+                </span>
+            </div>
+
+            <!-- Content Side -->
+            <div class="featured-content">
+
+                <div class="featured-top-row">
+                    <span class="badge badge-{{ featured.category | lower | replace(' ', '-') }}">
+                        {{ featured.category }}
+                    </span>
+                    <span class="featured-source">
+                        <i class="fas fa-newspaper"></i>
+                        {{ featured.source }}
+                    </span>
+                </div>
+
+                <h2 class="featured-title">
+                    <a href="/article/{{ featured.id }}">
+                        {{ featured.title }}
+                    </a>
+                </h2>
+
+                <p class="featured-summary">
+                    {{ featured.summary }}
+                </p>
+
+                <div class="featured-meta">
+                    <span>
+                        <i class="fas fa-calendar"></i>
+                        {{ featured.formatted_date }}
+                    </span>
+                    <span>
+                        <i class="fas fa-clock"></i>
+                        {{ featured.read_time }}
+                    </span>
+                    <span>
+                        <i class="fas fa-tag"></i>
+                        {{ featured.category }}
+                    </span>
+                </div>
+
+                <a href="/article/{{ featured.id }}" class="featured-btn">
+                    Read Full Story
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+
+            </div>
+
         </div>
-
-        <h1 class="hero-title">{{ featured.title }}</h1>
-        <p class="hero-summary">{{ featured.summary }}</p>
-
-        <div class="hero-meta">
-            <span><i class="fas fa-calendar"></i> {{ featured.date }}</span>
-            <span><i class="fas fa-tag"></i> {{ featured.category }}</span>
-        </div>
-
-        <a href="/article/{{ featured.id }}" class="hero-btn">
-            Read Full Story <i class="fas fa-arrow-right"></i>
-        </a>
-
     </div>
 </section>
+{% endif %}
+
 
 <!-- ═══════════════════════════════════
      STATS BAR

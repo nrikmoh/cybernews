@@ -16,6 +16,8 @@ from datetime           import datetime
 import logging
 import os
 
+# SECRET_KEY loaded from os.environ via config.py — DEBUG = False in ProductionConfig
+
 # ── Extension instances ────────────────────────────────
 bcrypt        = Bcrypt()
 login_manager = LoginManager()
