@@ -116,7 +116,7 @@
                 <!-- Manual RSS fetch button -->
                 <form method="POST"
                       action="{{ url_for('admin.fetch_news') }}">
-                    {{ csrf_token_form() }}
+                    {{ csrf_token_form() | safe }}
                     <button type="submit" class="btn-primary-sm"
                             onclick="this.textContent='Fetching...'">
                         <i class="fas fa-rss"></i> Fetch News
