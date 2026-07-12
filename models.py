@@ -461,3 +461,22 @@ class PageView(db.Model):
         return db.session.query(
             db.func.count(db.distinct(cls.ip_address))
         ).scalar()
+
+# ═══════════════════════════════════════════════════════
+# CONTACT MESSAGE
+# Stores messages from the contact form
+# ═══════════════════════════════════════════════════════
+class ContactMessage(db.Model):
+    __tablename__ = 'contact_messages'
+
+    id         = db.Column(db.Integer,     primary_key=True)
+    name       = db.Column(db.String(100), nullable=False)
+    email      = db.Column(db.String(120), nullable=False)
+    subject    = db.Column(db.String(200), nullable=False)
+    message    = db.Column(db.Text,        nullable=False)
+    ip_address = db.Column(db.String(45),  nullable=True)
+    read       = db.Column(db.Boolean,     default=False)
+    created_at = db.Column(db.DateTime,    default=datetime.utcnow)
+
+    def __repr__(self):
+        return f'<Message from {self.name}: {self.subject[:30]}>'

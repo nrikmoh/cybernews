@@ -9,7 +9,7 @@ from flask import (
     abort,
 )
 from flask_login import login_required, current_user
-from models      import db, Article, Category, Newsletter
+from models      import db, Article, Category, Newsletter, ContactMessage
 from forms       import ArticleForm, DeleteForm
 from datetime    import datetime
 from security import log_admin_action, sanitize_string, admin_required
@@ -530,3 +530,41 @@ def analytics_export():
             'Content-Disposition': 'attachment; filename=cybernews_analytics.csv'
         }
     )
+@admin_bp.route('/messages')
+@login_required
+def messages():
+    """View contact form messages."""
+    msgs = ContactMessage.query.order_by(
+        ContactMessage.created_at.desc()
+    ).all()
+
+    # Count unread
+    unread = ContactMessage.query.filter_by(read=False).count()
+
+    return render_template(
+        'admin/messages.html',
+        messages=msgs,
+        unread=unread,
+    )
+
+
+@admin_bp.route('/messages/<int:msg_id>/read', methods=['POST'])
+@login_required
+def message_read(msg_id):
+    """Mark a message as read."""
+    msg = db.get_or_404(ContactMessage, msg_id)
+    msg.read = True
+    db.session.commit()
+    flash('Message marked as read.', 'success')
+    return redirect(url_for('admin.messages'))
+
+
+@admin_bp.route('/messages/<int:msg_id>/delete', methods=['POST'])
+@login_required
+def message_delete(msg_id):
+    """Delete a message."""
+    msg = db.get_or_404(ContactMessage, msg_id)
+    db.session.delete(msg)
+    db.session.commit()
+    flash('Message deleted.', 'warning')
+    return redirect(url_for('admin.messages'))

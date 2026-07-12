@@ -4,7 +4,7 @@ from flask import (
     redirect, url_for, Response,
     send_from_directory,
 )
-from models import db, Article, Newsletter, PageView, LoginLog
+from models import db, Article, Newsletter, PageView, LoginLog, ContactMessage
 from datetime import datetime, timedelta
 
 main_bp = Blueprint('main', __name__)
@@ -466,9 +466,57 @@ def terms():
     return render_template('terms.html')
 
 
-@main_bp.route('/contact')
+@main_bp.route('/contact', methods=['GET', 'POST'])
 def contact():
-    return render_template('contact.html')
+    """Contact page with message form."""
+    success = False
+    error = None
+
+    if request.method == 'POST':
+        name    = request.form.get('name', '').strip()
+        email   = request.form.get('email', '').strip()
+        subject = request.form.get('subject', '').strip()
+        message = request.form.get('message', '').strip()
+
+        # Honeypot check
+        if request.form.get('website', ''):
+            # Bot detected — pretend success
+            success = True
+            return render_template('contact.html', success=True)
+
+        # Validation
+        if not name or len(name) < 2:
+            error = 'Please enter your name.'
+        elif not email or '@' not in email or '.' not in email:
+            error = 'Please enter a valid email address.'
+        elif not subject or len(subject) < 3:
+            error = 'Please enter a subject.'
+        elif not message or len(message) < 10:
+            error = 'Message must be at least 10 characters.'
+        elif len(message) > 5000:
+            error = 'Message is too long (max 5000 characters).'
+        else:
+            try:
+                # Save to database
+                msg = ContactMessage(
+                    name       = name[:100],
+                    email      = email[:120],
+                    subject    = subject[:200],
+                    message    = message[:5000],
+                    ip_address = get_client_ip(),
+                )
+                db.session.add(msg)
+                db.session.commit()
+                success = True
+            except Exception:
+                db.session.rollback()
+                error = 'Something went wrong. Please try again.'
+
+    return render_template(
+        'contact.html',
+        success=success,
+        error=error,
+    )
 
 @main_bp.route('/api/subscribe', methods=['POST'])
 def api_subscribe():

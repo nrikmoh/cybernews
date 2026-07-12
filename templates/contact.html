@@ -14,52 +14,136 @@
     <div class="container">
         <div class="contact-grid">
 
-            <!-- Contact Info -->
-            <div class="contact-info">
+            <!-- Contact Form -->
+            <div class="contact-form-section">
 
-                <div class="contact-card">
-                    <div class="contact-card-icon">
-                        <i class="fab fa-github"></i>
+                {% if success %}
+                <!-- Success Message -->
+                <div class="contact-success">
+                    <div class="contact-success-icon">
+                        <i class="fas fa-check-circle"></i>
                     </div>
-                    <h3>GitHub</h3>
-                    <p>Check out the source code and report issues</p>
-                    <a href="https://github.com/nrikmoh" target="_blank"
-                       class="contact-link">
-                        github.com/nrikmoh
-                        <i class="fas fa-arrow-up-right-from-square"></i>
+                    <h2>Message Sent!</h2>
+                    <p>Thank you for reaching out. We'll get back to you as soon as possible.</p>
+                    <a href="{{ url_for('main.home') }}" class="featured-btn">
+                        <i class="fas fa-house"></i>
+                        Back to Home
                     </a>
                 </div>
 
-                <div class="contact-card">
-                    <div class="contact-card-icon">
-                        <i class="fas fa-shield-halved"></i>
-                    </div>
-                    <h3>Security Issues</h3>
-                    <p>Found a vulnerability? Please report it responsibly</p>
-                    <a href="https://github.com/nrikmoh/cybernews/issues" target="_blank"
-                       class="contact-link">
-                        Report on GitHub
-                        <i class="fas fa-arrow-up-right-from-square"></i>
-                    </a>
-                </div>
+                {% else %}
+                <!-- Contact Form -->
+                <div class="contact-form-card">
+                    <h2>
+                        <i class="fas fa-paper-plane"></i>
+                        Send a Message
+                    </h2>
+                    <p class="contact-form-desc">
+                        Have a question, feedback, or found a security issue?
+                        We'd love to hear from you.
+                    </p>
 
-                <div class="contact-card">
-                    <div class="contact-card-icon">
-                        <i class="fas fa-newspaper"></i>
+                    {% if error %}
+                    <div class="contact-error">
+                        <i class="fas fa-exclamation-circle"></i>
+                        {{ error }}
                     </div>
-                    <h3>Newsletter</h3>
-                    <p>Subscribe to get cybersecurity news in your inbox</p>
-                    <a href="{{ url_for('main.home') }}#newsletter"
-                       class="contact-link">
-                        Subscribe Now
-                        <i class="fas fa-arrow-right"></i>
-                    </a>
+                    {% endif %}
+
+                    <form method="POST"
+                          action="{{ url_for('main.contact') }}"
+                          novalidate>
+
+                        <!-- CSRF Token -->
+                        <input type="hidden"
+                               name="csrf_token"
+                               value="{{ csrf_token() }}">
+
+                        <!-- Honeypot (hidden from real users) -->
+                        <div style="position:absolute; left:-9999px; opacity:0;">
+                            <input type="text"
+                                   name="website"
+                                   tabindex="-1"
+                                   autocomplete="off">
+                        </div>
+
+                        <!-- Name -->
+                        <div class="contact-field">
+                            <label for="name">
+                                <i class="fas fa-user"></i>
+                                Your Name
+                            </label>
+                            <input type="text"
+                                   id="name"
+                                   name="name"
+                                   placeholder="e.g. John Smith"
+                                   value="{{ request.form.get('name', '') }}"
+                                   required
+                                   maxlength="100">
+                        </div>
+
+                        <!-- Email -->
+                        <div class="contact-field">
+                            <label for="email">
+                                <i class="fas fa-envelope"></i>
+                                Email Address
+                            </label>
+                            <input type="email"
+                                   id="email"
+                                   name="email"
+                                   placeholder="your@email.com"
+                                   value="{{ request.form.get('email', '') }}"
+                                   required
+                                   maxlength="120">
+                        </div>
+
+                        <!-- Subject -->
+                        <div class="contact-field">
+                            <label for="subject">
+                                <i class="fas fa-heading"></i>
+                                Subject
+                            </label>
+                            <input type="text"
+                                   id="subject"
+                                   name="subject"
+                                   placeholder="What is this about?"
+                                   value="{{ request.form.get('subject', '') }}"
+                                   required
+                                   maxlength="200">
+                        </div>
+
+                        <!-- Message -->
+                        <div class="contact-field">
+                            <label for="message">
+                                <i class="fas fa-message"></i>
+                                Message
+                            </label>
+                            <textarea id="message"
+                                      name="message"
+                                      placeholder="Write your message here..."
+                                      rows="6"
+                                      required
+                                      maxlength="5000">{{ request.form.get('message', '') }}</textarea>
+                            <span class="contact-field-hint">
+                                <span id="char-count">0</span> / 5000 characters
+                            </span>
+                        </div>
+
+                        <!-- Submit -->
+                        <button type="submit" class="contact-submit-btn">
+                            <i class="fas fa-paper-plane"></i>
+                            Send Message
+                        </button>
+
+                    </form>
                 </div>
+                {% endif %}
 
             </div>
 
-            <!-- About Section -->
-            <div class="contact-about">
+            <!-- Contact Info Sidebar -->
+            <div class="contact-sidebar">
+
                 <div class="contact-about-card">
                     <div class="contact-avatar">
                         <span>M</span>
@@ -70,9 +154,8 @@
                         Germany
                     </p>
                     <p class="contact-bio">
-                        CyberNews was built from scratch as a two-week
-                        learning project. Every line of code was written
-                        by hand — HTML, CSS, JavaScript, Python, and SQL.
+                        CyberNews was built from scratch as a
+                        two-week learning project.
                     </p>
                     <div class="contact-links">
                         <a href="https://github.com/nrikmoh" target="_blank"
@@ -81,10 +164,44 @@
                         </a>
                     </div>
                 </div>
+
+                <div class="contact-info-card">
+                    <h3><i class="fas fa-shield-halved"></i> Security Issues</h3>
+                    <p>Found a vulnerability? Please report it responsibly.</p>
+                    <a href="https://github.com/nrikmoh/cybernews/issues"
+                       target="_blank" class="contact-link">
+                        Report on GitHub
+                        <i class="fas fa-arrow-up-right-from-square"></i>
+                    </a>
+                </div>
+
+                <div class="contact-info-card">
+                    <h3><i class="fas fa-newspaper"></i> Newsletter</h3>
+                    <p>Get cybersecurity news delivered to your inbox.</p>
+                    <a href="{{ url_for('main.home') }}"
+                       class="contact-link">
+                        Subscribe Now
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+
             </div>
 
         </div>
     </div>
 </section>
+
+<!-- Character counter -->
+<script>
+var textarea = document.getElementById('message');
+var counter  = document.getElementById('char-count');
+if (textarea && counter) {
+    function updateCount() {
+        counter.textContent = textarea.value.length;
+    }
+    textarea.addEventListener('input', updateCount);
+    updateCount();
+}
+</script>
 
 {% endblock %}

@@ -298,6 +298,12 @@ def create_app(config_name=None):
             total_views     = 0
             unique_visitors = 0
 
+        try:
+            from models import ContactMessage
+            unread_messages = ContactMessage.query.filter_by(read=False).count()
+        except Exception:
+            unread_messages = 0
+
         return {
             'app_name':        app.config['APP_NAME'],
             'app_tagline':     app.config['APP_TAGLINE'],
@@ -306,8 +312,10 @@ def create_app(config_name=None):
             'current_user':    current_user,
             'total_views':     total_views,
             'unique_visitors': unique_visitors,
+            'unread_messages': unread_messages,
             'all_articles':    recent,
         }
+
 
 
     # ═══════════════════════════════════════════════════

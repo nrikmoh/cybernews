@@ -1,0 +1,130 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Messages{% endblock %}
+
+{% block page_title %}
+<h1 class="admin-page-title">
+    <i class="fas fa-envelope"></i>
+    Messages
+    {% if unread > 0 %}
+    <span style="background:var(--cat-malware); color:white;
+                 font-size:0.75rem; padding:0.2rem 0.6rem;
+                 border-radius:999px; margin-left:0.5rem;">
+        {{ unread }} new
+    </span>
+    {% endif %}
+</h1>
+{% endblock %}
+
+{% block content %}
+
+{% if messages %}
+<div class="admin-card">
+    <table class="admin-table admin-table-full">
+        <thead>
+            <tr>
+                <th>Status</th>
+                <th>From</th>
+                <th>Subject</th>
+                <th>Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for msg in messages %}
+            <tr style="{% if not msg.read %}background:rgba(0,212,255,0.03);{% endif %}">
+                <td>
+                    {% if msg.read %}
+                    <span class="status-badge status-published">Read</span>
+                    {% else %}
+                    <span class="status-badge"
+                          style="background:rgba(0,212,255,0.15);
+                                 color:var(--primary);
+                                 border-color:rgba(0,212,255,0.3);">
+                        <i class="fas fa-circle" style="font-size:0.5rem;"></i>
+                        New
+                    </span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div style="font-weight:600; font-size:0.88rem;">
+                        {{ msg.name }}
+                    </div>
+                    <div style="font-size:0.75rem; color:var(--text-muted);">
+                        {{ msg.email }}
+                    </div>
+                </td>
+                <td>
+                    <div style="font-weight:{% if not msg.read %}700{% else %}400{% endif %};
+                                font-size:0.88rem; margin-bottom:0.2rem;">
+                        {{ msg.subject }}
+                    </div>
+                    <div style="font-size:0.78rem; color:var(--text-muted);
+                                max-width:300px; overflow:hidden;
+                                text-overflow:ellipsis; white-space:nowrap;">
+                        {{ msg.message[:100] }}
+                    </div>
+                </td>
+                <td style="font-size:0.78rem; color:var(--text-muted); white-space:nowrap;">
+                    {{ msg.created_at.strftime('%b %d, %H:%M') }}
+                    <div style="font-size:0.7rem; font-family:var(--font-mono);">
+                        {{ msg.ip_address or '' }}
+                    </div>
+                </td>
+                <td>
+                    <div style="display:flex; gap:0.3rem;">
+                        {% if not msg.read %}
+                        <form method="POST"
+                              action="{{ url_for('admin.message_read', msg_id=msg.id) }}"
+                              style="display:inline;">
+                            {{ csrf_token_form() }}
+                            <button type="submit"
+                                    class="action-btn-icon"
+                                    title="Mark as read">
+                                <i class="fas fa-check"></i>
+                            </button>
+                        </form>
+                        {% endif %}
+                        <form method="POST"
+                              action="{{ url_for('admin.message_delete', msg_id=msg.id) }}"
+                              style="display:inline;">
+                            {{ csrf_token_form() }}
+                            <button type="submit"
+                                    class="action-btn-icon action-delete"
+                                    title="Delete"
+                                    onclick="return confirm('Delete this message?')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+
+            <!-- Expandable message body -->
+            <tr>
+                <td colspan="5"
+                    style="padding:0 1.5rem 1rem; border-bottom:2px solid var(--bg-border);">
+                    <div style="background:var(--bg-elevated);
+                                border-radius:var(--radius);
+                                padding:1rem;
+                                font-size:0.88rem;
+                                color:var(--text-muted);
+                                line-height:1.7;
+                                white-space:pre-wrap;">{{ msg.message }}</div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% else %}
+<div class="admin-card">
+    <div class="empty-state">
+        <i class="fas fa-envelope-open"></i>
+        <p>No messages yet.</p>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}
